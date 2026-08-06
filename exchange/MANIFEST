@@ -2,7 +2,7 @@
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"name": "ACME Alarm Demo",
 	"ignition-version": "8.3.8",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"modules": [
 		{"name": "com.inductiveautomation.perspective"},
 		{"name": "com.inductiveautomation.alarm-notification"},

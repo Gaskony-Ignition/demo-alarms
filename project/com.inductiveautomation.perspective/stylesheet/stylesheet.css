@@ -11,6 +11,14 @@
    accompanied by the priority word, so nothing is carried by colour alone.
    ========================================================================== */
 
+/* Chrome's "auto dark mode for web contents" repaints pages that do not say
+   whether they handle dark themselves, and it reaches SVG fills even on a page
+   it otherwise leaves alone - which is a chart background turning white in one
+   browser while the Designer, and every other browser, render it correctly.
+   Declaring color-scheme is the documented way to opt out; it also stops the
+   browser restyling scrollbars and form controls against this palette. */
+:root { color-scheme: dark; }
+
 /* On :root, not on a view class - embedded widget views (Tank, Pump, Stat)
    are separate view roots and would not inherit variables scoped to the
    parent view's class. */

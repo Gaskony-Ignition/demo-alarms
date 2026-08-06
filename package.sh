@@ -35,6 +35,18 @@ VERSION="$(python3 -c '
 import json, sys
 print(json.load(open(sys.argv[1]))["version"])' "$HERE/exchange/MANIFEST")"
 
+# The build number appears in three places - the MANIFEST, the scripts and the
+# Demo Control screen. The generator reads the MANIFEST, so the UI cannot drift;
+# the scripts carry their own copy for ?cmd=version and this is what stops that
+# one going stale. A version shown in the UI that is not the version in the
+# package is worse than no version at all.
+SCRIPT_VERSION="$(grep -oE '^VERSION = "[^"]+"' \
+  "$HERE/project/ignition/script-python/AlarmDemo/alarms/code.py" | cut -d'"' -f2)"
+if [[ "$SCRIPT_VERSION" != "$VERSION" ]]; then
+  echo "version drift: MANIFEST says $VERSION, AlarmDemo.alarms says $SCRIPT_VERSION" >&2
+  exit 1
+fi
+
 rm -rf "$DIST"
 mkdir -p "$STAGE/Projects" "$STAGE/Tags" "$STAGE/Gateway" "$STAGE/SQL"
 

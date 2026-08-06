@@ -11,6 +11,12 @@ Every query is scoped to a *site*. Two sites share one tag provider, so
 added together.
 """
 
+# The build number, reported by ?cmd=version and shown on Demo Control. It is
+# here because this module already owns the shared constants, and it exists
+# because "which build is this gateway running?" was not answerable from the
+# running demo - which turned one chart bug into four rounds of guessing.
+VERSION = "1.0.2"
+
 PROVIDER = "AlarmDemo"
 DB = "ignition"
 TABLE = "alarm_events"

@@ -173,6 +173,20 @@ things, and shaped for the binding that consumes them.
   anything outside the project or delete a file the repo still has. Gateway
   config directories are deliberately NOT pruned: `config/.../schedule` holds
   every schedule on the gateway, not just this demo's three.
+- **Chrome's "auto dark mode for web contents" repaints SVG fills on a page it
+  otherwise leaves alone.** This is what the white-plot hunt was actually
+  about, and it cost three releases chasing the chart. With that Chrome setting
+  on, the trend charts' background rendered white while the *same resources* in
+  the Designer, and in Chrome with the setting off, rendered correctly. Nothing
+  in the project, the gateway, the Ignition version or the Perspective theme
+  differed - it was a browser feature repainting the page after everything else
+  had done its job, which is why every server-side probe came back clean.
+  `:root { color-scheme: dark }` is the documented opt-out and is now in the
+  stylesheet. **It cannot be reproduced headless** - Chromium ignores
+  `--force-dark-mode` and `--enable-features=WebContentsForceDark` in headless
+  mode, so a screenshot harness will never see it. The lesson: when the DOM,
+  the props and the served CSS all say the page is correct and a human still
+  sees it wrong, suspect the client, not the page.
 - **A chart background of `opacity: 0` is not transparent - it is undefined,
   and the prop alone will not fix it.** The XY charts set
   `background: {"opacity": 0, "render": "color"}` and no colour, on the

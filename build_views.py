@@ -20,12 +20,20 @@ Views produced:
     DemoControl         scenario buttons
 """
 
+import io
 import json
 import os
 import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = os.path.join(HERE, "project", "com.inductiveautomation.perspective", "views")
+
+# ONE source for the build number: the package MANIFEST. The scripts carry it
+# too (AlarmDemo.alarms.VERSION) and package.sh fails the build if the two ever
+# disagree - a version shown in the UI that is not the version in the package is
+# worse than no version at all.
+with io.open(os.path.join(HERE, "exchange", "MANIFEST"), encoding="utf-8") as _f:
+    VERSION = json.load(_f)["version"]
 
 PROV = "[AlarmDemo]"
 
@@ -2625,6 +2633,14 @@ def v_people():
                  "The three shifts cover the clock between them. The marker is "
                  "now."),
             flex("Sp", [], position=grow(1)),
+            # The build number, on screen. "Which build is this gateway
+            # running?" was not answerable from the running demo, and a chart
+            # bug that was actually a browser setting cost four rounds of
+            # guessing partly because of it.
+            label("Build", "ACME Alarm Demo  v%s" % VERSION,
+                  classes="ad-faint", position=fixed("14px"),
+                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                         "textAlign": "right"}),
         ], direction="column", gap=12, classes="ad-body",
             style={"padding": "0 12px 12px 12px"}, position=grow(1)),
     ], direction="column", gap=12,
@@ -2802,6 +2818,14 @@ def v_democontrol():
                  "seven users, the on-call rosters and 30 days of history. "
                  "Safe to press twice - it only creates what is missing."),
             flex("Sp", [], position=grow(1)),
+            # The build number, on screen. "Which build is this gateway
+            # running?" was not answerable from the running demo, and a chart
+            # bug that was actually a browser setting cost four rounds of
+            # guessing partly because of it.
+            label("Build", "ACME Alarm Demo  v%s" % VERSION,
+                  classes="ad-faint", position=fixed("14px"),
+                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                         "textAlign": "right"}),
         ], direction="column", gap=12, classes="ad-body",
             style={"padding": "0 12px 12px 12px"}, position=grow(1)),
     ], direction="column", gap=12,

@@ -1,4 +1,4 @@
-# ACME Alarm Demo - Version 1.0.1
+# ACME Alarm Demo - Version 1.0.2
 
 A self-contained Ignition 8.3 demonstration of **creating, visualising, routing
 and analysing alarms**, across two switchable simulated sites:
@@ -236,6 +236,14 @@ fastest way to confirm a gateway config scan actually took.
 + A SQL database connection (PostgreSQL as shipped)
 
 ## Release Notes
+
+1.0.2 - Declares `color-scheme: dark`, so Chrome's "auto dark mode for web
+contents" leaves the page alone. With that setting on, Chrome repaints SVG fills
+even on a page it otherwise renders correctly, which turned the trend charts'
+background white in Chrome while the Designer and every other browser were fine.
+Also puts the build number on the Demo Control screen and behind
+`?cmd=version`, so which build a gateway is running is a thing you can read
+rather than infer.
 
 1.0.1 - Fixes the alarm-rate and 30-day trend charts rendering with a white
 plot area on some gateways. The charts left their background colour unset, so

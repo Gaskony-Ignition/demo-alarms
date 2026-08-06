@@ -43,7 +43,7 @@ point is to demonstrate what Ignition does.
 
 ## Install
 
-Download `acme_alarm_demo.1.0.1.zip` from the
+Download `acme_alarm_demo.1.0.2.zip` from the
 [latest release](https://github.com/Gaskony-Ignition/ignition-alarm-demo/releases/latest)
 and unzip it.
 

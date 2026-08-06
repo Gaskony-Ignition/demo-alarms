@@ -4991,6 +4991,26 @@
               "grow": 1,
               "shrink": 1
             }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Build"
+            },
+            "props": {
+              "text": "ACME Alarm Demo  v1.0.2",
+              "style": {
+                "fontSize": "10.5px",
+                "letterSpacing": "0.06em",
+                "textAlign": "right",
+                "classes": "ad-faint"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "14px"
+            }
           }
         ],
         "position": {

@@ -18,6 +18,7 @@ def doGet(request, session):
 	                                profile - the one check that tells a
 	                                missing profile apart from an empty one
 	    ?cmd=ackall                 acknowledge everything
+	    ?cmd=version                which build this gateway is running
 
 	`status` reports the water plant's tags; the alarm counts in it cover
 	whichever site is selected.
@@ -56,6 +57,11 @@ def doGet(request, session):
 		if cmd == 'scenario':
 			name = AlarmDemo.demo.setScenario(params.get('name', 'None'))
 			return {'json': {'ok': True, 'scenario': name}}
+
+		if cmd == 'version':
+			return {'json': {'ok': True,
+			                 'version': AlarmDemo.alarms.VERSION,
+			                 'project': system.util.getProjectName()}}
 
 		if cmd == 'reset':
 			AlarmDemo.demo.reset()
