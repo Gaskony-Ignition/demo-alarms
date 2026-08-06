@@ -87,6 +87,12 @@ journal profile, the journal tables, the rosters, the schedules and the users
 separately. A fresh install goes wrong in several ways that all look like the
 same blank screen; this is what tells them apart.
 
+The **build number** is at the bottom of the Demo Control screen, and at
+`/system/webdev/AlarmDemo/admin?cmd=version`. Worth knowing after an upgrade:
+a project import that merges rather than overwrites can leave old resources in
+place, and this is how you tell rather than guess. Hard-refresh the browser
+(`Ctrl+Shift+R`) after upgrading — the stylesheet is cached.
+
 ## Running it
 
 Open **Overview** and drive it from **Demo Control**:
