@@ -173,6 +173,18 @@ things, and shaped for the binding that consumes them.
   anything outside the project or delete a file the repo still has. Gateway
   config directories are deliberately NOT pruned: `config/.../schedule` holds
   every schedule on the gateway, not just this demo's three.
+- **A chart background of `opacity: 0` is not transparent - it is undefined.**
+  The XY charts set `background: {"opacity": 0, "render": "color"}` and no
+  colour, on the assumption that opacity zero made the colour moot. It does not:
+  the component paints a background layer underneath whose colour comes from its
+  own default, which is BLACK on 8.3.8 and WHITE on a newer gateway. The demo
+  therefore looked right on the gateway it was built on and, on a colleague's
+  fresh import, rendered the alarm-rate trend as one glaring white slab on an
+  otherwise dark page - the only component on any screen whose colour we had not
+  stated. `CHART_BG` now names the card colour explicitly and every XY chart
+  uses it. Confirmed by setting it to magenta and watching that exact layer
+  change. `ia.chart.pie` has no such prop and paints nothing, so the donut was
+  never affected.
 - **A trailing space in a label is not rendered.** The page header is two labels
   side by side - site name, then page title - and the site half appended
   `"  -  "` as its separator. HTML collapses whitespace at the end of a text

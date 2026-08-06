@@ -3457,7 +3457,8 @@
                     },
                     "props": {
                       "background": {
-                        "opacity": 0,
+                        "color": "#161B22",
+                        "opacity": 1,
                         "render": "color"
                       },
                       "dataSources": {},

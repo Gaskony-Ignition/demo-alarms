@@ -1527,6 +1527,17 @@ def kpi_tile(name, title, expr, unit="", color_expr=None):
 # Shared chart chrome. Axes are identified by `name` and typed by `render`;
 # the series points at them by name. Spelling either as `type` leaves the chart
 # blank and white with no error anywhere.
+# The card colour, repeated from the stylesheet's --card because a chart
+# background is an SVG fill and cannot read a CSS variable.
+#
+# Every chart states this EXPLICITLY rather than setting opacity 0 and letting
+# whatever is underneath show through. Left as a default, the layer is painted
+# by the component's own default - which is black on 8.3.8 and WHITE on a newer
+# gateway, so an untouched import rendered one glaring white slab on an
+# otherwise dark page. An unset colour is not "transparent", it is "someone
+# else's choice".
+CHART_BG = {"color": "#161B22", "opacity": 1, "render": "color"}
+
 AXIS_LOOK = {
     "font": {"size": 11, "weight": 500},
     "grid": {"color": "#6D7486", "dashArray": "", "opacity": 0.18,
@@ -1546,7 +1557,7 @@ def day_trend(name, source_prop, y_field, colour, label_text, y_label=None):
     reader should be making.
     """
     return C("ia.chart.xy", name, {
-        "background": {"opacity": 0, "render": "color"},
+        "background": CHART_BG,
         "dataSources": {},
         "legend": {"enabled": False},
         "series": [{
@@ -1649,7 +1660,7 @@ def v_analytics():
     # --- alarm rate: a real time series, where a chart genuinely beats a list.
     axis_look = AXIS_LOOK
     rate = C("ia.chart.xy", "Rate", {
-        "background": {"opacity": 0, "render": "color"},
+        "background": CHART_BG,
         "dataSources": {},
         "legend": {"enabled": False},
         "series": [{
