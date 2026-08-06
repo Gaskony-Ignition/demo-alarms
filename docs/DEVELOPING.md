@@ -173,18 +173,32 @@ things, and shaped for the binding that consumes them.
   anything outside the project or delete a file the repo still has. Gateway
   config directories are deliberately NOT pruned: `config/.../schedule` holds
   every schedule on the gateway, not just this demo's three.
-- **A chart background of `opacity: 0` is not transparent - it is undefined.**
-  The XY charts set `background: {"opacity": 0, "render": "color"}` and no
-  colour, on the assumption that opacity zero made the colour moot. It does not:
-  the component paints a background layer underneath whose colour comes from its
-  own default, which is BLACK on 8.3.8 and WHITE on a newer gateway. The demo
-  therefore looked right on the gateway it was built on and, on a colleague's
-  fresh import, rendered the alarm-rate trend as one glaring white slab on an
-  otherwise dark page - the only component on any screen whose colour we had not
-  stated. `CHART_BG` now names the card colour explicitly and every XY chart
-  uses it. Confirmed by setting it to magenta and watching that exact layer
-  change. `ia.chart.pie` has no such prop and paints nothing, so the donut was
-  never affected.
+- **A chart background of `opacity: 0` is not transparent - it is undefined,
+  and the prop alone will not fix it.** The XY charts set
+  `background: {"opacity": 0, "render": "color"}` and no colour, on the
+  assumption that opacity zero made the colour moot. It does not: the component
+  paints a background layer whose colour comes from its own default, which is
+  BLACK on 8.3.8 and WHITE on a newer gateway. The demo looked right on the
+  gateway it was built on and rendered its trends as white slabs on a
+  colleague's.
+
+  Setting `background` to the card colour fixed it here and **did not fix it
+  there** - the three charts carried byte-identical JSON and still rendered
+  differently on the two gateways, so which SVG layer that prop reaches, or
+  whether it is honoured, is version-dependent. The part that holds is the
+  `ad-xy-chart` CSS rule, because `fill` in a stylesheet beats the presentation
+  attribute the chart writes on any version. Both are kept: the prop is correct
+  and self-documenting, the CSS is what makes it true everywhere.
+
+  Blanket `svg rect` is safe for these charts *only* because their series are
+  lines - every rect they draw is chrome, bullets are circles, grid lines are
+  lines, and the tooltip is an HTML div containing no rect. Adding a column
+  series to one of these charts would break that. `ia.chart.pie` has no
+  background prop and paints no such layer, so the donut was never affected.
+
+  The general lesson is the one worth keeping: **a default is not a value.**
+  Anything left unstated is a promise that every gateway agrees with the one on
+  your desk, and this is the second time that promise has been broken here.
 - **A trailing space in a label is not rendered.** The page header is two labels
   side by side - site name, then page title - and the site half appended
   `"  -  "` as its separator. HTML collapses whitespace at the end of a text

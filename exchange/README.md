@@ -1,4 +1,4 @@
-# ACME Alarm Demo - Version 1.0.0
+# ACME Alarm Demo - Version 1.0.1
 
 A self-contained Ignition 8.3 demonstration of **creating, visualising, routing
 and analysing alarms**, across two switchable simulated sites:
@@ -236,6 +236,12 @@ fastest way to confirm a gateway config scan actually took.
 + A SQL database connection (PostgreSQL as shipped)
 
 ## Release Notes
+
+1.0.1 - Fixes the alarm-rate and 30-day trend charts rendering with a white
+plot area on some gateways. The charts left their background colour unset, so
+each gateway supplied its own default - black on 8.3.8, white on newer builds -
+and the demo looked correct only on the gateway it was built on. The colour is
+now stated in both the component and the stylesheet.
 
 1.0.0 - Initial release.
 

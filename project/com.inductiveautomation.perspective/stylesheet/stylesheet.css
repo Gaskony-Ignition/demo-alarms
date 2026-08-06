@@ -310,6 +310,26 @@
   font-size: 12.5px;
 }
 
+/* The XY charts paint a background layer of their own, and its colour is the
+   component's default unless stated: BLACK on 8.3.8 and WHITE on a newer
+   gateway. Three charts carrying identical JSON therefore rendered dark on the
+   gateway this was built on and as white slabs on a colleague's, which is the
+   worst kind of difference - invisible until someone else opens it.
+
+   The `background` prop is set as well, but which layer it reaches varies by
+   version, so this is the part that has to hold. CSS `fill` beats the SVG
+   presentation attribute the chart writes, on every version.
+
+   Blanket `rect` is safe HERE and only here: these series are lines, so every
+   rect the chart draws is chrome - outer background, plot container, plot area.
+   Bullets are circles, grid lines are lines, labels are text, and the tooltip
+   is an HTML div with no rect in it. A column series would break that
+   assumption, so anything added to these charts needs re-checking. */
+.psc-ad-xy-chart svg rect {
+  fill: var(--card) !important;
+  fill-opacity: 1 !important;
+}
+
 /* ---------- tables ------------------------------------------------------
    A style class styles exactly ONE element, so `ad-table` on the component
    root does nothing for the header, cells, pager or the alarm toolbar the

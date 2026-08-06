@@ -1531,11 +1531,17 @@ def kpi_tile(name, title, expr, unit="", color_expr=None):
 # background is an SVG fill and cannot read a CSS variable.
 #
 # Every chart states this EXPLICITLY rather than setting opacity 0 and letting
-# whatever is underneath show through. Left as a default, the layer is painted
-# by the component's own default - which is black on 8.3.8 and WHITE on a newer
-# gateway, so an untouched import rendered one glaring white slab on an
-# otherwise dark page. An unset colour is not "transparent", it is "someone
-# else's choice".
+# whatever is underneath show through: an unset colour is not "transparent", it
+# is "someone else's choice", and the component's default is black on 8.3.8 and
+# white on a newer gateway.
+#
+# The prop is NOT sufficient on its own. Which SVG layer it reaches - and
+# whether it is honoured at all - varies by gateway version, which is how three
+# charts carrying identical JSON rendered dark on one gateway and white on
+# another. `ad-xy-chart` pairs it with a CSS rule that paints every rect these
+# charts draw, and CSS beats an SVG presentation attribute on any version. The
+# series are lines, so every rect in them is chrome; the tooltip is an HTML div
+# and is not touched.
 CHART_BG = {"color": "#161B22", "opacity": 1, "render": "color"}
 
 AXIS_LOOK = {
@@ -1558,6 +1564,7 @@ def day_trend(name, source_prop, y_field, colour, label_text, y_label=None):
     """
     return C("ia.chart.xy", name, {
         "background": CHART_BG,
+        "style": {"classes": "ad-xy-chart"},
         "dataSources": {},
         "legend": {"enabled": False},
         "series": [{
@@ -1661,6 +1668,7 @@ def v_analytics():
     axis_look = AXIS_LOOK
     rate = C("ia.chart.xy", "Rate", {
         "background": CHART_BG,
+        "style": {"classes": "ad-xy-chart"},
         "dataSources": {},
         "legend": {"enabled": False},
         "series": [{

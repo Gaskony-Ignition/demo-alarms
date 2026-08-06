@@ -3323,6 +3323,9 @@
                         "opacity": 1,
                         "render": "color"
                       },
+                      "style": {
+                        "classes": "ad-xy-chart"
+                      },
                       "dataSources": {},
                       "legend": {
                         "enabled": false
@@ -3516,6 +3519,9 @@
                         "color": "#161B22",
                         "opacity": 1,
                         "render": "color"
+                      },
+                      "style": {
+                        "classes": "ad-xy-chart"
                       },
                       "dataSources": {},
                       "legend": {
