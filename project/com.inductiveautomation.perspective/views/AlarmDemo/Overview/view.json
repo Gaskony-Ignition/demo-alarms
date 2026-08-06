@@ -74,7 +74,7 @@
                         "binding": {
                           "type": "expr",
                           "config": {
-                            "expression": "{session.custom.siteInfo.label} + \"  -  \""
+                            "expression": "{session.custom.siteInfo.label} + \"\u00a0\u00a0-\u00a0\u00a0\""
                           }
                         }
                       }

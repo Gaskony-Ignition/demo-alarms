@@ -781,8 +781,13 @@ def header():
                 label("Site", classes="ad-title ad-title-site",
                       position=fixed("auto"),
                       style={"whiteSpace": "nowrap"},
+                      # Non-breaking spaces around the dash. Ordinary spaces at
+                      # the end of a text node are collapsed away, and these two
+                      # labels are separate flex items - so "Plant  -  Overview"
+                      # rendered as "Plant -Overview".
                       binds={"props.text": expr_bind(
-                          "{session.custom.siteInfo.label} + \"  -  \"")}),
+                          u"{session.custom.siteInfo.label}"
+                          u" + \"  -  \"")}),
                 label("Title", classes="ad-title", position=grow(1),
                       style={"whiteSpace": "nowrap", "overflow": "hidden",
                              "textOverflow": "ellipsis"},

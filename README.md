@@ -1,222 +1,118 @@
-# Alarm Demo — working notes
+# ACME Alarm Demo
 
-Source for the **ACME Alarm Demo**, an Ignition 8.3 alarming demonstration
-shipped as an Ignition Exchange resource package.
+A self-contained Ignition 8.3 demonstration of **creating, visualising, routing
+and analysing alarms** — two simulated plants, 76 alarms, real on-call rosters
+and shift schedules, and 30 days of journal history, with no PLC, no OPC server
+and no external device.
 
-The user-facing documentation — what the demo is, how to install it, how to run
-it in front of an audience — is [`exchange/README.md`](exchange/README.md),
-which is copied verbatim into the package. **Change it there, not here.** This
-file covers building and working on it.
+A gateway timer script simulates both plants. Every alarm on screen has been
+through the real Ignition alarm pipeline: evaluation, deadband, time delay,
+priority, acknowledgement, journal, roster and schedule.
 
-> This folder is *not* part of the Toolbox suite that shares this repository.
-> It has no `toolbox-styles` parent, no `tb_` table prefixes and no shared
-> infrastructure, deliberately: it has to import onto a customer's gateway as
-> one self-contained project.
+**[Download the Exchange package →](https://github.com/Gaskony-Ignition/ignition-alarm-demo/releases/latest)**
 
 ---
 
-## Build
+### Overview — live plant mimic, scoped to the selected site
 
-```bash
-./deploy.sh              # stamp, ship and project-scan
-./deploy.sh --tags       # also re-ship the tag definitions  (config scan)
-./deploy.sh --gateway    # also re-ship schedules, rosters, tag provider,
-                         # alarm journal                     (config scan)
-./deploy.sh --all
-./package.sh             # build dist/acme_alarm_demo.<version>.zip
-```
+![Plant overview during the storm scenario](docs/images/overview.png)
 
-Target gateway is `ignition-maker` on the docker server, toolkit alias
-`testbed`. Everything else about it lives in the toolkit's credentials file.
+### Analytics — Pareto, alarm rate against EEMUA 191, priority mix
 
-**Project resources and gateway config resources are registered by two
-different scans**, behind two identically labelled *Scan File System* buttons.
-`deploy.sh` runs the right one for what it shipped; running the wrong one is
-silent.
+![Alarm analytics](docs/images/analytics.png)
 
-## Everything is generated
+### Notifications — who is actually being called, right now
 
-| Generator | Owns |
-| --------- | ---- |
-| `build_views.py` | all 20 Perspective views |
-| `tags/build_tags.py` | the 120-tag / 76-alarm tree, plus the Designer tag export |
-| `gateway/build_gateway.py` | the shift schedules and on-call rosters as config resources |
-| `stamp_resources.py` | every `resource.json` under `project/` |
+![Alarm notifications and on-call rosters](docs/images/notifications.png)
 
-Edit the generator, never the JSON. `stamp_resources.py` deliberately omits
-`lastModificationSignature` and stamps a fresh timestamp: a stale signature
-makes the gateway skip the resource during a scan, silently, which is
-indistinguishable from the scan not running.
+---
 
-## Gateway state, and what the project can create for itself
+## What is in it
 
-Anything not a project resource cannot travel in a project export, so
-`AlarmDemo.setup.run()` creates as much of it as scripting allows — journal
-tables, shift schedules, users, on-call rosters, history. It is idempotent and
-is wired to **Set up this gateway** on the Demo Control screen.
+| | |
+| --- | --- |
+| **Two switchable sites** | ACME Water Treatment Plant, and ACME Manufacturing — a beverage bottling line. Both run continuously, so the switch in the header is instant. |
+| **120 tags / 76 alarms** | across 9 process areas, all five priorities, six alarm modes. |
+| **12 demo scenarios** | storm, chlorine dose failure, pump trips, filter blinding, a chattering nuisance alarm, line jam, chiller failure, air loss, low CO₂, batch over-temperature. |
+| **~10,000 rows of journal history** | 30 days for both sites, with diurnal peaks, quiet weekends, bad actors and realistic acknowledgement behaviour. |
+| **Real gateway objects** | 7 users, 3 shift schedules, 3 on-call rosters — visible under Security → Users and Alarming → Rosters, not a table pretending to be them. |
+| **8 Perspective screens** | mimic, alarm status, journal, per-area metrics, analytics, notification routing, people and shifts, demo control. |
 
-Two things remain manual, because no API creates them: the `AlarmDemo` **tag
-provider** and the `AlarmDemo` **alarm journal profile**. Both ship as config
-resources under `gateway/` and are applied with a config scan.
+Alarm Status and Journal use **Ignition's own stock components**, because the
+point is to demonstrate what Ignition does.
 
-`AlarmDemo.setup.check()` reports what is missing without changing anything.
+## Install
 
-## What the backend is, and is not
+Download `acme_alarm_demo.1.0.0.zip` from the
+[latest release](https://github.com/Gaskony-Ignition/ignition-alarm-demo/releases/latest)
+and unzip it.
 
-Seven Jython modules, one WebDev endpoint, one timer script. Each module has a
-single job and says so in its docstring:
+You need Ignition **8.3.8+** with Perspective, Alarm Notification, and a **SQL
+database connection** — the analytics and journal history are SQL, not tag
+history. Shipped against PostgreSQL.
 
-| Module | Job |
-| ------ | --- |
-| `alarms` | everything the views read - live roll-ups, KPIs, journal analytics |
-| `sim` / `simmfg` | the two plant models, driven by the 1 s `PlantSim` timer |
-| `demo` | scenario selection, reset, acknowledge-all |
-| `roster` | people, schedules and on-call rosters, all read back out of Ignition |
-| `backfill` | synthetic journal history |
-| `setup` | stand the whole thing up on a fresh gateway, and `check()` it |
+Two things a project import cannot bring with it, because they are not project
+resources. Copy each into `data/config/resources/core/ignition/` and run
+**Platform → Overview → Scan File System**, or create them by hand:
 
-**`AlarmDemo.alarms` owns the constants.** `DB`, `TABLE` and `PROVIDER` are
-defined there and read from there by the others. They used to be copied into
-each module, which quietly turned "change the datasource" into a three-file
-edit; getting one of them wrong produces a blank screen and no error.
+1. **A tag provider named `AlarmDemo`** — `Gateway/tag-provider/AlarmDemo/`.
+   The name matters: an alarm's *Area* is the first segment of its tag path, so
+   the areas have to sit at the root of their own provider.
+2. **An alarm journal profile named `AlarmDemo`** — `Gateway/alarm-journal/AlarmDemo/`.
+   A Datasource profile against your database, writing the standard
+   `alarm_events` / `alarm_event_data` tables.
 
-**Every view helper returns a shape, never raises.** `_safe()` wraps each one
-and hands back a zeroed default on failure, because an exception inside a
-binding renders the whole screen as red error boxes - a worse outcome than a
-screen of zeros, and a much harder one to diagnose.
+Then:
 
-**There are no named queries.** There were five, duplicating the analytics SQL
-that `alarms` already runs; nothing called them, and they filtered by area but
-not by SITE - so anything that did call them would have shown both plants at
-once, which is the one bug this project keeps having to fix. The script
-versions are site-scoped, zero-filled where a gap and a zero mean different
-things, and shaped for the binding that consumes them.
+3. **Import the project** — `Projects/AlarmDemo.zip`, from the gateway web page
+   or the Designer.
+4. **Import the tags** — Designer → Tag Browser → Import →
+   `Tags/AlarmDemo-tags.json`, targeting the `AlarmDemo` provider.
+5. **If your database connection is not named `ignition`**, change the `DB`
+   constant at the top of the `AlarmDemo.alarms` script. It is defined once and
+   every other module reads it from there.
+6. **Press "Set up this gateway"** on the Demo Control screen. That creates the
+   journal tables, the three shift schedules, the seven users, the three on-call
+   rosters and 30 days of history. It is safe to run twice.
 
-## Findings worth keeping
+Check it with **`AlarmDemo.setup.check()`** — or
+`/system/webdev/AlarmDemo/admin?cmd=check` — which reports on the tag provider,
+the journal profile, the journal tables, the rosters, the schedules and the
+users separately. A fresh install goes wrong in several ways that all look like
+the same blank screen; this is what tells them apart.
 
-- **On-call rosters are config resources in 8.3**, at
-  `config/resources/core/ignition/roster-config/<name>/config.json`, holding
-  `{"users":[{"profile": ..., "userId": ...}]}`. The field names come from
-  `RosterConfig(List<RosterEntry(profile, userId)>)` read off the resource
-  type's own default config — any other spelling loads as an *empty* roster with
-  no error anywhere.
-- **`system.alarm.getRosters()` returns roster names but no members** on 8.3.8,
-  including for rosters created through the gateway's own *Create Alarm Roster*
-  page — Services → Alarming → Rosters showed `# OF USERS 3` for a roster the
-  call reported as empty. `AlarmDemo.roster` therefore reads membership from the
-  resource and uses `getRosters()` only to prove the rosters are real.
-- **Schedules are scriptable both ways**: `BasicScheduleModel()` +
-  `system.user.addSchedule`, or a `schedule` config resource. `isUserScheduled`
-  takes a `User` object, not a username.
-- **A user with no schedule reports `"Always"`**, so "unset" and "deliberately
-  always on call" are indistinguishable. `applyDefaultSchedules()` overwrites
-  rather than filling blanks for that reason.
-- **Alarm Metrics tag properties (`<folder>.activeCount` and friends) do not
-  resolve on this gateway for any folder**, including Ignition's own
-  `[default]Chat` and `[default]Roster`. The Alarm Metrics screen aggregates
-  from `system.alarm.queryStatus` instead.
-- **A Perspective button needs scope `G` and an indented script body.** Neither
-  failure reports itself; the button simply does nothing.
-- **Two side-by-side charts need `basis: 0%`.** Left to the default, the longer
-  subtitle widens its own card, and two date axes of different widths pick
-  different label granularities — one chart ends up labelled weekly and the
-  other monthly.
-- **A blanket `padding-right` on `.ia_table__cell` crushes the alarm table's
-  selection column.** That cell is a fixed 30px, so 18px of padding plus the
-  inner `.content`'s own 5px left the checkbox 2px to draw in — it rendered as a
-  sliver clipped against the table's left edge. The body cell carries
-  `select-cell`; the header's select-all does not, so it needs
-  `:has(.ia_checkbox)`. Any padding rule aimed at text columns has to exclude
-  both.
-- **A row of fixed-width columns plus one `grow(1)` will starve the grow
-  column.** The People & Shifts roster column collapsed to 26px ("Ope", "Mai")
-  because the fixed widths already summed past the container. Give the slack to
-  the longest, least important column — here, email.
-- **The Alarm Journal Table's journal profile prop is `name`, not
-  `journalName`**, and it defaults to `"Journal"` — a profile that does not
-  exist here, so the component renders "No results found" with nothing in the
-  logs and the journal looks broken. The prop is invisible from the browser
-  (the client's props reducer never reads it); the name came out of the
-  `component-defaults` websocket frame the gateway sends at session start,
-  which is the fastest way to get any Perspective component's real prop list.
-  Its `rowStyles` shape also differs from the Alarm Status Table's — keyed by
-  event (`active`/`acked`/`cleared`), not by alarm state — and passing the
-  wrong one throws inside the component and takes the whole view to an error
-  boundary.
-- **Both stock alarm components scope by `filters…conditions.source`**, a
-  comma-separated list of alarm source paths with wildcards
-  (`prov:AlarmDemo:/tag:Intake/*`). That is what keeps one plant's alarms off
-  the other plant's screens; they share a tag provider, so without it both
-  components list everything.
-- **`dateFormat` on both components defaults to `MM/DD/YYYY`.** For the first
-  twelve days of a month that is not obviously wrong, just wrong.
-- **Never reach a table column by `:nth-child()`.** The hovered row inserts an
-  element and shifts every index by one, so the priority tint jumped to the
-  Display Path column on whichever row the mouse was over. Use
-  `[data-column-id="priority"]`.
-- **A generated `resource.json` must have a STABLE uuid.** `build_gateway.py`
-  used `uuid4()`, so every rebuild minted fresh identities for the three
-  schedules and three on-call rosters: the package was never reproducible, and a
-  gateway that had already scanned an earlier build saw the next one as six
-  different resources rather than the same six updated. It is now `uuid5()` over
-  a fixed namespace and the resource's kind and name, so two consecutive builds
-  differ only in the timestamps they are meant to differ in.
-- **`deploy.sh` prunes the project directory, and only that one.** Untarring
-  over the top adds and overwrites but never removes, so a resource deleted from
-  this repo lived on inside the gateway - which is how five deleted named
-  queries stayed registered. The prune lists what the archive contains, compares
-  it with what is on disk and removes only the difference, so it cannot touch
-  anything outside the project or delete a file the repo still has. Gateway
-  config directories are deliberately NOT pruned: `config/.../schedule` holds
-  every schedule on the gateway, not just this demo's three.
-- **Headless clicking needs the Maker licence modal dismissed *after* the
-  session loads**, and its button is `AGREE & CLOSE`. Dismissing too early
-  leaves it in front of everything and every click lands on the backdrop —
-  which reads exactly like a broken button.
+## Running it
 
-## Responsive
+Open **Overview** and drive it from **Demo Control**:
 
-The sidebar collapses to a 62px icon rail. Collapsing is **two** things —
-`system.perspective.alterDock` for the layout and a session prop for the
-contents — because the dock is absolutely positioned and the page's centre
-column is inset separately, so CSS alone leaves a gutter beside the rail.
+- **Chlorine dose pump failure** — residual decays over about a minute and trips
+  a Critical compliance alarm. A public-health limit, not a nuisance.
+- **Case packer jam** — switch to Manufacturing. The jam blocks everything
+  upstream, the line stops, and OEE falls while you watch.
+- **Storm** — a cascade across three areas, then open **Analytics** and look at
+  the alarm rate against the EEMUA 191 flood line.
+- **Chattering nuisance alarm** — then the Pareto shows one source producing
+  roughly a fifth of the whole alarm load. That is the alarm-rationalisation
+  argument in one chart.
+- **People & Shifts → Notifications** — move someone to a different shift and
+  watch the "on call now" column follow them.
 
-There is deliberately **no phone breakpoint**. An auto-collapsing dock was
-tried and removed (Nigel, 05/08/2026: "the mobile sized version is pretty much
-useless as nothing fits"): the mimic and the wide alarm tables do not fit a
-phone whatever the sidebar does, and a breakpoint that reflows the chrome
-around unusable content only makes it look like it should work. `show:
-"visible"` + `handle: "hide"` leaves the rail's own ☰ as the single control —
-note that `autoBreakpoint` is consulted ONLY when `show` is the literal
-`"auto"`, so it is inert here whatever number it carries.
+Scenarios bias the *simulation*, never the alarm state directly, so what you
+demonstrate is what a real plant would produce. **Reset plant** returns
+everything to normal.
 
-**Height is the constraint, not width.** A 1366x768 laptop gives a browser about
-620-640px of viewport once its own chrome is taken out, which is well short of
-the 950 a desktop window has. Three things make that work:
+The screens are built for a desktop or a laptop and each fits its window without
+scrolling from 1280×620 up. There is deliberately no phone layout — the mimic
+and the wider alarm tables need the width.
 
-- the Overview mimic has a `minHeight` floor and the page scrolls once below it.
-  Without the floor the mimic kept shrinking, the equipment widgets inside it did
-  not, and six of them grew scrollbars of their own;
-- lists that genuinely cannot fit - the Pareto, the people list, the scenario
-  list - scroll themselves. One scrollbar on a list is what a reader expects;
-- fixed-width columns, the header's site name and its subtitle are shed by media
-  query rather than allowed to overflow, and stat values step down a size so the
-  unit beside them never loses a character.
+## More
 
-Verified free of spurious scrollbars at 1920x1080, 1700x950, 1536x760, 1440x780,
-1366x640 and 1280x620 — at a ONE pixel threshold, which is where they actually
-live. The only scrollbars that survive are the three lists above. Desktop and
-laptop; not a phone app.
+- **[Full package documentation](exchange/README.md)** — every screen, the
+  headless control endpoint, and the things worth knowing before you point it at
+  a shared journal.
+- **[Developing](docs/DEVELOPING.md)** — the project is generated from Python;
+  build, deploy and the findings behind the way it is put together.
 
-## Layout
+## Licence
 
-```text
-build_views.py              generates project/.../views/
-tags/build_tags.py          generates tags/build/
-gateway/build_gateway.py    generates gateway/schedule, gateway/roster-config
-gateway/                    config resources shipped with the package
-project/                    the Ignition project, as an export tree
-sql/                        journal schema
-exchange/                   MANIFEST + the Exchange README
-dist/                       built package
-```
+[MIT](LICENSE).
