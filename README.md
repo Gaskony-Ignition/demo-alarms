@@ -73,13 +73,19 @@ Then:
    every other module reads it from there.
 6. **Press "Set up this gateway"** on the Demo Control screen. That creates the
    journal tables, the three shift schedules, the seven users, the three on-call
-   rosters and 30 days of history. It is safe to run twice.
+   rosters and 30 days of history. It is safe to run twice — it only creates
+   what is missing.
 
-Check it with **`AlarmDemo.setup.check()`** — or
-`/system/webdev/AlarmDemo/admin?cmd=check` — which reports on the tag provider,
-the journal profile, the journal tables, the rosters, the schedules and the
-users separately. A fresh install goes wrong in several ways that all look like
-the same blank screen; this is what tells them apart.
+   ![The Gateway Setup card on the Demo Control screen](docs/images/demo-control.png)
+
+   *Reset rosters and shifts*, beside it, is the destructive one — it puts the
+   people back to how they shipped.
+
+**Check**, on that same card — or `AlarmDemo.setup.check()`, or
+`/system/webdev/AlarmDemo/admin?cmd=check` — reports on the tag provider, the
+journal profile, the journal tables, the rosters, the schedules and the users
+separately. A fresh install goes wrong in several ways that all look like the
+same blank screen; this is what tells them apart.
 
 ## Running it
 

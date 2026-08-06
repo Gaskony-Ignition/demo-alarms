@@ -245,3 +245,5 @@ curl "$GATEWAY/system/webdev/AlarmDemo/admin?cmd=reset"
 
 Quantise them to 256 colours before committing (Pillow's `im.quantize()`); on
 this palette it is visually lossless and thirds the file size.
+`demo-control.png` is additionally cropped to 1600x668, because the page is
+short and the rest of the shot was empty.
