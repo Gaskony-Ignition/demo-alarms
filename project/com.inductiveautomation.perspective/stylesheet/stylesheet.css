@@ -1,0 +1,781 @@
+/* ==========================================================================
+   Alarm Demo - Northgate Water Treatment Plant
+   Dark industrial theme.
+
+   Priority colours are a STATUS scale, not a categorical series palette:
+   the meanings are fixed by convention and they are never reused for
+   "series 4". They sit slightly brighter than a chart palette would, which is
+   deliberate - an alarm colour has to pull the eye across a control room. The
+   set was checked for contrast (all >= 3:1 on the card surface) and for
+   red/orange separation, and every place a priority colour appears it is
+   accompanied by the priority word, so nothing is carried by colour alone.
+   ========================================================================== */
+
+/* On :root, not on a view class - embedded widget views (Tank, Pump, Stat)
+   are separate view roots and would not inherit variables scoped to the
+   parent view's class. */
+:root, .psc-ad-root {
+  --crit:    #E5225B;
+  --high:    #F58220;
+  --med:     #F5C518;
+  --low:     #4EA8FF;
+  --diag:    #8B98A9;
+  --ok:      #35C46A;
+
+  --page:    #0E1319;
+  --card:    #161B22;
+  --card-2:  #1B222B;
+  --line:    #273140;
+
+  --ink:     #E6EDF3;
+  --ink-2:   #9AA5B1;
+  --ink-3:   #6E7A88;
+}
+
+/* ---------- Perspective app bar -----------------------------------------
+   session.props.appBar.togglePosition = "hidden" is set and is the correct
+   setting, but it only hides the toggle handle: on Maker Edition the bar
+   itself is still rendered (it carries a `--maker` class), which is why it
+   also shows on the other projects here that set the same prop. On a licensed
+   gateway the session prop alone is enough and this rule is a no-op.
+   ------------------------------------------------------------------------ */
+
+.app-bar { display: none !important; }
+
+/* ---------- scrollbars --------------------------------------------------
+   Some scrolling is legitimate - a journal with thousands of rows has to
+   scroll. What is not acceptable is the stock chrome scrollbar: a wide light
+   grey bar across a dark industrial screen. These are thin, dark, and fade
+   into the surface until you are actually over them.
+   ------------------------------------------------------------------------ */
+
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-corner { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: padding-box;
+}
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
+
+/* ---------- layout ------------------------------------------------------ */
+
+.psc-ad-page {
+  background: var(--page);
+  color: var(--ink);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+.psc-ad-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.psc-ad-card-head {
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.psc-ad-muted   { color: var(--ink-2); }
+.psc-ad-faint   { color: var(--ink-3); }
+
+/* ---------- header ------------------------------------------------------ */
+
+.psc-ad-header {
+  background: linear-gradient(90deg, #131A23 0%, #0E1319 60%);
+  border-bottom: 1px solid var(--line);
+}
+
+.psc-ad-title {
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.psc-ad-subtitle {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- navigation -------------------------------------------------- */
+
+.psc-ad-nav {
+  background: #10161D;
+  border-right: 1px solid var(--line);
+}
+
+.psc-ad-nav-item {
+  color: var(--ink-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+/* Perspective centres label text by default, which made the menu read as a
+   row of buttons rather than a nav list. */
+.psc-ad-nav-item .ia_labelComponent { text-align: left; }
+
+/* the icon takes the item's colour, including the active/hover states */
+.psc-ad-nav-item svg { fill: currentColor; width: 18px; height: 18px; }
+
+.psc-ad-nav-item:hover {
+  background: #1A222C;
+  color: var(--ink);
+}
+
+.psc-ad-nav-item-active {
+  background: #1C2632;
+  color: var(--ink);
+  border-left: 3px solid var(--low);
+}
+
+/* ---------- KPI tiles --------------------------------------------------- */
+
+.psc-ad-kpi {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.psc-ad-kpi-label {
+  color: var(--ink-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.psc-ad-kpi-value {
+  color: var(--ink);
+  /* 26/1.05 rather than 30/1.15: the taller line box overflowed the KPI tile
+     by a few pixels and every tile grew its own scrollbar. */
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.psc-ad-kpi-unit {
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---------- priority chips --------------------------------------------- */
+
+.psc-ad-chip {
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.psc-ad-chip-critical   { background: rgba(229,34,91,0.16);  color: var(--crit); border-color: rgba(229,34,91,0.45); }
+.psc-ad-chip-high       { background: rgba(245,130,32,0.15); color: var(--high); border-color: rgba(245,130,32,0.42); }
+.psc-ad-chip-medium     { background: rgba(245,197,24,0.14); color: var(--med);  border-color: rgba(245,197,24,0.40); }
+.psc-ad-chip-low        { background: rgba(78,168,255,0.14); color: var(--low);  border-color: rgba(78,168,255,0.40); }
+.psc-ad-chip-diagnostic { background: rgba(139,152,169,0.14);color: var(--diag); border-color: rgba(139,152,169,0.38); }
+.psc-ad-chip-ok         { background: rgba(53,196,106,0.14); color: var(--ok);   border-color: rgba(53,196,106,0.40); }
+
+/* a priority with nothing standing - present so the row never reflows, but
+   recessive so it does not compete with the counts that matter */
+.psc-ad-chip-zero {
+  background: rgba(110,122,136,0.08);
+  color: #55606D;
+  border-color: rgba(110,122,136,0.20);
+}
+
+/* A live Critical or High alarm should be impossible to miss on a wall
+   screen, so those two chips breathe. Nothing else animates. */
+.psc-ad-chip-critical.psc-ad-live { animation: ad-pulse 1.6s ease-in-out infinite; }
+.psc-ad-chip-high.psc-ad-live     { animation: ad-pulse 2.4s ease-in-out infinite; }
+
+@keyframes ad-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+/* ---------- equipment --------------------------------------------------- */
+
+.psc-ad-equip {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  /* 7px, not 8: at 1366x768 the equipment cards narrow enough that 8px top
+     and bottom pushed the contents ~5px past the box and each widget grew a
+     scrollbar of its own. */
+  padding: 7px 10px;
+}
+
+.psc-ad-equip-name {
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.psc-ad-equip-state {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.psc-ad-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 10px;
+}
+
+.psc-ad-dot-run   { background: var(--ok);   box-shadow: 0 0 8px rgba(53,196,106,0.75); }
+.psc-ad-dot-stop  { background: #3B4552; }
+/* a jam stops the line but is not a fault - amber, and it does not pulse */
+.psc-ad-dot-jam   { background: var(--med); box-shadow: 0 0 8px rgba(245,197,24,0.7); }
+
+.psc-ad-dot-fault { background: var(--crit); box-shadow: 0 0 9px rgba(229,34,91,0.85); animation: ad-pulse 1.2s ease-in-out infinite; }
+
+/* ---------- tanks ------------------------------------------------------- */
+
+.psc-ad-tank-shell {
+  background: #0B1016;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.psc-ad-tank-fill {
+  background: linear-gradient(180deg, #2E7FD1 0%, #1D5FA6 100%);
+  border-top: 2px solid #64B0F5;
+  width: 100%;
+}
+
+.psc-ad-tank-fill-warn { background: linear-gradient(180deg, #C9930F 0%, #8E6708 100%); border-top-color: var(--med); }
+.psc-ad-tank-fill-crit { background: linear-gradient(180deg, #B31C47 0%, #7C1231 100%); border-top-color: var(--crit); }
+.psc-ad-tank-fill-chem { background: linear-gradient(180deg, #3FA86E 0%, #24754A 100%); border-top-color: var(--ok); }
+
+.psc-ad-tank-value {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- bar meters (filter head loss) ------------------------------- */
+
+.psc-ad-meter {
+  background: #0B1016;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.psc-ad-meter-fill      { background: var(--ok);   height: 100%; }
+.psc-ad-meter-fill-warn { background: var(--med);  height: 100%; }
+.psc-ad-meter-fill-crit { background: var(--crit); height: 100%; }
+
+/* ---------- charts ------------------------------------------------------
+   amCharts renders the pie legend as SVG text with a black `fill`, which is
+   effectively invisible on a dark card. There is no prop for it, so it has to
+   be overridden in CSS. Only text is targeted - the legend swatches and the
+   slices keep their own fills.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-chart text,
+.psc-ad-chart tspan {
+  fill: var(--ink) !important;
+  font-size: 12.5px;
+}
+
+/* ---------- tables ------------------------------------------------------
+   A style class styles exactly ONE element, so `ad-table` on the component
+   root does nothing for the header, cells, pager or the alarm toolbar the
+   component renders inside itself. Those need descendant selectors, which is
+   what the rest of this block is. Class names below are the ones Ignition
+   actually emits, read off the rendered DOM rather than guessed.
+
+   Split in two on purpose:
+     .psc-ad-table        safe for every table - chrome only
+     .psc-ad-table-plain  adds row striping and cell colour; used ONLY on the
+                          plain Table component, never on an alarm table,
+                          whose row background carries the alarm severity and
+                          must not be painted over.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-table { color: var(--ink); }
+
+.psc-ad-table .ia_table,
+.psc-ad-table .ia_table__body,
+.psc-ad-table .ia_table__footContainer { background: transparent; }
+
+.psc-ad-table .ia_table__headContainer {
+  background: #131A22;
+  border-bottom: 1px solid var(--line);
+}
+
+.psc-ad-table .ia_table__head__header__cell {
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.psc-ad-table .ia_table__cell {
+  color: var(--ink);
+  font-size: 12.5px;
+  border-color: var(--line);
+  /* Keep every value on one line and give the columns real breathing room:
+     wrapped cells made adjacent columns run together, so "Maintenance after
+     15 min" and "waiting" read as one string. */
+  padding-right: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psc-ad-table .ia_table__head__header__cell {
+  padding-right: 18px;
+  white-space: nowrap;
+}
+
+/* ...except the alarm table's selection column. That cell is a fixed 30px
+   wide, and the 18px of right padding above leaves the checkbox 2px to draw
+   in - it renders as a sliver clipped against the left edge of the table. The
+   inner .content also carries 5px of its own padding, so both have to give.
+   `select-cell` is the body cell; the header's select-all has no such class,
+   hence the :has(). */
+.psc-ad-table .ia_table__cell.select-cell,
+.psc-ad-table .ia_table__cell:has(.ia_checkbox) {
+  padding-right: 0;
+  overflow: visible;
+}
+
+.psc-ad-table .ia_table__cell.select-cell > .content,
+.psc-ad-table .ia_table__cell:has(.ia_checkbox) > .content {
+  padding-left: 3px;
+  padding-right: 3px;
+  overflow: visible;
+}
+
+/* pager - hidden on every table here, styled anyway so a re-enabled one does
+   not appear in stock grey */
+.psc-ad-table .ia_pager {
+  background: transparent;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line);
+}
+
+.psc-ad-table .ia_pager__page--active {
+  background: #1B4F86;
+  color: var(--ink);
+}
+
+/* --- plain tables only: zebra striping ---------------------------------- */
+
+.psc-ad-table-plain .ia_table__rowGroup,
+.psc-ad-table-plain .ia_table__body__rowGroup { background: transparent; }
+
+.psc-ad-table-plain .ia_table__body__row--even { background: var(--card); }
+.psc-ad-table-plain .ia_table__body__row--odd  { background: var(--card-2); }
+
+.psc-ad-table-plain .ia_table__body__row:hover { background: #22303D; }
+
+/* --- alarm status rows: priority colour, and greying of cleared ---------
+   Applied through the component's own `rowStyles` prop. In "Priority only"
+   mode the row keeps the card background and just the priority cell is
+   tinted. Every cell in the row carries the same class, so the priority cell
+   is reached by its `data-column-id` - NOT by :nth-child(), which the hovered
+   row shifts by one, moving the colour onto the Display Path column.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-colour-cells .psc-ad-alm-critical   .ia_table__cell[data-column-id="priority"] { background: rgba(229,34,91,0.30);  color: #FF9DB6; font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-high       .ia_table__cell[data-column-id="priority"] { background: rgba(245,130,32,0.28); color: #FFC08A; font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-medium     .ia_table__cell[data-column-id="priority"] { background: rgba(245,197,24,0.24); color: #FFE08A; font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-low        .ia_table__cell[data-column-id="priority"] { background: rgba(78,168,255,0.22); color: #A9D3FF; font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-diagnostic .ia_table__cell[data-column-id="priority"] { background: rgba(139,152,169,0.18); color: #C3CCD8; font-weight: 650; }
+
+.psc-ad-alm-cleared .ia_table__cell { color: #7E8A99 !important; font-style: italic; }
+.psc-ad-colour-cells .psc-ad-alm-cleared .ia_table__cell[data-column-id="priority"] { background: rgba(110,122,136,0.14); color: #7E8A99; }
+
+/* Whole-row priority tint for the two CUSTOM tables (Overview, Journal).
+   The stock Alarm Status Table does this through its own `rowStyles` prop;
+   ia.display.table has no conditional row formatting at all, so the row is
+   selected by what it contains: the PriorityCell view emits `ad-p-<priority>`
+   in every colour mode precisely so this hook survives.
+
+   Same tints as AlarmDemo.alarms.rowStyles, so a customer switching between
+   the Alarm Status screen and the Journal sees one colour scheme, not two.
+   The background goes on the CELL, not the row - the striping rules above
+   already own the row background, and cells paint over it. */
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-critical) .ia_table__cell   { background: rgba(229,34,91,0.30); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-high) .ia_table__cell       { background: rgba(245,130,32,0.26); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-medium) .ia_table__cell     { background: rgba(245,197,24,0.20); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-low) .ia_table__cell        { background: rgba(78,168,255,0.19); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-diagnostic) .ia_table__cell { background: rgba(139,152,169,0.15); }
+
+/* --- alarm status / journal table chrome -------------------------------- */
+
+.psc-ad-table .ia_alarmTableComponent__toolbar {
+  background: #131A22;
+  border-bottom: 1px solid var(--line);
+}
+
+.psc-ad-table .ia_alarmTableComponent__toolbar__tab { color: var(--ink-3); }
+
+.psc-ad-table .ia_alarmTableComponent__toolbar__tab--active {
+  color: var(--ink);
+  border-bottom-color: var(--low);
+}
+
+.psc-ad-table .ia_alarmTableComponent__toolbar__filter__preFilterContainer {
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+}
+
+.psc-ad-table .ia_alarmTableComponent__preFilterPill,
+.psc-ad-table .ia_alarmTableComponent__toolbar__preFilterCount,
+.psc-ad-table .ia_alarmTableComponent__toolbar__preFilter__removeAll {
+  background: var(--card-2);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.psc-ad-table .ia_alarmTableComponent__preFilterPill__title { color: var(--ink-2); }
+
+.psc-ad-table .ia_alarmTableComponent__toolbar__controlIcon { color: var(--ink-3); }
+
+.psc-ad-table .ia_alarmTableComponent__toolbar__activeFilterInput,
+.psc-ad-table .ia_alarmTableComponent__filter__searchPlaceholder {
+  background: var(--card-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+/* ---------- buttons ----------------------------------------------------- */
+
+.psc-ad-btn {
+  background: #1D2733;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.psc-ad-btn:hover { background: #26333F; border-color: #35455A; }
+
+.psc-ad-btn-primary        { background: #1B4F86; border-color: #2B6FB8; }
+.psc-ad-btn-primary:hover  { background: #235F9E; }
+.psc-ad-btn-danger         { background: #6B1230; border-color: #A31D48; }
+.psc-ad-btn-danger:hover   { background: #86173C; }
+
+/* compact variant for in-card toggles */
+.psc-ad-btn-sm { font-size: 12px; padding: 0 10px; }
+
+/* priority cell with colour switched off - plain text, no chip */
+.psc-ad-plain-cell { color: var(--ink); font-size: 12.5px; }
+
+/* square icon-ish buttons for the inline add/remove controls */
+.psc-ad-btn-x {
+  padding: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 0;
+}
+
+.psc-ad-btn-active {
+  background: #1B4F86;
+  border-color: var(--low);
+  box-shadow: 0 0 0 1px rgba(78,168,255,0.4);
+}
+
+/* ---------- scenario banner -------------------------------------------- */
+
+.psc-ad-scenario-banner {
+  background: rgba(245,130,32,0.12);
+  border: 1px solid rgba(245,130,32,0.45);
+  border-radius: 8px;
+  color: var(--high);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+
+/* ---------- popups ------------------------------------------------------
+   Popup chrome is rendered OUTSIDE the view root, so it gets none of the
+   project's `psc-ad-` classes and none of the card styling - a stock #515151
+   title bar over a dark industrial page. Same situation as the app bar: the
+   project stylesheet is global, so the component classes can be styled
+   directly.
+   ------------------------------------------------------------------------ */
+
+.ia_popup {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.ia_popup__header {
+  background: #131A22;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* the close glyph is a bare svg sibling of the header */
+.ia_popup > svg { fill: var(--ink-3); }
+.ia_popup > svg:hover { fill: var(--ink); }
+
+/* ---------- shift timeline ---------------------------------------------- */
+
+.psc-ad-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  height: 16px;
+  overflow: hidden;
+}
+
+.psc-ad-track-tick {
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  height: 100%;
+}
+
+/* the vertical "now" line, drawn as a 2px column in its own row above the
+   tracks - Perspective flex containers cannot overlay one element on another */
+.psc-ad-nowline {
+  background: var(--ok);
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+}
+
+
+/* ---------- collapsed sidebar rail --------------------------------------
+   The dock's WIDTH is changed by system.perspective.alterDock() in the nav's
+   toggle script - it has to be, because the dock is absolutely positioned and
+   the page's centre column is inset separately, so narrowing the sidebar in
+   CSS alone would leave a 168px gutter of empty page beside a 62px rail. What
+   is left for CSS is the CONTENTS: keep the glyphs, drop everything that needs
+   the width.
+
+   Hidden by GEOMETRY as well as by `display`. Perspective writes `display:
+   flex` inline on label elements and an inline declaration beats any class, so
+   the text is also taken to zero width - which nothing is contesting.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-nav-toggle {
+  color: var(--ink-3);
+  font-size: 15px;
+  cursor: pointer;
+}
+.psc-ad-nav-toggle:hover { color: var(--ink); }
+
+.psc-ad-nav-shut { overflow-x: hidden !important; }
+
+.psc-ad-nav-shut > * { max-width: 100% !important; min-width: 0 !important; }
+
+.psc-ad-nav-shut .psc-ad-nav-text {
+  display: none !important;
+  flex: 0 0 0 !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+/* The rail centres what is left: glyph, toggle, alarm count. `gap` has to go
+   as well as the padding - the row's 11px gap sits after the now-zero-width
+   label and pushes the glyph off centre by half of it. */
+.psc-ad-nav-shut .psc-ad-nav-item {
+  padding: 0 !important;
+  gap: 0 !important;
+  justify-content: center !important;
+}
+.psc-ad-nav-shut .psc-ad-kpi-value { font-size: 19px !important; }
+/* 62px of rail minus 24px of padding is 38px, and the triangle plus the gap
+   plus a two-digit count does not fit that - so the row stopped centring and
+   sat against the left edge. */
+.psc-ad-nav-shut .psc-ad-nav-footer { padding: 12px 2px !important; }
+/* nothing but the bell is left in the rail, so the row's gap would push it off
+   centre */
+.psc-ad-nav-shut .psc-ad-nav-count { gap: 0 !important; }
+
+
+
+
+/* ---------- responsive column shedding ----------------------------------
+   Perspective flex positions are fixed pixel bases, so a row of them does not
+   narrow - it overflows and grows a scrollbar. Media queries are the only
+   place a breakpoint can live, so the columns that may be shed carry a class
+   and are dropped in order of how little they are needed: the schedule name is
+   already shown by the highlighted shift button, the mobile number and the
+   roster list are reference detail.
+
+   Zero-width as well as `display: none`, for the same reason as the nav rail:
+   Perspective writes `display: flex` inline on labels and inline wins.
+   ------------------------------------------------------------------------ */
+
+/* These breakpoints are set by the WIDEST ADDRESS, not by taste. Email is the
+   one column that takes what is left, so every pixel the fixed columns hold is
+   a pixel it does not have - and the longest address here,
+   michael.oconnor@acme.example, needs 195 of them. Below each width the fixed
+   columns still present would starve it, so one is shed:
+
+     1700  mobile          - the least load-bearing column, and the same
+                             person's email is still on the row
+     1440  Ignition schedule - the shift buttons beside it already say which
+                             schedule is set; this column is the proof, not
+                             the control
+     1300  on-call rosters
+
+   Set any of them lower and the address is cut mid-word against the card
+   border, which reads as a rendering fault rather than as a truncation. */
+@media (max-width: 1700px) {
+  .psc-ad-col-phone {
+    display: none !important;
+    flex: 0 0 0 !important;
+    width: 0 !important; max-width: 0 !important; min-width: 0 !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+}
+
+@media (max-width: 1440px) {
+  .psc-ad-col-sched {
+    display: none !important;
+    flex: 0 0 0 !important;
+    width: 0 !important; max-width: 0 !important; min-width: 0 !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+}
+
+@media (max-width: 1300px) {
+  .psc-ad-col-rosters {
+    display: none !important;
+    flex: 0 0 0 !important;
+    width: 0 !important; max-width: 0 !important; min-width: 0 !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+}
+
+
+/* Equipment names must not wrap. At a laptop width the pump and filter cards
+   narrow enough that "Raw Pump 1" takes two lines, which doubles the height of
+   a row sized for one and puts a scrollbar inside the widget. */
+.psc-ad-equip-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* On a laptop the header's fixed furniture - site switch, scenario banner and
+   the four priority chips - leaves the title about 230px of the 330 it wants.
+   Drop the site half rather than truncate the page name off the end of it. */
+@media (max-width: 1560px) {
+  .psc-ad-title-site {
+    display: none !important;
+    flex: 0 0 0 !important;
+    width: 0 !important; max-width: 0 !important; min-width: 0 !important;
+  }
+}
+
+/* The unit sat hard against its value once the tile narrowed - "161L/s" - and
+   then started losing characters off its front: "L/s" rendered as "/s", which
+   is not a unit. It must never shrink; the value is the thing with room to
+   give. */
+.psc-ad-kpi-unit {
+  padding-left: 7px;
+  flex-shrink: 0 !important;
+  white-space: nowrap;
+}
+
+/* On a narrow tile a 26px value takes the whole row and the unit is clipped
+   from the left, so "L/s" reads as "/s" - which is not a unit. Give the value
+   less to work with rather than let the unit lose a character. */
+@media (max-width: 1440px) {
+  .psc-ad-kpi-value { font-size: 20px !important; }
+}
+
+
+/* ---------- short windows ------------------------------------------------
+   A 1366x768 laptop leaves the page about 620px once the browser has taken
+   its own chrome, and the layouts below were drawn for the ~900 a maximised
+   desktop window gives. Rather than let a list lose rows off the bottom, take
+   the difference out of the chrome: the header bar, the gaps between cards,
+   the padding inside them, and the explanatory line under each card title.
+
+   Every one of these overrides an INLINE style Perspective writes from a
+   `style` prop, so all of them need `!important` - without it the rule is in
+   the sheet, matches, and does nothing.
+   ------------------------------------------------------------------------ */
+
+@media (max-height: 780px) {
+  .psc-ad-header { flex-basis: 52px !important; }
+  .psc-ad-page   { gap: 8px !important; }
+  .psc-ad-body   { gap: 8px !important; }
+  .psc-ad-card   { padding: 9px !important; }
+
+  /* The subtitle explains a card to someone reading it for the first time;
+     the rows underneath are what the card is FOR. On a screen this short the
+     rows win. Zero-width as well as hidden - Perspective writes `display:
+     flex` on labels inline, and a label that is only `display: none` still
+     holds its flex-basis. */
+  .psc-ad-card-sub {
+    display: none !important;
+    flex: 0 0 0 !important;
+    height: 0 !important; max-height: 0 !important;
+  }
+
+  /* The mimic's stat tiles. These two move TOGETHER or not at all: the row
+     is only tall enough for the smaller figure, and a 24px value in a 66px
+     tile is clipped across the top of its own digits. */
+  .psc-ad-stats     { flex-basis: 66px !important; }
+  .psc-ad-kpi-value { font-size: 20px !important; }
+}
+
+
+/* The one column that absorbs the slack on People & Shifts. It was starved by
+   the fixed columns beside it and cut addresses off mid-word against the card
+   border, which reads as a rendering fault rather than as a truncation; the
+   fixed columns have since given back what they were not using, and this is
+   what makes the residual case read as deliberate. */
+.psc-ad-col-email {
+  text-overflow: ellipsis;
+  min-width: 0 !important;
+}

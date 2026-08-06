@@ -1,0 +1,3770 @@
+{
+  "custom": {
+    "pareto": [
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      },
+      {
+        "name": "",
+        "n": 0,
+        "pct": "0%",
+        "show": "none"
+      }
+    ],
+    "rate": null,
+    "unacked": null,
+    "kpis": null,
+    "priorities": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 0,
+      "Low": 0,
+      "Diagnostic": 0
+    },
+    "priorityTotal": 0
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1600,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "gap": "12px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "padding": "0 20px",
+            "height": "100%",
+            "gap": "14px",
+            "classes": "ad-header"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "TitleRow"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Site"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "classes": "ad-title ad-title-site"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "{session.custom.siteInfo.label} + \"  -  \""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "classes": "ad-title"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "page.props.title"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "26px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Sub"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "classes": "ad-subtitle ad-title-site"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.siteInfo.subtitle"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "SiteSwitch"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Water"
+                },
+                "props": {
+                  "text": "Water Treatment",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Water\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Water'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "140px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Manufacturing"
+                },
+                "props": {
+                  "text": "Manufacturing",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Manufacturing\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Manufacturing'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "130px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Scenario"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ScenarioLabel"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "5px 12px",
+                    "classes": "ad-scenario-banner"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"SCENARIO:  \" + upper({session.custom.scenario})"
+                      }
+                    }
+                  },
+                  "props.style.display": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.scenario} = \"None\", \"none\", \"flex\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "7px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Critical"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-critical"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Critical}) + \"  CRITICAL\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-critical\" + if({session.custom.live.counts.Critical} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-high"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.High}) + \"  HIGH\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-high\" + if({session.custom.live.counts.High} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Medium"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-medium"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Medium}) + \"  MEDIUM\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-low"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Low}) + \"  LOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "64px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "0 12px 12px 12px",
+            "gap": "12px",
+            "classes": "ad-body"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Controls"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "RangeLabel"
+                },
+                "props": {
+                  "text": "WINDOW",
+                  "style": {
+                    "alignSelf": "center",
+                    "classes": "ad-kpi-label"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "64px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "R8"
+                },
+                "props": {
+                  "text": "8 hours",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 8, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 8"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "R24"
+                },
+                "props": {
+                  "text": "24 hours",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 24, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 24"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "R168"
+                },
+                "props": {
+                  "text": "7 days",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 168, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 168"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "R720"
+                },
+                "props": {
+                  "text": "30 days",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 720, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 720"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Spacer"
+                },
+                "props": {
+                  "direction": "row"
+                },
+                "children": [],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.input.dropdown",
+                "meta": {
+                  "name": "Area"
+                },
+                "props": {
+                  "placeholder": "All areas",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.options": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.areaOptions"
+                      }
+                    }
+                  },
+                  "props.value": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.area",
+                        "bidirectional": true
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "210px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "40px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Kpis"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "10px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K1"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Alarms / hour",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.rate})"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K2"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Total activations",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.total})"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K3"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Median ack time",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.ackMedianMin})"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "min",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K4"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Never acknowledged",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.unackedPct})"
+                              }
+                            }
+                          },
+                          "props.style.color": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.kpis.unackedPct} >= 40, \"#F58220\", \"#E6EDF3\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "%",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K5"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Top 3 share of load",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.topShare})"
+                              }
+                            }
+                          },
+                          "props.style.color": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.kpis.topShare} >= 40, \"#F5C518\", \"#E6EDF3\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "%",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "K6"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px",
+                    "classes": "ad-kpi"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "Flood hours",
+                      "style": {
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "14px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "V"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "end",
+                      "style": {
+                        "overflow": "hidden",
+                        "gap": "5px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Val"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "classes": "ad-kpi-value"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.kpis.floodHours})"
+                              }
+                            }
+                          },
+                          "props.style.color": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.kpis.floodHours} > 0, \"#E5225B\", \"#35C46A\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "U"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "paddingBottom": "2px",
+                            "classes": "ad-kpi-unit"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "94px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Row1"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "12px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "ParetoCard"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "8px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "T"
+                    },
+                    "props": {
+                      "text": "Alarm Pareto  -  worst sources",
+                      "style": {
+                        "classes": "ad-card-head"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "S"
+                    },
+                    "props": {
+                      "text": "The top few sources usually produce most of the load. That is where rationalisation pays.",
+                      "style": {
+                        "fontSize": "11px",
+                        "classes": "ad-faint ad-card-sub"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "15px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "ParetoRows"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "overflowY": "auto",
+                        "minHeight": "0px",
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P0"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[0].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[0].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[0].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[0].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P1"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[1].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[1].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[1].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[1].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P2"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[2].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[2].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[2].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[2].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P3"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[3].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[3].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[3].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[3].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P4"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[4].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[4].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[4].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[4].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P5"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[5].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[5].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[5].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[5].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P6"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[6].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[6].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[6].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[6].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "P7"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "10px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "color": "#E6EDF3",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[7].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "330px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Track"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "style": {
+                                "height": "14px",
+                                "borderRadius": "4px",
+                                "classes": "ad-meter"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Bar"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "4px",
+                                    "height": "100%"
+                                  }
+                                },
+                                "children": [],
+                                "propConfig": {
+                                  "position.basis": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.pareto[7].pct"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "0%"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "N"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12px",
+                                "fontWeight": "650",
+                                "textAlign": "right",
+                                "color": "#9AA5B1"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.pareto[7].n"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "52px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pareto[7].show"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "23px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "PriorityCard"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "8px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "T"
+                    },
+                    "props": {
+                      "text": "Priority mix",
+                      "style": {
+                        "classes": "ad-card-head"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "PriorityBody"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.chart.pie",
+                        "meta": {
+                          "name": "Priority"
+                        },
+                        "props": {
+                          "colors": [
+                            "#E5225B",
+                            "#F58220",
+                            "#F5C518",
+                            "#4EA8FF",
+                            "#8B98A9"
+                          ],
+                          "cutoutRadius": 55,
+                          "data": [
+                            {
+                              "label": "Critical",
+                              "count": 0
+                            },
+                            {
+                              "label": "High",
+                              "count": 0
+                            },
+                            {
+                              "label": "Medium",
+                              "count": 0
+                            },
+                            {
+                              "label": "Low",
+                              "count": 0
+                            },
+                            {
+                              "label": "Diagnostic",
+                              "count": 0
+                            }
+                          ],
+                          "labels": {
+                            "showName": false,
+                            "showValue": false
+                          },
+                          "showLabels": false,
+                          "showLegend": false,
+                          "style": {
+                            "classes": "ad-chart"
+                          },
+                          "tooltip": {
+                            "enabled": false
+                          }
+                        },
+                        "propConfig": {
+                          "props.data[0].count": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.priorities.Critical"
+                              }
+                            }
+                          },
+                          "props.data[1].count": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.priorities.High"
+                              }
+                            }
+                          },
+                          "props.data[2].count": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.priorities.Medium"
+                              }
+                            }
+                          },
+                          "props.data[3].count": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.priorities.Low"
+                              }
+                            }
+                          },
+                          "props.data[4].count": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.priorities.Diagnostic"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Legend"
+                        },
+                        "props": {
+                          "direction": "column",
+                          "style": {
+                            "gap": "2px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "L_Critical"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "alignItems": "center",
+                              "style": {
+                                "gap": "8px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Sw"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#E5225B",
+                                    "borderRadius": "3px",
+                                    "height": "11px",
+                                    "alignSelf": "center"
+                                  }
+                                },
+                                "children": [],
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "11px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Name"
+                                },
+                                "props": {
+                                  "text": "Critical",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#E6EDF3"
+                                  }
+                                },
+                                "position": {
+                                  "grow": 1,
+                                  "shrink": 1
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "N"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.priorities.Critical"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "38px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Pct"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "expr",
+                                      "config": {
+                                        "expression": "if({view.custom.priorityTotal} > 0, numberFormat({view.custom.priorities.Critical} / {view.custom.priorityTotal} * 100, \"0.0\") + \" %\", \"-\")"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "52px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "21px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "L_High"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "alignItems": "center",
+                              "style": {
+                                "gap": "8px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Sw"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#F58220",
+                                    "borderRadius": "3px",
+                                    "height": "11px",
+                                    "alignSelf": "center"
+                                  }
+                                },
+                                "children": [],
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "11px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Name"
+                                },
+                                "props": {
+                                  "text": "High",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#E6EDF3"
+                                  }
+                                },
+                                "position": {
+                                  "grow": 1,
+                                  "shrink": 1
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "N"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.priorities.High"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "38px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Pct"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "expr",
+                                      "config": {
+                                        "expression": "if({view.custom.priorityTotal} > 0, numberFormat({view.custom.priorities.High} / {view.custom.priorityTotal} * 100, \"0.0\") + \" %\", \"-\")"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "52px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "21px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "L_Medium"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "alignItems": "center",
+                              "style": {
+                                "gap": "8px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Sw"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#F5C518",
+                                    "borderRadius": "3px",
+                                    "height": "11px",
+                                    "alignSelf": "center"
+                                  }
+                                },
+                                "children": [],
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "11px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Name"
+                                },
+                                "props": {
+                                  "text": "Medium",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#E6EDF3"
+                                  }
+                                },
+                                "position": {
+                                  "grow": 1,
+                                  "shrink": 1
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "N"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.priorities.Medium"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "38px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Pct"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "expr",
+                                      "config": {
+                                        "expression": "if({view.custom.priorityTotal} > 0, numberFormat({view.custom.priorities.Medium} / {view.custom.priorityTotal} * 100, \"0.0\") + \" %\", \"-\")"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "52px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "21px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "L_Low"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "alignItems": "center",
+                              "style": {
+                                "gap": "8px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Sw"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#4EA8FF",
+                                    "borderRadius": "3px",
+                                    "height": "11px",
+                                    "alignSelf": "center"
+                                  }
+                                },
+                                "children": [],
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "11px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Name"
+                                },
+                                "props": {
+                                  "text": "Low",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#E6EDF3"
+                                  }
+                                },
+                                "position": {
+                                  "grow": 1,
+                                  "shrink": 1
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "N"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.priorities.Low"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "38px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Pct"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "expr",
+                                      "config": {
+                                        "expression": "if({view.custom.priorityTotal} > 0, numberFormat({view.custom.priorities.Low} / {view.custom.priorityTotal} * 100, \"0.0\") + \" %\", \"-\")"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "52px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "21px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "L_Diagnostic"
+                            },
+                            "props": {
+                              "direction": "row",
+                              "alignItems": "center",
+                              "style": {
+                                "gap": "8px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.container.flex",
+                                "meta": {
+                                  "name": "Sw"
+                                },
+                                "props": {
+                                  "direction": "row",
+                                  "style": {
+                                    "backgroundColor": "#8B98A9",
+                                    "borderRadius": "3px",
+                                    "height": "11px",
+                                    "alignSelf": "center"
+                                  }
+                                },
+                                "children": [],
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "11px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Name"
+                                },
+                                "props": {
+                                  "text": "Diagnostic",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "color": "#E6EDF3"
+                                  }
+                                },
+                                "position": {
+                                  "grow": 1,
+                                  "shrink": 1
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "N"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.priorities.Diagnostic"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "38px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Pct"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "textAlign": "right",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "expr",
+                                      "config": {
+                                        "expression": "if({view.custom.priorityTotal} > 0, numberFormat({view.custom.priorities.Diagnostic} / {view.custom.priorityTotal} * 100, \"0.0\") + \" %\", \"-\")"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "52px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "21px"
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "113px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "330px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Row2"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "12px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "RateCard"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "8px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "T"
+                    },
+                    "props": {
+                      "text": "Alarm rate",
+                      "style": {
+                        "classes": "ad-card-head"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "S"
+                    },
+                    "props": {
+                      "text": "EEMUA 191 considers more than 60 alarms an hour unmanageable.",
+                      "style": {
+                        "fontSize": "11px",
+                        "classes": "ad-faint ad-card-sub"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "15px"
+                    }
+                  },
+                  {
+                    "type": "ia.chart.xy",
+                    "meta": {
+                      "name": "Rate"
+                    },
+                    "props": {
+                      "background": {
+                        "opacity": 0,
+                        "render": "color"
+                      },
+                      "dataSources": {},
+                      "legend": {
+                        "enabled": false
+                      },
+                      "series": [
+                        {
+                          "name": "rate",
+                          "data": {
+                            "source": "rate",
+                            "x": "bucket",
+                            "y": "occurrences"
+                          },
+                          "label": {
+                            "text": "Alarms per hour"
+                          },
+                          "render": "line",
+                          "xAxis": "x",
+                          "yAxis": "value",
+                          "visible": true,
+                          "line": {
+                            "appearance": {
+                              "stroke": {
+                                "color": "#F58220",
+                                "opacity": 1,
+                                "width": 2
+                              },
+                              "fill": {
+                                "color": "#F58220",
+                                "opacity": 0.18
+                              },
+                              "bullets": [
+                                {
+                                  "enabled": false
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "xAxes": [
+                        {
+                          "name": "x",
+                          "render": "date",
+                          "visible": true,
+                          "appearance": {
+                            "font": {
+                              "size": 11,
+                              "weight": 500
+                            },
+                            "grid": {
+                              "color": "#6D7486",
+                              "dashArray": "",
+                              "opacity": 0.18,
+                              "position": 0.5
+                            },
+                            "inside": false,
+                            "labels": {
+                              "color": "#8B98A9",
+                              "opacity": 1,
+                              "rotation": 0
+                            },
+                            "opposite": false
+                          },
+                          "date": {
+                            "format": "HH:mm",
+                            "inputFormat": "yyyy-MM-dd kk:mm:ss"
+                          }
+                        }
+                      ],
+                      "yAxes": [
+                        {
+                          "name": "value",
+                          "render": "value",
+                          "visible": true,
+                          "appearance": {
+                            "font": {
+                              "size": 11,
+                              "weight": 500
+                            },
+                            "grid": {
+                              "color": "#6D7486",
+                              "dashArray": "",
+                              "opacity": 0.18,
+                              "position": 0.5
+                            },
+                            "inside": false,
+                            "labels": {
+                              "color": "#8B98A9",
+                              "opacity": 1,
+                              "rotation": 0
+                            },
+                            "opposite": false
+                          }
+                        }
+                      ]
+                    },
+                    "propConfig": {
+                      "props.dataSources.rate": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "view.custom.rate"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "UnackedCard"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "8px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "T"
+                    },
+                    "props": {
+                      "text": "Never acknowledged",
+                      "style": {
+                        "classes": "ad-card-head"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.table",
+                    "meta": {
+                      "name": "Unacked"
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "ad-table ad-table-plain"
+                      },
+                      "pager": {
+                        "bottom": false,
+                        "top": false
+                      },
+                      "columns": [
+                        {
+                          "field": "Alarm",
+                          "visible": true,
+                          "editable": false,
+                          "header": {
+                            "title": "Alarm"
+                          }
+                        },
+                        {
+                          "field": "Never acked",
+                          "visible": true,
+                          "editable": false,
+                          "header": {
+                            "title": "Count",
+                            "justify": "right"
+                          },
+                          "width": 86,
+                          "strictWidth": true,
+                          "justify": "right",
+                          "numberFormat": "0,0"
+                        }
+                      ]
+                    },
+                    "propConfig": {
+                      "props.data": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "view.custom.unacked"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "430px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "custom.pareto": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.paretoRows(self.session.custom.rangeHours, self.session.custom.site, self.session.custom.area or '', 8)"
+          }
+        ]
+      }
+    },
+    "custom.rate": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.rateByHour(self.session.custom.rangeHours, self.session.custom.site, self.session.custom.area or '')"
+          }
+        ]
+      }
+    },
+    "custom.unacked": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.topUnacked(self.session.custom.rangeHours, self.session.custom.site, self.session.custom.area or '')"
+          }
+        ]
+      }
+    },
+    "custom.priorityTotal": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.priorities.Critical}) + toStr({view.custom.priorities.High}) + toStr({view.custom.priorities.Medium}) + toStr({view.custom.priorities.Low}) + toStr({view.custom.priorities.Diagnostic})"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\tp = self.view.custom.priorities\n\treturn sum([p[k] for k in ['Critical', 'High', 'Medium', 'Low', 'Diagnostic']])"
+          }
+        ]
+      }
+    },
+    "custom.priorities": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.priorityCounts(self.session.custom.rangeHours, self.session.custom.site, self.session.custom.area or '')"
+          }
+        ]
+      }
+    },
+    "custom.kpis": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.kpis(self.session.custom.rangeHours, self.session.custom.site, self.session.custom.area or '')"
+          }
+        ]
+      }
+    }
+  }
+}

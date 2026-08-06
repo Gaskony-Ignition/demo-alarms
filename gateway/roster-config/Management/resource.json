@@ -1,0 +1,18 @@
+{
+  "scope": "A",
+  "description": "Escalation of record",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "uuid": "3694c31f-f1d8-5c69-bba3-0bbc5eec2186",
+    "enabled": true,
+    "lastModification": {
+      "actor": "AlarmDemo",
+      "timestamp": "2026-08-05T23:54:03Z"
+    }
+  }
+}

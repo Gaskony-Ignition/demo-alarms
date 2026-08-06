@@ -1,0 +1,18 @@
+{
+  "scope": "A",
+  "description": "14:00-22:00, every day",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "uuid": "806dae35-f84d-5799-a518-243352f80922",
+    "enabled": true,
+    "lastModification": {
+      "actor": "AlarmDemo",
+      "timestamp": "2026-08-05T23:54:03Z"
+    }
+  }
+}

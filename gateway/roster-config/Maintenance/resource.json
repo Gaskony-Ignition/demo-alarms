@@ -1,0 +1,18 @@
+{
+  "scope": "A",
+  "description": "Called for equipment faults",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "uuid": "c9149ec3-367c-5ad0-8751-6c3379007c9d",
+    "enabled": true,
+    "lastModification": {
+      "actor": "AlarmDemo",
+      "timestamp": "2026-08-05T23:54:03Z"
+    }
+  }
+}

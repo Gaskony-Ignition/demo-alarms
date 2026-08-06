@@ -1,0 +1,940 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 230,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "classes": "ad-nav ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Brand"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "16px 14px 12px 14px",
+            "gap": "2px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Row"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Name"
+                },
+                "props": {
+                  "text": "ACME",
+                  "style": {
+                    "fontSize": "17px",
+                    "letterSpacing": "0.16em",
+                    "classes": "ad-title ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Toggle"
+                },
+                "props": {
+                  "text": "\u2630",
+                  "style": {
+                    "textAlign": "center",
+                    "cursor": "pointer",
+                    "classes": "ad-nav-toggle"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "20px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "24px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tis_open = not self.session.custom.navOpen\n\tself.session.custom.navOpen = is_open\n\tsystem.perspective.alterDock('nav', {'size': 230 if is_open else 62})"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Sub"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "fontSize": "10.5px",
+                "classes": "ad-subtitle ad-nav-text"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({session.custom.site} = \"Manufacturing\", \"Manufacturing\", \"Water Treatment Plant\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "28px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "84px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Items"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "8px 10px",
+            "gap": "3px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_Overview"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/dashboard",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Overview",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_AlarmStatus"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/notifications_active",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Alarm Status",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/status\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/status"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_Journal"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/history",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Journal",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/journal\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/journal"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_AlarmMetrics"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/donut_large",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Alarm Metrics",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/metrics\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/metrics"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_Analytics"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/assessment",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Analytics",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/analytics\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/analytics"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_Notifications"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/contact_phone",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Notifications",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/notifications\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/notifications"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_People&Shifts"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/people",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "People & Shifts",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/people\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/people"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_DemoControl"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/tune",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Demo Control",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/demo\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/demo"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Footer"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "12px",
+            "borderTop": "1px solid #273140",
+            "gap": "3px",
+            "classes": "ad-nav-footer"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "TotalLabel"
+            },
+            "props": {
+              "text": "ACTIVE ALARMS",
+              "style": {
+                "classes": "ad-kpi-label ad-nav-text"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "14px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Count"
+            },
+            "props": {
+              "direction": "row",
+              "justify": "center",
+              "alignItems": "center",
+              "style": {
+                "gap": "9px",
+                "classes": "ad-nav-count"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Bell"
+                },
+                "props": {
+                  "path": "material/notifications_active",
+                  "style": {
+                    "width": "22px",
+                    "height": "22px"
+                  }
+                },
+                "propConfig": {
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.counts.Critical} > 0, \"#E5225B\", if({session.custom.live.counts.High} > 0, \"#F58220\", if({session.custom.live.total} > 0, \"#F5C518\", \"#35C46A\")))"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "22px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Total"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "26px",
+                    "classes": "ad-kpi-value ad-nav-text"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.total})"
+                      }
+                    }
+                  },
+                  "props.style.color": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.counts.Critical} > 0, \"#E5225B\", if({session.custom.live.counts.High} > 0, \"#F58220\", if({session.custom.live.total} > 0, \"#F5C518\", \"#35C46A\")))"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "36px"
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Unacked"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "fontSize": "11px",
+                "textAlign": "center",
+                "classes": "ad-faint ad-nav-text"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "toStr({session.custom.live.unacked}) + \" unacknowledged\""
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "15px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "104px"
+        }
+      }
+    ],
+    "propConfig": {
+      "props.style.classes": {
+        "binding": {
+          "type": "expr",
+          "config": {
+            "expression": "\"ad-nav ad-root\" + if({session.custom.navOpen} = true, \"\", \" ad-nav-shut\")"
+          }
+        }
+      }
+    }
+  }
+}

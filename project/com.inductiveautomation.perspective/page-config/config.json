@@ -1,0 +1,55 @@
+{
+  "pages": {
+    "/": {
+      "title": "Plant Overview",
+      "viewPath": "AlarmDemo/Overview"
+    },
+    "/status": {
+      "title": "Alarm Status",
+      "viewPath": "AlarmDemo/Status"
+    },
+    "/journal": {
+      "title": "Alarm Journal",
+      "viewPath": "AlarmDemo/Journal"
+    },
+    "/analytics": {
+      "title": "Alarm Analytics",
+      "viewPath": "AlarmDemo/Analytics"
+    },
+    "/demo": {
+      "title": "Demo Control",
+      "viewPath": "AlarmDemo/DemoControl"
+    },
+    "/notifications": {
+      "title": "Alarm Notifications",
+      "viewPath": "AlarmDemo/Notifications"
+    },
+    "/metrics": {
+      "title": "Alarm Metrics",
+      "viewPath": "AlarmDemo/Metrics"
+    },
+    "/people": {
+      "title": "People & Shifts",
+      "viewPath": "AlarmDemo/People"
+    }
+  },
+  "sharedDocks": {
+    "cornerPriority": "top-bottom",
+    "left": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 0,
+        "content": "push",
+        "handle": "hide",
+        "iconUrl": "",
+        "id": "nav",
+        "modal": false,
+        "resizable": false,
+        "show": "visible",
+        "size": 230,
+        "viewParams": {},
+        "viewPath": "AlarmDemo/Nav"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "A",
+  "description": "Alarm demo plant tag provider - areas live at the provider root",
+  "version": 1,
+  "restricted": false,
+  "overridable": false,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "uuid": "b89271a0-19d4-4171-afb1-e0dfc36aab88"
+  }
+}

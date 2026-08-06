@@ -1,0 +1,18 @@
+{
+  "scope": "A",
+  "description": "First response - the control room",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "config.json"
+  ],
+  "attributes": {
+    "uuid": "b8becafa-69c1-50ed-9bcf-2f1b37309f5a",
+    "enabled": true,
+    "lastModification": {
+      "actor": "AlarmDemo",
+      "timestamp": "2026-08-05T23:54:03Z"
+    }
+  }
+}
