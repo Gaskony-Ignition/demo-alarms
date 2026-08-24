@@ -63,6 +63,15 @@ grep -q "\"title\": \"ACME Alarm Demo $VERSION\"" "$PROJJSON" || {
   exit 1
 }
 
+# Config -> Projects' summary grid shows only the Description column (Title
+# only appears in the Edit drawer / launch surfaces), so the version is
+# stamped onto both. Same backup/trap as the title - restored on exit.
+sed -i "s/\"description\": \"Self-contained Ignition alarm demonstration across two simulated sites: 120 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules.\"/\"description\": \"Self-contained Ignition alarm demonstration across two simulated sites: 120 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules. · v$VERSION\"/" "$PROJJSON"
+grep -q "shift schedules. · v$VERSION\"" "$PROJJSON" || {
+  echo "package.sh: project.json description wasn't the expected plain-prose text - check for drift" >&2
+  exit 1
+}
+
 rm -rf "$DIST"
 mkdir -p "$STAGE/Projects" "$STAGE/Tags" "$STAGE/Gateway" "$STAGE/SQL"
 
