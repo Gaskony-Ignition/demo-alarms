@@ -30,6 +30,10 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
 STAGE="$DIST/stage"
 SLUG=acme_alarm_demo
+PROJJSON="$HERE/project/project.json"
+# Backup lives OUTSIDE project/ - the zip is built by "cd project && zip -r .",
+# so a backup left inside the project tree gets zipped up too.
+PJBACKUP="$HERE/.project.json.orig"
 
 VERSION="$(python3 -c '
 import json, sys
@@ -46,6 +50,18 @@ if [[ "$SCRIPT_VERSION" != "$VERSION" ]]; then
   echo "version drift: MANIFEST says $VERSION, AlarmDemo.alarms says $SCRIPT_VERSION" >&2
   exit 1
 fi
+
+# Every released project carries its version in the project Title (Config ->
+# Projects then shows what's running with no need to open anything). The
+# working tree stays "(dev)"; only the packaged project.json in the zip says
+# a version, and that is restored the moment this script exits.
+cp "$PROJJSON" "$PJBACKUP"
+trap 'mv "$PJBACKUP" "$PROJJSON"' EXIT
+sed -i "s/\"title\": \"ACME Alarm Demo (dev)\"/\"title\": \"ACME Alarm Demo $VERSION\"/" "$PROJJSON"
+grep -q "\"title\": \"ACME Alarm Demo $VERSION\"" "$PROJJSON" || {
+  echo "package.sh: project.json title wasn't 'ACME Alarm Demo (dev)' as expected - check for drift" >&2
+  exit 1
+}
 
 rm -rf "$DIST"
 mkdir -p "$STAGE/Projects" "$STAGE/Tags" "$STAGE/Gateway" "$STAGE/SQL"
