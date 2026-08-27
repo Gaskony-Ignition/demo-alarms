@@ -44,15 +44,33 @@
    has an opinion, which is the opposite of the --containerBorder rule below
    - that one is on `:root` deliberately, to outrank the theme.
 
-   Every theme that declares a color-scheme declares it at `:root`: all ten
-   custom themes, and the four stock variants served as config resources
-   (`dark-cool` says `dark`). Only the two base stock themes inside the
-   Perspective jar, `light` and `dark`, declare none. On `:root` this line
-   loads after the theme's, wins on order, and replaces every one of those
-   correct answers with "either" - so a viewer whose OS prefers light gets
-   light scrollbars and light form controls on a dark page, which is the
-   exact class of fault the auto-dark-mode incident was. On `html` it applies
-   only where nothing else has spoken, which is what it is for. */
+   Which themes have an opinion depends on the GATEWAY, not only on the
+   theme:
+
+     * the ten custom packs   - always declare their own;
+     * the four stock variants (dark-cool, dark-warm, light-cool,
+       light-warm) - only where the Theme Installer has been run, which is
+       what writes a `gaskony-additions.css` into each of them;
+     * base `light` / `dark`  - live inside the Perspective jar and never
+       declare one.
+
+   On `:root` this line loads after the theme's, wins on order, and replaces
+   every one of those correct answers with "either" - so a viewer whose OS
+   prefers light gets light scrollbars and light form controls on a dark
+   page, which is the exact class of fault the auto-dark-mode incident was.
+   On `html` it applies only where nothing else has spoken.
+
+   That leaves a residual on a VANILLA gateway, and it is worth being honest
+   about rather than claiming it away: there `dark-cool` - this project's own
+   default - declares nothing, so `light dark` applies and a light-preferring
+   viewer gets light-rendered native controls. It is small here because this
+   project styles its own scrollbars and its own text inputs from theme
+   variables, and Perspective's other controls are React rather than native;
+   and the thing the declaration exists for at all, keeping Chrome's
+   auto-dark-mode off, works either way. It cannot be fixed in CSS: Perspective
+   puts the theme's name nowhere in the DOM - no class, no data attribute, on
+   `html` or `body` - so there is nothing for a selector to match on. Running
+   the Theme Installer is what actually resolves it. */
 html { color-scheme: light dark; }
 
 /* On :root, not on a view class - embedded widget views (Tank, Pump, Stat)

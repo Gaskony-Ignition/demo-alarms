@@ -88,16 +88,31 @@ specificity it wins on order.
 | `--containerBorder` | `:root` | must **outrank** the theme — the theme's value is the broken one |
 | `color-scheme` | `html` | must **lose** to the theme — the theme's value is the right one |
 
-Every theme that has an opinion about `color-scheme` states it at `:root`:
-all ten custom themes, and the four stock variants served as config resources
-(`dark-cool` says `dark`). Only the two base themes inside the Perspective
-jar, `light` and `dark`, say nothing, and those are the only two this
-project's default should reach. On `:root` this line replaced every theme's
-correct answer with "either", which puts light scrollbars and light form
-controls on a dark page for any viewer whose OS prefers light — the same
-class of fault as the auto-dark-mode incident, and equally invisible in a
-screenshot. (Both halves of this pairing came from the session working on
-`ignition-themes`, 27/08/2026.)
+Which themes have an opinion about `color-scheme` depends on the **gateway**,
+not only on the theme — measured on two of them:
+
+| | vanilla gateway | Theme Installer run |
+| --- | --- | --- |
+| ten custom packs | declare their own | declare their own |
+| `dark-cool` / `dark-warm` / `light-cool` / `light-warm` | **declare none** | declare their own |
+| base `light` / `dark` (in the jar) | declare none | declare none |
+
+The Installer is what writes a `gaskony-additions.css` into each stock variant.
+On `:root` this line replaced every theme's correct answer with "either",
+which puts light scrollbars and light form controls on a dark page for any
+viewer whose OS prefers light — the same class of fault as the auto-dark-mode
+incident, and equally invisible in a screenshot.
+
+On a **vanilla** gateway a residual remains: `dark-cool`, this project's own
+default, declares nothing there, so `light dark` applies to it. Small here —
+this project styles its own scrollbars and text inputs from theme variables,
+Perspective's other controls are React rather than native, and the reason the
+declaration exists at all (keeping Chrome's auto-dark-mode off) works either
+way — but real, and not fixable in CSS: **Perspective puts the theme's name
+nowhere in the DOM**, no class and no data attribute on `html` or `body`, so
+there is nothing for a selector to match on. Running the Theme Installer
+resolves it. (This whole pairing, and the correction to it, came from the
+session working on `ignition-themes`, 27–28/08/2026.)
 
 `tools/theme-check.js` asserts both, on every theme a gateway has:
 
@@ -105,19 +120,28 @@ screenshot. (Both halves of this pairing came from the session working on
 node tools/theme-check.js --gateway http://host:8088
 ```
 
-It asserts a border is **drawn**, never how wide it is — pinning `1px` tests
-this project's own style classes rather than the theme's contract and reports
-a broken theme when nothing is broken. It reads the theme list from the demo's
-own sidebar dropdown, and it checks the **Analytics** page rather than the
-landing page because the "All areas" selector there is a stock dropdown
-carrying no project class, which is the component that actually broke; the
-landing page has only the sidebar's own picker, and checking that alone passes
-while the thing that broke goes unchecked.
+There are two ways to test your own CSS while believing you are testing the
+theme's, and the check avoids both:
+
+* **Never pin a width.** It asserts a border is *drawn*. `1px` would fail on a
+  project class that deliberately sets 2px and report a broken theme when
+  nothing is broken.
+* **Never assert on a control this project gives a border to.** Such a control
+  cannot fail however broken the theme is, so a green run can sit over a broken
+  page. `BORDERED_BY_PROJECT` in the script is that exclusion list, explicit so
+  it is reviewable — add a class to it the moment you give it a border, or the
+  check quietly stops testing anything. A screen where *everything* is
+  project-styled reports FAIL, not pass: nothing was asserted.
+
+Measured here rather than assumed: of the two dropdowns on Analytics, the "All
+areas" selector carries `ad-btn` and sets its own border, so it stayed green
+through the entire negative test and is now excluded. The control that actually
+exercises the contract is the **sidebar's theme picker**, which carries only
+`ad-theme-select` (font-size) — and which is on every page, so the navigation
+to Analytics is for breadth rather than because it is load-bearing.
 
 Proven by removing the `--containerBorder` line and re-running: 10 custom
-themes FAIL, 6 stock pass, and it is the stock dropdown that loses its border
-while the project-classed text field beside it keeps one. A check that has
-never failed is not a check.
+themes FAIL, 6 stock pass. A check that has never failed is not a check.
 
 **A stock variable this project restates, and why.** Ignition's own
 `.ia_inputField` does `border: var(--containerBorder)` - it expects the
