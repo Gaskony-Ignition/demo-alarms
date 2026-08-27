@@ -124,7 +124,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.fault} = true, \"#E5225B\", if({view.custom.run} = true, \"#35C46A\", \"#6E7A88\"))"
+                "expression": "if({view.custom.fault} = true, \"var(--crit)\", if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\"))"
               }
             }
           }

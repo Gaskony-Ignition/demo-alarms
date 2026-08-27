@@ -96,7 +96,7 @@
                 "binding": {
                   "type": "expr",
                   "config": {
-                    "expression": "if({view.params.invert} = true,   if({view.custom.value} <= {view.params.crit}, \"#E5225B\",   if({view.custom.value} <= {view.params.warn}, \"#F5C518\", \"#E6EDF3\")),   if({view.custom.value} >= {view.params.crit}, \"#E5225B\",   if({view.custom.value} >= {view.params.warn}, \"#F5C518\", \"#E6EDF3\")))"
+                    "expression": "if({view.params.invert} = true,   if({view.custom.value} <= {view.params.crit}, \"var(--crit)\",   if({view.custom.value} <= {view.params.warn}, \"var(--med)\", \"var(--ink)\")),   if({view.custom.value} >= {view.params.crit}, \"var(--crit)\",   if({view.custom.value} >= {view.params.warn}, \"var(--med)\", \"var(--ink)\")))"
                   }
                 }
               }

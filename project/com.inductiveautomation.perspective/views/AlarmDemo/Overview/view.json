@@ -795,7 +795,7 @@
                   "text": "No active alarms on this site",
                   "style": {
                     "textAlign": "center",
-                    "color": "#35C46A",
+                    "color": "var(--ok)",
                     "fontSize": "14px",
                     "fontWeight": "600"
                   }

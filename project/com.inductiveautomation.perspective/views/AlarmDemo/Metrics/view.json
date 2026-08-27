@@ -732,7 +732,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[0].active} > 0, \"#E6EDF3\", \"#35C46A\")"
+                                    "expression": "if({view.custom.areas[0].active} > 0, \"var(--ink)\", \"var(--ok)\")"
                                   }
                                 }
                               }
@@ -806,7 +806,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[0].unacked} > 0, \"#F58220\", \"#6E7A88\")"
+                                    "expression": "if({view.custom.areas[0].unacked} > 0, \"var(--high)\", \"var(--ink-3)\")"
                                   }
                                 }
                               }
@@ -1264,7 +1264,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[1].active} > 0, \"#E6EDF3\", \"#35C46A\")"
+                                    "expression": "if({view.custom.areas[1].active} > 0, \"var(--ink)\", \"var(--ok)\")"
                                   }
                                 }
                               }
@@ -1338,7 +1338,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[1].unacked} > 0, \"#F58220\", \"#6E7A88\")"
+                                    "expression": "if({view.custom.areas[1].unacked} > 0, \"var(--high)\", \"var(--ink-3)\")"
                                   }
                                 }
                               }
@@ -1796,7 +1796,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[2].active} > 0, \"#E6EDF3\", \"#35C46A\")"
+                                    "expression": "if({view.custom.areas[2].active} > 0, \"var(--ink)\", \"var(--ok)\")"
                                   }
                                 }
                               }
@@ -1870,7 +1870,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[2].unacked} > 0, \"#F58220\", \"#6E7A88\")"
+                                    "expression": "if({view.custom.areas[2].unacked} > 0, \"var(--high)\", \"var(--ink-3)\")"
                                   }
                                 }
                               }
@@ -2328,7 +2328,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[3].active} > 0, \"#E6EDF3\", \"#35C46A\")"
+                                    "expression": "if({view.custom.areas[3].active} > 0, \"var(--ink)\", \"var(--ok)\")"
                                   }
                                 }
                               }
@@ -2402,7 +2402,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[3].unacked} > 0, \"#F58220\", \"#6E7A88\")"
+                                    "expression": "if({view.custom.areas[3].unacked} > 0, \"var(--high)\", \"var(--ink-3)\")"
                                   }
                                 }
                               }
@@ -2860,7 +2860,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[4].active} > 0, \"#E6EDF3\", \"#35C46A\")"
+                                    "expression": "if({view.custom.areas[4].active} > 0, \"var(--ink)\", \"var(--ok)\")"
                                   }
                                 }
                               }
@@ -2934,7 +2934,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if({view.custom.areas[4].unacked} > 0, \"#F58220\", \"#6E7A88\")"
+                                    "expression": "if({view.custom.areas[4].unacked} > 0, \"var(--high)\", \"var(--ink-3)\")"
                                   }
                                 }
                               }

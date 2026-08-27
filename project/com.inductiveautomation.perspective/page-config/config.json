@@ -31,6 +31,10 @@
     "/people": {
       "title": "People & Shifts",
       "viewPath": "AlarmDemo/People"
+    },
+    "/setup": {
+      "title": "Setup",
+      "viewPath": "AlarmDemo/Setup"
     }
   },
   "sharedDocks": {

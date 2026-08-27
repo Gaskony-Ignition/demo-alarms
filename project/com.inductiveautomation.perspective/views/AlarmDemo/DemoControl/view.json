@@ -1,7 +1,5 @@
 {
-  "custom": {
-    "setupResult": ""
-  },
+  "custom": {},
   "params": {},
   "props": {
     "defaultSize": {
@@ -1759,9 +1757,8 @@
               }
             ],
             "position": {
-              "grow": 0,
-              "shrink": 1,
-              "basis": "auto"
+              "grow": 1,
+              "shrink": 1
             }
           },
           {
@@ -1865,34 +1862,6 @@
                     }
                   },
                   {
-                    "type": "ia.input.button",
-                    "meta": {
-                      "name": "Rebuild"
-                    },
-                    "props": {
-                      "text": "Rebuild 30-day history",
-                      "style": {
-                        "classes": "ad-btn ad-btn-danger"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "config": {
-                            "script": "\tself.view.custom.setupResult = 'rebuilding history...'\n\tn = AlarmDemo.backfill.run(days=30, perDay=85)\n\tself.view.custom.setupResult = 'history rebuilt: %d journal rows' % n"
-                          },
-                          "scope": "G",
-                          "type": "script"
-                        }
-                      }
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "220px"
-                    }
-                  },
-                  {
                     "type": "ia.container.flex",
                     "meta": {
                       "name": "Sp"
@@ -1921,215 +1890,12 @@
             }
           },
           {
-            "type": "ia.container.flex",
-            "meta": {
-              "name": "SetupCard"
-            },
-            "props": {
-              "direction": "column",
-              "style": {
-                "padding": "12px",
-                "gap": "8px",
-                "classes": "ad-card"
-              }
-            },
-            "children": [
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "T"
-                },
-                "props": {
-                  "text": "Gateway setup",
-                  "style": {
-                    "classes": "ad-card-head"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "16px"
-                }
-              },
-              {
-                "type": "ia.display.label",
-                "meta": {
-                  "name": "S"
-                },
-                "props": {
-                  "text": "Creates the journal tables, the three shift schedules, the seven users, the on-call rosters and 30 days of history. Safe to press twice - it only creates what is missing.",
-                  "style": {
-                    "fontSize": "11px",
-                    "classes": "ad-faint ad-card-sub"
-                  }
-                },
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "15px"
-                }
-              },
-              {
-                "type": "ia.container.flex",
-                "meta": {
-                  "name": "SetupRow"
-                },
-                "props": {
-                  "direction": "row",
-                  "alignItems": "center",
-                  "style": {
-                    "gap": "10px"
-                  }
-                },
-                "children": [
-                  {
-                    "type": "ia.input.button",
-                    "meta": {
-                      "name": "SetUp"
-                    },
-                    "props": {
-                      "text": "Set up this gateway",
-                      "style": {
-                        "classes": "ad-btn ad-btn-primary"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "config": {
-                            "script": "\tself.view.custom.setupResult = 'working...'\n\tr = AlarmDemo.setup.run(days=30, perDay=85)\n\tself.view.custom.setupResult = 'done - %s' % ('all steps ok' if r.get('ok') else '; '.join(r.get('errors', [])))"
-                          },
-                          "scope": "G",
-                          "type": "script"
-                        }
-                      }
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "200px"
-                    }
-                  },
-                  {
-                    "type": "ia.input.button",
-                    "meta": {
-                      "name": "Recheck"
-                    },
-                    "props": {
-                      "text": "Check",
-                      "style": {
-                        "classes": "ad-btn"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "config": {
-                            "script": "\tr = AlarmDemo.setup.check()\n\tself.view.custom.setupResult = ('everything is in place' if r.get('ok') else str(r))"
-                          },
-                          "scope": "G",
-                          "type": "script"
-                        }
-                      }
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "110px"
-                    }
-                  },
-                  {
-                    "type": "ia.input.button",
-                    "meta": {
-                      "name": "ResetPeople"
-                    },
-                    "props": {
-                      "text": "Reset rosters and shifts",
-                      "style": {
-                        "classes": "ad-btn ad-btn-danger"
-                      }
-                    },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "config": {
-                            "script": "\tAlarmDemo.roster.setup(force=True)\n\tself.view.custom.setupResult = 'rosters and shifts reset to the shipped design'"
-                          },
-                          "scope": "G",
-                          "type": "script"
-                        }
-                      }
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "220px"
-                    }
-                  },
-                  {
-                    "type": "ia.display.label",
-                    "meta": {
-                      "name": "Result"
-                    },
-                    "props": {
-                      "text": "",
-                      "style": {
-                        "fontSize": "12px",
-                        "alignSelf": "center",
-                        "overflow": "hidden",
-                        "classes": "ad-muted"
-                      }
-                    },
-                    "propConfig": {
-                      "props.text": {
-                        "binding": {
-                          "type": "property",
-                          "config": {
-                            "path": "view.custom.setupResult"
-                          }
-                        }
-                      }
-                    },
-                    "position": {
-                      "grow": 1,
-                      "shrink": 1
-                    }
-                  }
-                ],
-                "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "42px"
-                }
-              }
-            ],
-            "position": {
-              "grow": 0,
-              "shrink": 1,
-              "basis": "120px"
-            }
-          },
-          {
-            "type": "ia.container.flex",
-            "meta": {
-              "name": "Sp"
-            },
-            "props": {
-              "direction": "row"
-            },
-            "children": [],
-            "position": {
-              "grow": 1,
-              "shrink": 1
-            }
-          },
-          {
             "type": "ia.display.label",
             "meta": {
               "name": "Build"
             },
             "props": {
-              "text": "ACME Alarm Demo  v1.0.2",
+              "text": "ACME Alarm Demo  (dev build)",
               "style": {
                 "fontSize": "10.5px",
                 "letterSpacing": "0.06em",

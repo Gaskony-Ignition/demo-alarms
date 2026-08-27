@@ -948,7 +948,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -1360,7 +1360,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -1772,7 +1772,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -2184,7 +2184,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -2596,7 +2596,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -3008,7 +3008,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -3420,7 +3420,7 @@
                           "text": "",
                           "style": {
                             "fontSize": "13.5px",
-                            "color": "#E6EDF3",
+                            "color": "var(--ink)",
                             "overflow": "hidden",
                             "whiteSpace": "nowrap"
                           }
@@ -4283,7 +4283,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 6 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 14, \"#E6EDF3\", \"#6E7A88\")"
+                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 6 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 14, \"var(--ink)\", \"var(--ink-3)\")"
                               }
                             }
                           }
@@ -4358,7 +4358,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 6 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 14, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 6 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 14, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%, transparent)\")"
                                   }
                                 }
                               }
@@ -4465,7 +4465,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 14 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 22, \"#E6EDF3\", \"#6E7A88\")"
+                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 14 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 22, \"var(--ink)\", \"var(--ink-3)\")"
                               }
                             }
                           }
@@ -4540,7 +4540,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 14 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 22, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 14 && (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 22, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%, transparent)\")"
                                   }
                                 }
                               }
@@ -4647,7 +4647,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"#E6EDF3\", \"#6E7A88\")"
+                                "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"var(--ink)\", \"var(--ink-3)\")"
                               }
                             }
                           }
@@ -4707,7 +4707,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%, transparent)\")"
                                   }
                                 }
                               }
@@ -4751,7 +4751,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                    "expression": "if((getHour24(now(60000)) + getMinute(now(60000)) / 60.0) >= 22 || (getHour24(now(60000)) + getMinute(now(60000)) / 60.0) < 6, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%, transparent)\")"
                                   }
                                 }
                               }
@@ -4843,7 +4843,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if(1 = 1, \"#E6EDF3\", \"#6E7A88\")"
+                                "expression": "if(1 = 1, \"var(--ink)\", \"var(--ink-3)\")"
                               }
                             }
                           }
@@ -4903,7 +4903,7 @@
                                 "binding": {
                                   "type": "expr",
                                   "config": {
-                                    "expression": "if(1 = 1, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                    "expression": "if(1 = 1, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%, transparent)\")"
                                   }
                                 }
                               }
@@ -4998,7 +4998,7 @@
               "name": "Build"
             },
             "props": {
-              "text": "ACME Alarm Demo  v1.0.2",
+              "text": "ACME Alarm Demo  (dev build)",
               "style": {
                 "fontSize": "10.5px",
                 "letterSpacing": "0.06em",

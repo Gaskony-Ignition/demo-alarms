@@ -11,15 +11,47 @@ Every query is scoped to a *site*. Two sites share one tag provider, so
 added together.
 """
 
-# The build number, reported by ?cmd=version and shown on Demo Control. It is
-# here because this module already owns the shared constants, and it exists
-# because "which build is this gateway running?" was not answerable from the
-# running demo - which turned one chart bug into four rounds of guessing.
-VERSION = "1.0.2"
+# THE build number - this line is the single source of it. Reported by
+# ?cmd=version, shown at the bottom of the Setup and Demo Control screens, and
+# read straight out of this file by build_views.py so the UI cannot drift from
+# the scripts.
+#
+# It says "dev" in the repository. `./package.sh --release X.Y.Z` stamps the
+# real version here, into the project title and into the release filename, and
+# puts "dev" back when it is done - so a gateway running a release says which
+# one, and a gateway running a working copy says it is a working copy. It
+# exists because "which build is this gateway running?" was not answerable
+# from the running demo, which turned one chart bug into four rounds of
+# guessing.
+VERSION = "dev"
 
 PROVIDER = "AlarmDemo"
-DB = "ignition"
 TABLE = "alarm_events"
+
+# Every row this demo writes - and every row its own journal profile writes -
+# has a source beginning `prov:AlarmDemo:`, because the demo's tags live in
+# their own provider. That prefix is what scopes every journal read and the
+# history wipe to this demo's own data.
+#
+# It earns its keep because `alarm_events` is Ignition's DEFAULT table name:
+# the table is shared far more often than the profile is, and on any gateway
+# where another project journals to it, an unscoped query counts that
+# project's alarms as this demo's. Seen live on a gateway holding 116,000 rows
+# belonging to two other projects.
+SOURCE_PREFIX = "prov:%s:%%" % PROVIDER
+
+
+def DB():
+    """The database connection this demo reads and writes.
+
+    A FUNCTION rather than a constant, because the answer belongs to the
+    gateway, not to the project: it comes from AlarmDemo.config, which the
+    Setup page can change while the demo is running. As a module-level
+    constant it was read once when the project loaded, so changing the
+    connection took a project scan to have any effect - which reads as "the
+    setting did not save".
+    """
+    return AlarmDemo.config.db()
 
 PRIORITY_NAMES = ["Diagnostic", "Low", "Medium", "High", "Critical"]
 PRIORITY_NUM = {n: i for i, n in enumerate(PRIORITY_NAMES)}
@@ -98,7 +130,14 @@ def _scope(hours, site, area, alias="a"):
         pred = ("split_part(split_part(%s.source,'/tag:',2),'/',1) IN (%s)"
                 % (alias, ", ".join(["?"] * len(areas))))
         args.extend(areas)
-    where = ("%s.eventtime >= ? AND %s.eventtime < ? AND " % (alias, alias)) + pred
+    # Scope to this demo's own provider as well as to the area. `alarm_events`
+    # is Ignition's default table name, so on any gateway where another
+    # project journals to the same table its alarms would otherwise appear in
+    # this demo's Pareto and its alarm rate - seen live on a gateway holding
+    # 116,000 rows from two other projects.
+    where = ("%s.eventtime >= ? AND %s.eventtime < ? AND %s.source LIKE ? AND "
+             % (alias, alias, alias)) + pred
+    args = args[:2] + [SOURCE_PREFIX] + args[2:]
     return where, args
 
 
@@ -413,7 +452,7 @@ def paretoRows(hours=24, site="Water", area="", rows=10):
             "COUNT(*) AS occurrences FROM %s a WHERE a.eventtype = 0 AND %s "
             "GROUP BY 1 ORDER BY occurrences DESC LIMIT %d"
             % (TABLE, where, int(rows)),
-            args, DB,
+            args, DB(),
         )
         out = []
         top = float(res[0]["occurrences"]) if len(res) else 0.0
@@ -444,7 +483,7 @@ def rateByHour(hours=24, site="Water", area=""):
             "LEFT JOIN (SELECT date_trunc('hour', a.eventtime) AS h, COUNT(*) AS n "
             "  FROM %s a WHERE a.eventtype = 0 AND %s GROUP BY 1) e ON e.h = g.h "
             "ORDER BY g.h" % (TABLE, where),
-            args[:2] + args, DB,
+            args[:2] + args, DB(),
         )
 
     return _safe(go, system.dataset.toDataSet(["bucket", "occurrences"], []))
@@ -471,7 +510,7 @@ def dailyLoad(days=30, site="Water", area=""):
             "LEFT JOIN (SELECT date_trunc('day', a.eventtime) AS d, COUNT(*) AS n "
             "  FROM %s a WHERE a.eventtype = 0 AND %s GROUP BY 1) e ON e.d = g.d "
             "ORDER BY g.d" % (TABLE, where),
-            args[:2] + args, DB,
+            args[:2] + args, DB(),
         )
 
     return _safe(go, system.dataset.toDataSet(["bucket", "alarms"], []))
@@ -502,7 +541,7 @@ def dailyAckTime(days=30, site="Water", area=""):
             "WHERE a.eventtype = 0 AND %s AND k.eventtime > a.eventtime "
             "  AND a.eventtime < date_trunc('day', CAST(? AS timestamp)) "
             "GROUP BY 1 ORDER BY 1" % (TABLE, TABLE, where),
-            args + [args[1]], DB,
+            args + [args[1]], DB(),
         )
 
     return _safe(go, system.dataset.toDataSet(["bucket", "minutes"], []))
@@ -521,7 +560,7 @@ def topUnacked(hours=24, site="Water", area="", rows=10):
             "  SELECT 1 FROM %s k WHERE k.eventid = a.eventid AND k.eventtype = 2) "
             "GROUP BY 1 ORDER BY 2 DESC LIMIT %d"
             % (TABLE, where, TABLE, int(rows)),
-            args, DB,
+            args, DB(),
         )
 
     return _safe(go, system.dataset.toDataSet(["Alarm", "Never acked"], []))
@@ -541,7 +580,7 @@ def priorityCounts(hours=24, site="Water", area=""):
         rows = system.db.runPrepQuery(
             "SELECT a.priority, COUNT(*) AS n FROM %s a "
             "WHERE a.eventtype = 0 AND %s GROUP BY a.priority" % (TABLE, where),
-            args, DB,
+            args, DB(),
         )
         out = dict((p, 0) for p in PRIORITY_NAMES)
         for r in rows:
@@ -571,18 +610,18 @@ def kpis(hours=24, site="Water", area=""):
 
         total = system.db.runPrepQuery(
             "SELECT COUNT(*) AS n FROM %s a WHERE a.eventtype = 0 AND %s"
-            % (TABLE, where), args, DB)[0]["n"]
+            % (TABLE, where), args, DB())[0]["n"]
 
         top3 = system.db.runPrepQuery(
             "SELECT COUNT(*) AS n FROM %s a WHERE a.eventtype = 0 AND %s "
             "GROUP BY COALESCE(NULLIF(a.displaypath,''), a.source) "
-            "ORDER BY n DESC LIMIT 3" % (TABLE, where), args, DB)
+            "ORDER BY n DESC LIMIT 3" % (TABLE, where), args, DB())
         top_n = sum([r["n"] for r in top3])
 
         flood = system.db.runPrepQuery(
             "SELECT COUNT(*) AS n FROM (SELECT date_trunc('hour', a.eventtime) AS h, "
             "COUNT(*) AS c FROM %s a WHERE a.eventtype = 0 AND %s "
-            "GROUP BY 1 HAVING COUNT(*) > 60) f" % (TABLE, where), args, DB)[0]["n"]
+            "GROUP BY 1 HAVING COUNT(*) > 60) f" % (TABLE, where), args, DB())[0]["n"]
 
         ack = system.db.runPrepQuery(
             "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY secs) AS med, "
@@ -590,7 +629,7 @@ def kpis(hours=24, site="Water", area=""):
             "  SELECT EXTRACT(EPOCH FROM (k.eventtime - a.eventtime)) AS secs"
             "  FROM %s a JOIN %s k ON k.eventid = a.eventid AND k.eventtype = 2"
             "  WHERE a.eventtype = 0 AND %s) d" % (TABLE, TABLE, where),
-            args, DB)[0]
+            args, DB())[0]
         med = ack["med"] or 0
         acked = ack["acked"] or 0
 

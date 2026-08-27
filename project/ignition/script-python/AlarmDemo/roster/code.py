@@ -35,6 +35,7 @@ the resource type's own default config.
 """
 
 import os
+import traceback
 
 USER_SOURCE = "default"
 
@@ -256,6 +257,39 @@ def ensureSchedules():
     return _safe(go, [])
 
 
+def _addPerson(username, fullname, email, phone, schedule):
+    """Create one demo user. Returns 1 if it was created, 0 if refused.
+
+    Contact info is added on a BEST-EFFORT basis, one type at a time. The
+    contact types a gateway accepts come from the notification modules it has:
+    a gateway without SMS Notification rejects an "sms" contact, and it does
+    it by throwing out of addContactInfo rather than by returning a validation
+    error - which took the whole loop with it.
+    """
+    from java.util import UUID
+    user = system.user.getNewUser(USER_SOURCE, username)
+    user.set("firstname", fullname.split(" ")[0])
+    user.set("lastname", " ".join(fullname.split(" ")[1:]))
+    # An internal user source rejects a user with no password, and addUser
+    # REPORTS that by returning a list of validation errors rather than
+    # raising - so without this the call looked like it worked and nothing was
+    # created. The value is random and never logged: these users carry contact
+    # details for notification, they are not accounts anyone signs in with.
+    user.set("password", str(UUID.randomUUID()))
+    user.set("schedule", schedule)
+    for kind, value in (("email", email), ("sms", phone)):
+        try:
+            user.addContactInfo(kind, value)
+        except:
+            LOG.info("%s contact info not accepted for %s on this gateway"
+                     % (kind, username))
+    errors = system.user.addUser(USER_SOURCE, user)
+    if errors:
+        LOG.warn("user %s rejected: %s" % (username, list(errors)))
+        return 0
+    return 1
+
+
 def ensureUsers():
     """Create the demo users, with contact info and their shift schedule."""
 
@@ -264,7 +298,7 @@ def ensureUsers():
         for u in system.user.getUsers(USER_SOURCE):
             existing.add(str(u.get("username")).lower())
 
-        made = 0
+        made, refused = 0, []
         for username, fullname, _role, email, phone, schedule in PEOPLE:
             if username.lower() in existing:
                 # Already there, but possibly from a build that predates
@@ -273,25 +307,20 @@ def ensureUsers():
                 if not userSchedule(username):
                     setSchedule(username, schedule)
                 continue
-            from java.util import UUID
-            user = system.user.getNewUser(USER_SOURCE, username)
-            user.set("firstname", fullname.split(" ")[0])
-            user.set("lastname", " ".join(fullname.split(" ")[1:]))
-            # An internal user source rejects a user with no password, and
-            # addUser REPORTS that by returning a list of validation errors
-            # rather than raising - so without this the call looked like it
-            # worked and nothing was created. The value is random and never
-            # logged: these users carry contact details for notification, they
-            # are not accounts anyone signs in with.
-            user.set("password", str(UUID.randomUUID()))
-            user.set("schedule", schedule)
-            user.addContactInfo("email", email)
-            user.addContactInfo("sms", phone)
-            errors = system.user.addUser(USER_SOURCE, user)
-            if errors:
-                LOG.warn("user %s rejected: %s" % (username, list(errors)))
-            else:
-                made += 1
+            # PER USER, not around the loop. A single person the gateway will
+            # not accept used to abort the whole thing and leave the rest
+            # uncreated - three people in, four missing, and the reason in the
+            # gateway log rather than on the screen. Now the others are still
+            # created and the ones that failed are named in the return.
+            try:
+                made += _addPerson(username, fullname, email, phone, schedule)
+            except:
+                LOG.warn("user %s could not be created: %s"
+                         % (username, traceback.format_exc()))
+                refused.append("%s (%s)" % (
+                    username, traceback.format_exc().strip().split("\n")[-1]))
+        if refused:
+            return {"made": made, "refused": refused}
         return made
 
     return _safe(go, 0)

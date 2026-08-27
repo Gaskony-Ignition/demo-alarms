@@ -79,7 +79,7 @@
               "text": "",
               "style": {
                 "textAlign": "right",
-                "color": "#9AA5B1",
+                "color": "var(--ink-2)",
                 "classes": "ad-equip-state"
               }
             },
@@ -186,7 +186,7 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "if({view.custom.bw} = true, \"#4EA8FF\", if({view.custom.sub} >= 0.30, \"#F58220\", \"#6E7A88\"))"
+                "expression": "if({view.custom.bw} = true, \"var(--low)\", if({view.custom.sub} >= 0.30, \"var(--high)\", \"var(--ink-3)\"))"
               }
             }
           }

@@ -1,155 +1,531 @@
 """
 AlarmDemo.setup - stand the whole demo up on a gateway, from the project.
 
-Everything this demo needs that lives OUTSIDE the project - the journal tables,
-the shift schedules, the users, the on-call rosters, and thirty days of history
-- is created from here. That is deliberate: a project export is the only thing
-that reliably travels between gateways, so anything the demo needs which is not
-a project resource has to be something the project can create for itself.
+This is what makes the demo a STANDALONE import. Everything it needs that is
+not a project resource - the tag provider, the 122 tags and their 76 alarms,
+the alarm journal profile, the journal tables, the shift schedules, the users,
+the on-call rosters and thirty days of history - is created from here, by the
+project, on the gateway it was imported onto. There is no package to unpack, no
+second file to import in the Designer, and no config scan to remember: 8.3's
+`system.config` lets a gateway-scope script create the config resources that
+used to have to travel as files.
 
-    AlarmDemo.setup.run()             # everything, safe to run twice
-    AlarmDemo.setup.run(days=60)      # deeper history
+    AlarmDemo.setup.check()           # report on every item, change nothing
+    AlarmDemo.setup.run()             # create whatever is missing
+    AlarmDemo.setup.fix("tags")       # just one item
     AlarmDemo.setup.run(force=True)   # also reset rosters and shifts to the
                                       # shipped design, discarding edits made
                                       # on the Notifications screen
-    AlarmDemo.setup.check()           # report state, change nothing
 
-Run it from the Script Console, from the Set up demo button on the Demo Control
-screen, or over HTTP:
+The Setup screen calls exactly these, one row per item. So does
 
+    curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=check"
     curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=setup"
 
-What it does NOT do, because a project cannot: create the `AlarmDemo` tag
-provider, the alarm journal profile, or the database connection they depend on.
-Those ship in the bundle as gateway config resources and are applied with a
-config scan - see the README. `check()` tells you which of them are missing.
+THE ONE THING IT CANNOT DO is create the database connection. That needs
+credentials, and a credential has no business travelling inside a project
+export - so the connection is made once in Config -> Databases -> Connections
+and this demo is only told its NAME (AlarmDemo.config, written from the Setup
+screen). Every other item below is created here.
+
+Every check is independent and none of them stops at the first failure:
+"the connection is fine but the tables are missing" and "the connection is
+wrong" need different actions and look identical if you only ever see the
+first error.
 """
 
-# The datasource, journal tables and tag provider are defined ONCE, in
+# The datasource, journal tables and tag provider are named ONCE, in
 # AlarmDemo.alarms. Copies in this file are how "change the DB constant"
 # quietly became a three-file edit that a fresh install gets wrong in one of
 # them and then debugs as a blank screen.
-DB = AlarmDemo.alarms.DB
+DB = AlarmDemo.alarms.DB   # a function - see its docstring
 PROVIDER = AlarmDemo.alarms.PROVIDER
 
 LOG = system.util.getLogger("AlarmDemo.setup")
 
+# Derived, never re-listed: AlarmDemo.roster is the design, and a second copy
+# of these names here is a rename waiting to be half-done.
+SCHEDULES = [s[0] for s in AlarmDemo.roster.SCHEDULES]
+ROSTERS = [r[0] for r in AlarmDemo.roster.ROSTERS]
 
-def _step(name, fn, report):
-    try:
-        report[name] = fn()
-    except:
-        import traceback
-        report[name] = "FAILED"
-        report.setdefault("errors", []).append(
-            "%s: %s" % (name, traceback.format_exc().strip().split("\n")[-1]))
-        LOG.warn("setup step %s failed: %s" % (name, traceback.format_exc()))
-    return report
+# One tag from each end of the provider. Reading both is how "the tags are
+# there" is told apart from "the first area imported and then it failed".
+PROBE_TAGS = ["Intake/RawTurbidity", "Plant/DemoScenario"]
 
 
-def run(days=30, perDay=85, force=False, history=True):
-    """Create everything and return a report of what changed.
+# --------------------------------------------------------------------------
+# gateway config resources
+# --------------------------------------------------------------------------
+# The tag provider and the alarm journal profile are gateway CONFIG resources,
+# not project resources, so they cannot be in the export. Before 8.3 that made
+# them a manual step; `system.config` creates them from here, live, with no
+# scan and no restart.
+#
+# The two config bodies below are the same JSON the resources have on disk at
+# data/config/resources/core/ignition/<type>/<name>/config.json - they are kept
+# in gateway/ as files too, for anyone who would rather scan them in.
 
-    Idempotent: rosters, schedules and users that already exist are left alone
-    unless `force` is set. History is always regenerated, because a half-built
-    30 days is worse than none.
+TAG_PROVIDER_CONFIG = {
+    "profile": {
+        "allowBackfill": False,
+        "enableTagReferenceStore": True,
+        "type": "STANDARD",
+    },
+    "settings": {
+        "defaultDatasourceName": None,
+        "editPermissions": {"securityLevels": [], "type": "AllOf"},
+        "readOnly": False,
+        "readPermissions": {"securityLevels": [], "type": "AllOf"},
+        "valuePersistence": "Database",
+        "writePermissions": {"securityLevels": [], "type": "AllOf"},
+    },
+}
+
+
+def journalConfig(datasource):
+    """The alarm journal profile, pointed at whichever connection is set.
+
+    Ignition's own default table names, not DMC_*: the demo's queries and its
+    backfill both write these, and a journal profile pointed somewhere else is
+    a screen full of nothing with no error anywhere.
     """
-    report = {}
+    return {
+        "profile": {"queryOnly": False, "type": "DATASOURCE"},
+        "settings": {
+            "advanced": {
+                "dataTableName": AlarmDemo.backfill.DATA_TABLE,
+                "tableName": AlarmDemo.alarms.TABLE,
+                "useStoreAndForward": True,
+            },
+            "dataFilters": {"pathFilterName": "", "pathOrSourceFilterName": "",
+                            "sourceFilterName": ""},
+            "datasource": datasource,
+            "eventData": {"dynamicAssociatedData": True, "dynamicConfig": True,
+                          "staticAssociatedData": True, "staticConfig": False},
+            "events": {"minPriority": "Diagnostic",
+                       "storeFromEnabledChange": False,
+                       "storeShelvedEvents": True},
+            "pruning": {"age": 1, "ageUnits": "YEAR", "enabled": False},
+        },
+    }
 
-    # 1. journal tables. Ignition creates these on the first journalled event,
-    #    but the backfill inserts straight into them, so on a fresh gateway
-    #    they have to exist first.
-    _step("journalTables", AlarmDemo.backfill.ensureSchema, report)
 
-    # 2. shift schedules, users, on-call rosters - all real gateway objects
-    _step("rosters", lambda: AlarmDemo.roster.setup(force), report)
+def _resource(typeId, name):
+    """A config resource, or None. `getResource` RAISES when it is missing
+    rather than returning None, whatever the docs say, and it raises a Java
+    throwable that a plain `except Exception` walks straight past."""
+    from java.lang import Throwable as JThrowable
+    try:
+        return system.config.getResource(moduleId="ignition", typeId=typeId,
+                                         name=name)
+    except (JThrowable, Exception):
+        return None
 
-    # 3. history, so every analytic has something to say from the first minute
-    if history:
-        _step("history", lambda: AlarmDemo.backfill.run(days=days,
-                                                        perDay=perDay), report)
-    else:
-        report["history"] = "skipped"
 
-    report["ok"] = "errors" not in report
-    LOG.info("setup complete: %s" % report)
-    return report
+def _config(res):
+    """A resource's config as a plain dict.
+
+    getConfig() hands back live wrapper objects; round-tripping through JSON
+    is what makes them ordinary Python to compare and to mutate.
+    """
+    return system.util.jsonDecode(system.util.jsonEncode(res.getConfig()))
+
+
+def _upsert(typeId, name, config, description):
+    """Create the resource, or replace it if it is already there.
+
+    `replace` needs the CURRENT signature - it is optimistic concurrency, and
+    without it the call is refused.
+    """
+    existing = _resource(typeId, name)
+    if existing is None:
+        system.config.create(moduleId="ignition", typeId=typeId, name=name,
+                             config=config, description=description,
+                             actor="AlarmDemo.setup")
+        return "created"
+    system.config.replace(moduleId="ignition", typeId=typeId, name=name,
+                          config=config, signature=existing.getSignature(),
+                          actor="AlarmDemo.setup")
+    return "updated"
+
+
+# --------------------------------------------------------------------------
+# the items
+# --------------------------------------------------------------------------
+# Each item is (key, title, check, fix, why). `check` returns (ok, detail);
+# `fix` returns a one-line account of what it did, or raises. A fix of None
+# means the item cannot be created from a project - there is exactly one.
+
+
+def _database():
+    name = DB()
+    try:
+        system.db.runScalarQuery("SELECT 1", name)
+        return True, u"connection '%s' answered" % name
+    except:
+        have = AlarmDemo.config.connections()
+        return False, (u"connection '%s' did not answer. This gateway has: %s"
+                       % (name, u", ".join(have) if have else u"(none)"))
+
+
+def _tagProviderCheck():
+    if _resource("tag-provider", PROVIDER) is None:
+        return False, u"tag provider '%s' does not exist" % PROVIDER
+    return True, u"tag provider '%s' exists" % PROVIDER
+
+
+def _tagProviderFix():
+    what = _upsert("tag-provider", PROVIDER, TAG_PROVIDER_CONFIG,
+                   "Alarm demo plant tag provider - areas live at the "
+                   "provider root")
+    return u"tag provider '%s' %s" % (PROVIDER, what)
+
+
+def _tagsCheck():
+    paths = [u"[%s]%s" % (PROVIDER, p) for p in PROBE_TAGS]
+    try:
+        qvs = system.tag.readBlocking(paths)
+    except:
+        return False, u"the tag provider did not answer"
+    bad = [p for p, q in zip(PROBE_TAGS, qvs) if not q.quality.isGood()]
+    if bad:
+        return False, u"missing or bad: %s" % u", ".join(bad)
+    n = len(AlarmDemo.tagdata.tags())
+    return True, u"%d areas readable in [%s]" % (n, PROVIDER)
+
+
+def _tagsFix():
+    """Write the demo's tags into the provider.
+
+    `collisionPolicy="o"` - overwrite. The tags are generated and the project
+    is their only source, so a rerun should put the gateway back to the shipped
+    design rather than merge with whatever is there. Tag VALUES are simulated
+    every second anyway, so nothing of anyone's is lost.
+    """
+    from java.lang import Thread as JThread
+    areas = AlarmDemo.tagdata.tags()
+    # A provider created seconds ago is registered but not necessarily
+    # accepting writes yet, and the failure is a bare exception rather than
+    # anything that says "try again". Three goes over three seconds; the first
+    # one succeeds on a provider that was already there.
+    last = None
+    for attempt in range(3):
+        try:
+            system.tag.configure(u"[%s]" % PROVIDER, areas, u"o")
+            return u"wrote %d areas into [%s]" % (len(areas), PROVIDER)
+        except:
+            import traceback
+            last = traceback.format_exc().strip().split("\n")[-1]
+            JThread.sleep(1500)
+    raise Exception(u"could not write tags into [%s]: %s" % (PROVIDER, last))
+
+
+def _journalTablesCheck():
+    """The tables exist and are readable. Counts this demo's rows, not
+    everybody's - see _historyCheck for why that distinction earns its keep."""
+    try:
+        n = AlarmDemo.backfill.count()
+        return True, u"%s is readable on '%s' - %d rows are this demo's" % (
+            AlarmDemo.alarms.TABLE, DB(), n)
+    except:
+        return False, u"%s is not readable on '%s'" % (AlarmDemo.alarms.TABLE,
+                                                       DB())
+
+
+def _journalTablesFix():
+    AlarmDemo.backfill.ensureSchema()
+    return u"%s and %s created on '%s'" % (AlarmDemo.alarms.TABLE,
+                                           AlarmDemo.backfill.DATA_TABLE, DB())
+
+
+def _journalProfileCheck():
+    """Prove the PROFILE exists and points at this demo's tables.
+
+    This is the check that separates the two ways a journal looks empty. The
+    backfill writes straight into the tables, so the item above can report
+    thousands of rows while every journal screen is blank - which is what a
+    missing or misdirected profile looks like, and it reports no error
+    anywhere.
+    """
+    res = _resource("alarm-journal", PROVIDER)
+    if res is None:
+        return False, u"alarm journal profile '%s' does not exist" % PROVIDER
+    try:
+        ds = _config(res)["settings"]["datasource"]
+    except:
+        ds = None
+    if ds != DB():
+        return False, (u"profile '%s' writes to '%s', not '%s'"
+                       % (PROVIDER, ds, DB()))
+    return True, u"profile '%s' writes to '%s'" % (PROVIDER, DB())
+
+
+def _journalProfileFix():
+    what = _upsert("alarm-journal", PROVIDER, journalConfig(DB()),
+                   "Alarm demo journal - datasource profile writing the "
+                   "standard alarm_events / alarm_event_data tables")
+    return u"alarm journal profile '%s' %s, pointed at '%s'" % (PROVIDER, what,
+                                                                DB())
+
+
+def _schedulesCheck():
+    have = [unicode(n) for n in system.user.getScheduleNames()]
+    missing = [w for w in SCHEDULES if w not in have]
+    if missing:
+        return False, u"missing: %s" % u", ".join(missing)
+    return True, u", ".join(SCHEDULES)
+
+
+ALARM_NOTIFICATION_MISSING = (
+    u"the Alarm Notification module is not installed on this gateway - "
+    u"on-call rosters are part of it, and so are the Notifications screen's "
+    u"routing and the People screen's on-call column. Everything else in this "
+    u"demo works without it.")
+
+
+def _hasAlarmNotification():
+    """Is the Alarm Notification module on this gateway?
+
+    Asked of the CONFIG RESOURCE TYPE rather than of system.alarm, for two
+    reasons. `roster-config` is registered by that module, so its presence is
+    the same question; and `system.alarm.getRosters` is missing rather than
+    failing on a gateway without it, so calling it produces an AttributeError
+    that reads like a bug in this project.
+
+    It is worth naming: on a gateway with the module absent, every other row
+    on the Setup screen goes green and this one reported
+    "ValueError: Resource type not found: ignition/roster-config", which says
+    nothing about what to do.
+    """
+    from java.lang import Throwable as JThrowable
+    try:
+        for module, typeId in system.config.getResourceTypes():
+            if unicode(module) == u"ignition" and unicode(typeId) == u"roster-config":
+                return True
+    except (JThrowable, Exception):
+        pass
+    return False
+
+
+def _rostersCheck():
+    """Read the roster CONFIG RESOURCES, not system.alarm.getRosters().
+
+    getRosters() belongs to the Alarm Notification module, and on a gateway
+    that has the module it returns roster NAMES with an empty user list for
+    every roster - so it cannot answer this question either way. The config
+    resources are what AlarmDemo.roster creates and edits, so they are what
+    this row asks about.
+    """
+    if not _hasAlarmNotification():
+        return False, ALARM_NOTIFICATION_MISSING
+    have = [unicode(r.getName()) for r in
+            system.config.getResources(moduleId="ignition",
+                                       typeId="roster-config")]
+    missing = [w for w in ROSTERS if w not in have]
+    if missing:
+        return False, u"missing: %s" % u", ".join(missing)
+    return True, u", ".join(ROSTERS)
+
+
+def _usersCheck():
+    known = set()
+    for u in system.user.getUsers(AlarmDemo.roster.USER_SOURCE):
+        known.add(unicode(u.get("username")).lower())
+    want = [p[0] for p in AlarmDemo.roster.PEOPLE]
+    missing = [w for w in want if w.lower() not in known]
+    if missing:
+        return False, u"missing: %s" % u", ".join(missing)
+    return True, u"%d people in the '%s' user source" % (
+        len(want), AlarmDemo.roster.USER_SOURCE)
+
+
+def _peopleFix(force=False):
+    """Schedules, people and rosters - one call, because they are one design.
+
+    Reports what it could not do rather than throwing: on a gateway without
+    Alarm Notification the schedules and the people are still created and only
+    the rosters cannot be, and a run that creates six of seven things should
+    say so rather than look like a failure.
+    """
+    if not _hasAlarmNotification():
+        AlarmDemo.roster.ensureSchedules()
+        AlarmDemo.roster.ensureUsers()
+        AlarmDemo.roster.applyDefaultSchedules()
+        return (u"shift schedules and people created; rosters skipped - %s"
+                % ALARM_NOTIFICATION_MISSING)
+    result = AlarmDemo.roster.setup(force)
+    users = result.get("users")
+    if isinstance(users, dict) and users.get("refused"):
+        return (u"shift schedules and on-call rosters created; these people "
+                u"were refused by the gateway: %s"
+                % u"; ".join(users["refused"]))
+    return u"shift schedules, people and on-call rosters created"
+
+
+def _historyCheck():
+    """Read THIS DEMO'S history back THROUGH the profile.
+
+    Two things have to be true and they are different questions. Rows in the
+    table prove the backfill ran; rows read back through the profile prove the
+    journal SCREENS will have something to show. Only the second is worth a
+    row on this page.
+
+    `source` is not optional. Without it the query counts every event in the
+    journal, and `alarm_events` is Ignition's default table name - so on a
+    gateway where another project already journals to it, this reported
+    "86,687 events in the last 30 days" and went green on a gateway where this
+    demo's backfill had never run at all. Every event this demo produces has a
+    source under its own provider, which is what makes the filter exact.
+    """
+    end = system.date.now()
+    events = system.alarm.queryJournal(
+        journalName=PROVIDER,
+        source=[u"prov:%s:*" % PROVIDER],
+        startDate=system.date.addDays(end, -30), endDate=end)
+    n = len(list(events))
+    if n < 100:
+        return False, u"%d of this demo's events in the last 30 days" % n
+    return True, u"%d of this demo's events in the last 30 days" % n
+
+
+def _historyFix():
+    n = AlarmDemo.backfill.run(days=30, perDay=85)
+    return u"%d journal rows written" % n
+
+
+ITEMS = [
+    ("database", "Database connection", _database, None,
+     "Config -> Databases -> Connections. Then put its name in the box above "
+     "- a connection needs credentials, so it is the one thing this project "
+     "cannot make for itself."),
+    ("tagProvider", "Tag provider", _tagProviderCheck, _tagProviderFix,
+     "A standard provider named AlarmDemo, created live through "
+     "system.config."),
+    ("tags", "Plant tags", _tagsCheck, _tagsFix,
+     "122 tags and 76 alarm definitions across nine areas, written into the "
+     "provider from the copy the project carries."),
+    ("journalTables", "Journal tables", _journalTablesCheck,
+     _journalTablesFix,
+     "alarm_events and alarm_event_data. Ignition creates them on the first "
+     "journalled event; the history backfill inserts straight into them, so "
+     "on a fresh gateway they have to exist first."),
+    ("journalProfile", "Alarm journal profile", _journalProfileCheck,
+     _journalProfileFix,
+     "The profile every journal screen reads through. Without it the tables "
+     "fill up and the screens stay empty."),
+    ("schedules", "Shift schedules", _schedulesCheck, _peopleFix,
+     "Day, Afternoon and Night - real Ignition schedules, not a table of "
+     "shift names."),
+    ("users", "People", _usersCheck, _peopleFix,
+     "Seven users in the gateway's own user source, with email and mobile."),
+    ("rosters", "On-call rosters", _rostersCheck, _peopleFix,
+     "Operations, Maintenance and Management - real Ignition on-call "
+     "rosters, which is what the Notifications screen edits."),
+    ("history", "30 days of history", _historyCheck, _historyFix,
+     "So every analytic has something to say from the first minute rather "
+     "than after a week of running."),
+]
+
+FIXABLE = [k for k, _t, _c, f, _w in ITEMS if f is not None]
+
+
+# --------------------------------------------------------------------------
+# the API the screen and the HTTP endpoint use
+# --------------------------------------------------------------------------
+
+# The three items that cannot answer anything useful until the database
+# connection does. Their real failures - "no such table", "profile points
+# somewhere else" - are worth reading; what a missing CONNECTION gets out of
+# them is a Java NullPointerException about a datasource, three times over,
+# which buries the one row that actually needs attention.
+NEEDS_DATABASE = ("journalTables", "journalProfile", "history")
 
 
 def check():
-    """Report what is and is not in place. Changes nothing.
+    """Every item's state, in install order. Changes nothing.
 
-    Written to be the first thing to run when the demo looks wrong on a new
-    gateway: it separates "the project did not import" from "the gateway
-    resources were never scanned" from "there is simply no history yet", which
-    otherwise all present as blank screens.
+    Returns {"items": [...], "ok": bool, "version": str, "db": {...}} where
+    each item is {key, title, ok, detail, fixable, why}. One row of the Setup
+    screen per item.
     """
-    report = {}
+    items = []
+    dbOk = None
+    for key, title, checkFn, fixFn, why in ITEMS:
+        if key in NEEDS_DATABASE and dbOk is False:
+            ok, detail = False, u"waiting for the database connection above"
+        else:
+            try:
+                ok, detail = checkFn()
+            except:
+                import traceback
+                ok, detail = False, traceback.format_exc().strip().split("\n")[-1]
+                LOG.warn("check %s failed: %s" % (key, traceback.format_exc()))
+        if key == "database":
+            dbOk = bool(ok)
+        items.append({"key": key, "title": title, "ok": bool(ok),
+                      "detail": detail, "fixable": fixFn is not None,
+                      "why": why})
+    return {
+        "items": items,
+        "ok": all(i["ok"] for i in items),
+        "version": AlarmDemo.alarms.VERSION,
+        "db": AlarmDemo.config.describe(),
+    }
 
-    def tagProvider():
-        # a read against any known tag proves the provider exists AND is running
-        q = system.tag.readBlocking(["[%s]Intake/RawTurbidity" % PROVIDER])[0]
-        return {"quality": str(q.quality), "ok": bool(q.quality.isGood())}
 
-    def journalTables():
-        n = system.db.runScalarQuery(
-            "SELECT COUNT(*) FROM %s" % AlarmDemo.alarms.TABLE, DB)
-        return {"datasource": DB, "rows": int(n or 0), "ok": True}
+def fix(key, force=False):
+    """Create one item. Returns a one-line account, or raises."""
+    for k, _title, _checkFn, fixFn, _why in ITEMS:
+        if k != key:
+            continue
+        if fixFn is None:
+            raise ValueError("%s cannot be created from the project" % key)
+        if fixFn is _peopleFix:
+            return fixFn(force)
+        return fixFn()
+    raise ValueError("no such setup item: %s" % key)
 
-    def journalProfile():
-        """Prove the alarm journal PROFILE exists, not just its tables.
 
-        This is the check that separates the two ways a journal looks empty.
-        The backfill writes straight into the tables, so `journalTables` above
-        can report thousands of rows while every journal screen is blank -
-        which is what a missing profile looks like, and it is one of the two
-        resources a project import cannot bring with it.
+def run(force=False, history=True):
+    """Create everything that is missing, in order, and report.
 
-        Reading the same rows back THROUGH the profile is the only thing that
-        proves the profile exists and is pointed at these tables.
-        """
-        end = system.date.now()
-        events = system.alarm.queryJournal(
-            journalName=PROVIDER,
-            startDate=system.date.addDays(end, -30), endDate=end)
-        n = len(list(events))
-        return {"profile": PROVIDER, "readable": n, "ok": n > 0}
+    Safe to run twice: every fix is an upsert. `force` also resets the rosters
+    and shift schedules to the shipped design, discarding edits made on the
+    Notifications screen.
 
-    def rosters():
-        names = [str(p) for p in system.alarm.getRosters().keys()]
-        want = ("Operations", "Maintenance", "Management")
-        return {"have": names,
-                "missing": [w for w in want if w not in names],
-                "ok": len([n for n in names if n in want]) == len(want)}
+    Ordered as the dependencies run, not as the list reads: the provider
+    before the tags that go in it, the connection's tables before the profile
+    that writes them, and the history last because it needs all three.
+    """
+    done, failed = [], []
+    dbOk = _database()[0]
+    for key, _title, checkFn, fixFn, _why in ITEMS:
+        if fixFn is None:
+            continue
+        if key in NEEDS_DATABASE and not dbOk:
+            # Three failures that all say the same thing, and none of them the
+            # thing to do about it. Say it once.
+            failed.append(u"%s: needs a working database connection first"
+                          % key)
+            continue
+        try:
+            ok, _detail = checkFn()
+        except:
+            ok = False
+        if ok and not (force and fixFn is _peopleFix):
+            continue
+        try:
+            done.append(fix(key, force))
+        except:
+            import traceback
+            failed.append("%s: %s"
+                          % (key, traceback.format_exc().strip().split("\n")[-1]))
+            LOG.warn("setup step %s failed: %s" % (key, traceback.format_exc()))
 
-    def schedules():
-        have = [str(n) for n in system.user.getScheduleNames()]
-        want = ["Day Shift", "Afternoon Shift", "Night Shift"]
-        return {"have": sorted(have),
-                "missing": [w for w in want if w not in have],
-                "ok": not [w for w in want if w not in have]}
-
-    def users():
-        known = set()
-        for u in system.user.getUsers(AlarmDemo.roster.USER_SOURCE):
-            known.add(str(u.get("username")).lower())
-        want = [p[0] for p in AlarmDemo.roster.PEOPLE]
-        missing = [w for w in want if w.lower() not in known]
-        return {"missing": missing, "ok": not missing}
-
-    def duty():
-        return AlarmDemo.roster.dutySummary()
-
-    # Ordered the way a broken install is diagnosed: the two things a project
-    # import cannot bring with it first, then what the project creates itself.
-    for name, fn in (("tagProvider", tagProvider),
-                     ("journalProfile", journalProfile),
-                     ("journalTables", journalTables),
-                     ("rosters", rosters), ("schedules", schedules),
-                     ("users", users), ("onDuty", duty)):
-        _step(name, fn, report)
-
-    report["ok"] = all(
-        isinstance(v, dict) and v.get("ok", True)
-        for k, v in report.items() if k not in ("errors", "ok"))
-    return report
+    state = check()
+    state["changed"] = done
+    if failed:
+        state["errors"] = failed
+    LOG.info("setup run: %d changed, %d failed, ok=%s"
+             % (len(done), len(failed), state["ok"]))
+    return state

@@ -1,108 +1,107 @@
 #!/usr/bin/env bash
-# Build the Ignition Exchange resource package.
+# Build the importable project zip.
 #
-#   ./package.sh            -> dist/acme_alarm_demo.<version>.zip
+#   ./package.sh                    -> dist/Alarm_Demo.zip
+#   ./package.sh --release 2.0.0    -> dist/Alarm_Demo-2.0.0.zip
 #
-# Layout follows the Exchange convention, checked against two real Exchange
-# downloads (DMC Alarm Intelligence Center 1.0.0 and Perspective Dynamic Alarm
-# Metric View 1.0.2). MANIFEST, README.md and Projects/ are the required trio;
-# Tags/ is the standard place for a tag export.
+# A PLAIN IGNITION PROJECT EXPORT, and nothing else. It used to be an Ignition
+# Exchange resource - a MANIFEST, a README, Projects/, Tags/, Gateway/ and
+# SQL/, which a human unpacked and then applied in four places. The tag
+# provider, the tags, the alarm journal profile and the journal tables are now
+# created by the project itself from its Setup screen, so all that is left to
+# ship is the project.
 #
-#   MANIFEST                        name, version, minimum Ignition, modules
-#   README.md                       Exchange README - what it is, how to install
-#   LICENSE                         MIT, as the README states
-#   Projects/AlarmDemo.zip          the project export
-#   Tags/AlarmDemo-tags.json        the tag export
-#   Gateway/                        config resources a project cannot create for
-#                                   itself: the tag provider and the alarm
-#                                   journal profile, plus the shift schedules
-#                                   and on-call rosters for anyone who would
-#                                   rather scan them in than press the button
-#   SQL/01-journal-tables.sql       journal schema, for a fresh database
+# Install on any 8.3.8+ gateway: Config -> Platform -> Projects -> Import
+# Project, choose the zip, then press "Set up this gateway" on the demo's Setup
+# screen. Nothing else.
 #
-# The Gateway/ and SQL/ folders are additions to the Exchange convention, not
-# part of it. Both are described in the README's Custom Instructions, which is
-# where an Exchange resource is expected to put anything a plain project import
-# does not cover.
+# --release stamps the version in the three places a released project carries
+# it, and puts the working tree back afterwards:
+#
+#   * AlarmDemo.alarms.VERSION      shown on screen, and at ?cmd=version
+#   * project.json title            "ACME Alarm Demo 2.0.0" - Config -> Projects'
+#                                   Edit drawer and the Perspective launch pages
+#   * project.json description      ends "... . v2.0.0" - the Projects summary
+#                                   grid shows ONLY the description column
+#   * the zip's filename            a bare Alarm_Demo.zip on someone's desktop
+#                                   is unidentifiable
+#
+# The working tree stays "(dev)" / VERSION = "dev" on purpose: a gateway running
+# a working copy should say so rather than claim to be a release.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
-STAGE="$DIST/stage"
-SLUG=acme_alarm_demo
 PROJJSON="$HERE/project/project.json"
-# Backup lives OUTSIDE project/ - the zip is built by "cd project && zip -r .",
+ALARMS="$HERE/project/ignition/script-python/AlarmDemo/alarms/code.py"
+
+DEV_TITLE="ACME Alarm Demo (dev)"
+DESC_TAIL="on-call rosters and shift schedules."
+
+VERSION=""
+case "${1:-}" in
+  "")         ;;
+  --release)  VERSION="${2:-}"
+              [[ -n "$VERSION" ]] || { echo "usage: ./package.sh --release X.Y.Z" >&2; exit 2; }
+              [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+                echo "version must look like 2.0.0, got '$VERSION'" >&2; exit 2; }
+              ;;
+  *)          echo "unknown option: $1" >&2; exit 2 ;;
+esac
+
+# Backups live OUTSIDE project/ - the zip is built by "cd project && zip -r .",
 # so a backup left inside the project tree gets zipped up too.
 PJBACKUP="$HERE/.project.json.orig"
+ALBACKUP="$HERE/.alarms.code.py.orig"
 
-VERSION="$(python3 -c '
-import json, sys
-print(json.load(open(sys.argv[1]))["version"])' "$HERE/exchange/MANIFEST")"
+if [[ -n "$VERSION" ]]; then
+  cp "$PROJJSON" "$PJBACKUP"
+  cp "$ALARMS" "$ALBACKUP"
+  trap 'mv "$PJBACKUP" "$PROJJSON"; mv "$ALBACKUP" "$ALARMS"' EXIT
 
-# The build number appears in three places - the MANIFEST, the scripts and the
-# Demo Control screen. The generator reads the MANIFEST, so the UI cannot drift;
-# the scripts carry their own copy for ?cmd=version and this is what stops that
-# one going stale. A version shown in the UI that is not the version in the
-# package is worse than no version at all.
-SCRIPT_VERSION="$(grep -oE '^VERSION = "[^"]+"' \
-  "$HERE/project/ignition/script-python/AlarmDemo/alarms/code.py" | cut -d'"' -f2)"
-if [[ "$SCRIPT_VERSION" != "$VERSION" ]]; then
-  echo "version drift: MANIFEST says $VERSION, AlarmDemo.alarms says $SCRIPT_VERSION" >&2
+  grep -q '^VERSION = "dev"' "$ALARMS" || {
+    echo "package.sh: AlarmDemo.alarms.VERSION was not \"dev\" - check for drift" >&2
+    exit 1; }
+  sed -i "s/^VERSION = \"dev\"/VERSION = \"$VERSION\"/" "$ALARMS"
+
+  grep -q "\"title\": \"$DEV_TITLE\"" "$PROJJSON" || {
+    echo "package.sh: project.json title was not '$DEV_TITLE' - check for drift" >&2
+    exit 1; }
+  sed -i "s/\"title\": \"$DEV_TITLE\"/\"title\": \"ACME Alarm Demo $VERSION\"/" "$PROJJSON"
+
+  grep -q "$DESC_TAIL\"" "$PROJJSON" || {
+    echo "package.sh: project.json description was not the expected prose - check for drift" >&2
+    exit 1; }
+  sed -i "s/$DESC_TAIL\"/$DESC_TAIL \xc2\xb7 v$VERSION\"/" "$PROJJSON"
+fi
+
+echo "--> regenerating tags and views"
+python3 "$HERE/tags/build_tags.py" >/dev/null
+python3 "$HERE/build_views.py"
+python3 "$HERE/stamp_resources.py" >/dev/null
+
+# An Ignition project export is the CONTENTS of the project directory, zipped
+# from inside it - a zip with a project/ folder at its root imports as nothing.
+#
+# What must never be in it: ignition/global-props. That resource holds the
+# project's Default Database and Perspective identity provider, so shipping a
+# dev rig's copy puts this rig's names onto every gateway that imports the zip.
+# This project has no global-props resource at all; the check is here so that
+# stays true.
+if [[ -e "$HERE/project/ignition/global-props" ]]; then
+  echo "package.sh: project/ignition/global-props must not be shipped - remove it" >&2
   exit 1
 fi
 
-# Every released project carries its version in the project Title (Config ->
-# Projects then shows what's running with no need to open anything). The
-# working tree stays "(dev)"; only the packaged project.json in the zip says
-# a version, and that is restored the moment this script exits.
-cp "$PROJJSON" "$PJBACKUP"
-trap 'mv "$PJBACKUP" "$PROJJSON"' EXIT
-sed -i "s/\"title\": \"ACME Alarm Demo (dev)\"/\"title\": \"ACME Alarm Demo $VERSION\"/" "$PROJJSON"
-grep -q "\"title\": \"ACME Alarm Demo $VERSION\"" "$PROJJSON" || {
-  echo "package.sh: project.json title wasn't 'ACME Alarm Demo (dev)' as expected - check for drift" >&2
-  exit 1
-}
-
-# Config -> Projects' summary grid shows only the Description column (Title
-# only appears in the Edit drawer / launch surfaces), so the version is
-# stamped onto both. Same backup/trap as the title - restored on exit.
-sed -i "s/\"description\": \"Self-contained Ignition alarm demonstration across two simulated sites: 120 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules.\"/\"description\": \"Self-contained Ignition alarm demonstration across two simulated sites: 120 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules. · v$VERSION\"/" "$PROJJSON"
-grep -q "shift schedules. · v$VERSION\"" "$PROJJSON" || {
-  echo "package.sh: project.json description wasn't the expected plain-prose text - check for drift" >&2
-  exit 1
-}
-
 rm -rf "$DIST"
-mkdir -p "$STAGE/Projects" "$STAGE/Tags" "$STAGE/Gateway" "$STAGE/SQL"
-
-echo "--> regenerating tags, gateway resources and views"
-python3 "$HERE/tags/build_tags.py" >/dev/null
-python3 "$HERE/gateway/build_gateway.py" >/dev/null
-python3 "$HERE/build_views.py" >/dev/null
-python3 "$HERE/stamp_resources.py" >/dev/null
-
-echo "--> project export"
-( cd "$HERE/project" && zip -qr "$STAGE/Projects/AlarmDemo.zip" . )
-
-echo "--> tag export"
-cp "$HERE/tags/build/AlarmDemo-tags.json" "$STAGE/Tags/"
-
-echo "--> gateway config resources + sql"
-for kind in tag-provider alarm-journal schedule roster-config; do
-  [[ -d "$HERE/gateway/$kind" ]] && cp -r "$HERE/gateway/$kind" "$STAGE/Gateway/"
-done
-cp "$HERE/sql/"*.sql "$STAGE/SQL/"
-
-echo "--> manifest + readme + licence"
-cp "$HERE/exchange/MANIFEST" "$STAGE/MANIFEST"
-cp "$HERE/exchange/README.md" "$STAGE/README.md"
-# The README states MIT; ship the text with it rather than only the claim.
-cp "$HERE/LICENSE" "$STAGE/LICENSE"
-
-OUT="$DIST/$SLUG.$VERSION.zip"
-( cd "$STAGE" && zip -qr "$OUT" . )
-rm -rf "$STAGE"
+mkdir -p "$DIST"
+if [[ -n "$VERSION" ]]; then
+  OUT="$DIST/Alarm_Demo-$VERSION.zip"
+else
+  OUT="$DIST/Alarm_Demo.zip"
+fi
+( cd "$HERE/project" && zip -qr "$OUT" . )
 
 echo
 echo "package: $OUT"
-unzip -l "$OUT" | sed -n '4,40p'
+unzip -l "$OUT" | tail -3

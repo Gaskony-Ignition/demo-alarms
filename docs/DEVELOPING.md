@@ -1,16 +1,15 @@
 # Alarm Demo — working notes
 
 Source for the **ACME Alarm Demo**, an Ignition 8.3 alarming demonstration
-shipped as an Ignition Exchange resource package. This file covers building and
+shipped as a standalone importable project. This file covers building and
 working on it; nothing here is needed to *use* the demo.
 
 There are two user-facing documents and neither is this one:
 
 - [`README.md`](../README.md) — the repository front page. What it is, the
-  screenshots, and the short install.
-- [`exchange/README.md`](../exchange/README.md) — the full documentation, copied
-  verbatim into the package as its `README.md`. **Change it there, not here**,
-  and re-run `./package.sh` afterwards or the package ships the old text.
+  screenshots, and the install.
+- [`REFERENCE.md`](REFERENCE.md) — every screen, the headless endpoint, the
+  requirements and the release notes.
 
 > This folder is *not* part of the Toolbox suite that shares this repository.
 > It has no `toolbox-styles` parent, no `tb_` table prefixes and no shared
@@ -22,29 +21,84 @@ There are two user-facing documents and neither is this one:
 ## Build
 
 ```bash
-./deploy.sh              # stamp, ship and project-scan
-./deploy.sh --tags       # also re-ship the tag definitions  (config scan)
-./deploy.sh --gateway    # also re-ship schedules, rosters, tag provider,
-                         # alarm journal                     (config scan)
-./deploy.sh --all
-./package.sh             # build dist/acme_alarm_demo.<version>.zip
+./deploy.sh                       # generate, ship and project-scan
+./package.sh                      # dist/Alarm_Demo.zip           (dev)
+./package.sh --release 2.0.0      # dist/Alarm_Demo-2.0.0.zip     (stamped)
+
+# prove the zip on a gateway that has never seen it
+node tools/import-project.js --gateway module-testing \
+     --zip dist/Alarm_Demo-2.0.0.zip --name AlarmDemo [--overwrite]
 ```
 
 Target gateway is `ignition-maker` on the docker server, toolkit alias
 `testbed`. Everything else about it lives in the toolkit's credentials file.
 
-**Project resources and gateway config resources are registered by two
-different scans**, behind two identically labelled *Scan File System* buttons.
-`deploy.sh` runs the right one for what it shipped; running the wrong one is
-silent.
+**`deploy.sh` ships project resources and runs one project scan, and that is
+the whole deploy.** It used to have `--tags` and `--gateway` flags that pushed
+tag definitions and gateway config resources as files and then ran the OTHER,
+identically labelled *Scan File System* button. Those are gone: the tag
+provider, the tags, the alarm journal profile, the schedules and the rosters
+are all created by the project itself now (`AlarmDemo.setup`), which is what
+makes the demo a standalone import — and keeping a second, file-based
+definition of each of them in the repo was two sources for one thing.
+
+**Every release must be proved by importing the zip**, not by looking at the
+dev gateway. `tools/import-project.js` drives Config → Platform → Projects →
+Import Project headlessly, so that is one command rather than an intention.
+2.0.0 was verified that way onto `ignition-module-testing`: a gateway with no
+AlarmDemo provider, no journal profile, a database connection under a different
+name, and another project's 116,000 rows already in `alarm_events`.
+
+## Theming
+
+The project stylesheet defines no surface colour of its own: every page, card,
+border, text and accent colour resolves to one of Ignition's own Perspective
+theme variables. Read the comment block at the top of
+`project/com.inductiveautomation.perspective/stylesheet/stylesheet.css` before
+changing anything there — it is the whole mapping, and the reason there is no
+light/dark branching anywhere in the file.
+
+Two things that are not obvious:
+
+- **The priority scale is deliberately NOT `--error` / `--warning` / `--info`.**
+  A custom theme is free to define `--error` as a near-black danger *wash* —
+  `industrial-dark` in the `ignition-themes` repo does — which would make
+  Critical invisible. The scale is the demo's own six colours, mixed toward the
+  theme's ink for its text form and the theme's card for its washes, so it
+  adapts to a light theme without being redefined.
+
+- **amCharts does not understand `var()`.** Chart colour props are parsed by
+  amCharts rather than handed to CSS, so `var(--crit)` reaches it as an
+  unrecognised string and it falls back to black — verified 8.3.8, 27/08/2026:
+  a donut of five black slices and a trend line drawn in black on a dark card.
+  Chart-internal colours are therefore the literals in `build_views.py`'s
+  `CHART_*` constants. What follows the theme instead is the chart's CHROME,
+  through CSS: `ad-xy-chart` paints every rect the chart draws with
+  `var(--card)` and `ad-chart` paints its SVG text with `var(--ink)`. CSS beats
+  an SVG presentation attribute on every gateway version, which is why the
+  background prop can stay a literal without a light theme showing a dark slab.
+
+The default theme is `dark-cool` (`session-props/props.json`), the stock theme
+whose neutrals are closest to the palette the demo was originally drawn in.
+
+## The version
+
+`AlarmDemo.alarms.VERSION` is the single source, and it says `"dev"` in the
+repository. `build_views.py` reads that line out of the file rather than
+keeping a copy, so the screens cannot drift from the scripts.
+
+`./package.sh --release X.Y.Z` stamps it, plus the project title
+(`ACME Alarm Demo X.Y.Z`), the end of the project description (`· vX.Y.Z` — the
+Config → Projects grid shows only that column) and the zip's own filename, then
+puts the working tree back to `dev` on exit. A gateway running a working copy
+says `(dev build)` on screen; a gateway running a release says which one.
 
 ## Everything is generated
 
 | Generator | Owns |
 | --------- | ---- |
-| `build_views.py` | all 20 Perspective views |
-| `tags/build_tags.py` | the 120-tag / 76-alarm tree, plus the Designer tag export |
-| `gateway/build_gateway.py` | the shift schedules and on-call rosters as config resources |
+| `build_views.py` | all 21 Perspective views |
+| `tags/build_tags.py` | the 122-tag / 76-alarm tree, the Designer tag export, and `AlarmDemo.tagdata` — the same tree embedded in the project, which is how the tags travel inside the export |
 | `stamp_resources.py` | every `resource.json` under `project/` |
 
 Edit the generator, never the JSON. `stamp_resources.py` deliberately omits
@@ -55,9 +109,18 @@ indistinguishable from the scan not running.
 ## Gateway state, and what the project can create for itself
 
 Anything not a project resource cannot travel in a project export, so
-`AlarmDemo.setup.run()` creates as much of it as scripting allows — journal
-tables, shift schedules, users, on-call rosters, history. It is idempotent and
-is wired to **Set up this gateway** on the Demo Control screen.
+`AlarmDemo.setup` creates all of it from the project: the tag provider and the
+alarm journal profile through `system.config.create`, the tags through
+`system.tag.configure` from the copy `AlarmDemo.tagdata` carries, and then the
+journal tables, shift schedules, users, on-call rosters and history. Every item
+is checked and fixed independently; the Setup screen is one row per entry in
+`AlarmDemo.setup.ITEMS`, and `?cmd=check` / `?cmd=fix` are the same calls.
+
+The **one** thing it cannot create is the database CONNECTION — that needs
+credentials, and a credential has no business inside a project export. Its
+name lives in `AlarmDemo.config`, in a settings file beside the gateway's data
+directory, written from the Setup screen. Same pattern as Order Intake's
+`Orders.Config`, deliberately.
 
 Two things remain manual, because no API creates them: the `AlarmDemo` **tag
 provider** and the `AlarmDemo` **alarm journal profile**. Both ship as config
@@ -262,14 +325,12 @@ laptop; not a phone app.
 
 ```text
 build_views.py              generates project/.../views/
-tags/build_tags.py          generates tags/build/
-gateway/build_gateway.py    generates gateway/schedule, gateway/roster-config
-gateway/                    config resources shipped with the package
+tags/build_tags.py          generates tags/build/ and AlarmDemo.tagdata
+stamp_resources.py          restamps every project/**/resource.json
 project/                    the Ignition project, as an export tree
-sql/                        journal schema
-exchange/                   MANIFEST + the Exchange README
-docs/                       these notes, and the README screenshots
-dist/                       built package
+tools/import-project.js     drives a gateway's Import Project, headlessly
+docs/                       these notes, REFERENCE.md, and the screenshots
+dist/                       the built project zip
 ```
 
 Re-shoot the screenshots with the `verify-view` tool after a visual change, at
@@ -285,5 +346,10 @@ curl "$GATEWAY/system/webdev/AlarmDemo/admin?cmd=reset"
 
 Quantise them to 256 colours before committing (Pillow's `im.quantize()`); on
 this palette it is visually lossless and thirds the file size.
-`demo-control.png` is additionally cropped to 1600x668, because the page is
-short and the rest of the shot was empty.
+
+`setup-fresh.png` is shot on a gateway that has NOT been set up - the point of
+the picture is the red rows and the Create buttons, and an all-green board
+shows neither. `themes.png` is two Overview shots of the same gateway in
+different themes, montaged side by side (`magick montage a.png b.png -tile 2x1
+-geometry +6+6`); it needs a gateway with custom themes installed, which the
+dev testbed does not have and `ignition-module-testing` does.

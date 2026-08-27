@@ -7,9 +7,12 @@ def doGet(request, session):
 	    ?cmd=status                 live tag + alarm snapshot
 	    ?cmd=scenario&name=Storm    select a demo scenario
 	    ?cmd=reset                  back to normal operation
-	    ?cmd=setup                  create everything: journal tables,
-	                                schedules, users, rosters, history
-	    ?cmd=check                  report what is in place, change nothing
+	    ?cmd=setup                  create everything this gateway is missing:
+	                                tag provider, tags, journal profile and
+	                                tables, schedules, users, rosters, history
+	    ?cmd=fix&name=tags          create ONE setup item
+	    ?cmd=check                  report on every item, change nothing
+	    ?cmd=db[&name=<connection>] read or set the database connection
 	    ?cmd=rosters                rosters, people and who is on duty
 	    ?cmd=backfill&days=30       regenerate the journal history
 	    ?cmd=summary                what is actually in the journal, by
@@ -93,16 +96,26 @@ def doGet(request, session):
 			                 'count': len(list(evts)), 'sample': rows}}
 
 		if cmd == 'setup':
-			days = int(params.get('days', 30))
 			force = params.get('force', '') in ('1', 'true', 'yes')
-			history = params.get('history', '1') not in ('0', 'false', 'no')
-			return {'json': {'ok': True,
-			                 'setup': AlarmDemo.setup.run(days=days,
-			                                              force=force,
-			                                              history=history)}}
+			return {'json': {'ok': True, 'setup': AlarmDemo.setup.run(force=force)}}
+
+		if cmd == 'fix':
+			# one setup item, by key - the same thing a Create button on the
+			# Setup screen presses
+			name = params.get('name', '')
+			return {'json': {'ok': True, 'fixed': AlarmDemo.setup.fix(name)}}
 
 		if cmd == 'check':
 			return {'json': {'ok': True, 'check': AlarmDemo.setup.check()}}
+
+		if cmd == 'db':
+			# read, or set with &name=<connection>. The one setting this demo
+			# keeps outside the project.
+			name = params.get('name', None)
+			if name is not None:
+				AlarmDemo.config.save(name)
+			return {'json': {'ok': True, 'db': AlarmDemo.config.describe(),
+			                 'connections': AlarmDemo.config.connections()}}
 
 		if cmd == 'rosters':
 			return {'json': {'ok': True,

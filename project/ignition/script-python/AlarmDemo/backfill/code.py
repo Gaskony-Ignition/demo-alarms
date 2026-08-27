@@ -37,7 +37,7 @@ from java.util import UUID
 # AlarmDemo.alarms. Copies in this file are how "change the DB constant"
 # quietly became a three-file edit that a fresh install gets wrong in one of
 # them and then debugs as a blank screen.
-DB = AlarmDemo.alarms.DB
+DB = AlarmDemo.alarms.DB   # a function - see its docstring
 TABLE = AlarmDemo.alarms.TABLE
 DATA_TABLE = "alarm_event_data"   # written only from here
 PROVIDER = AlarmDemo.alarms.PROVIDER
@@ -402,40 +402,56 @@ def ensureSchema():
 
     Ignition creates them itself on the first journalled event, but the backfill
     inserts straight into them - so on a brand new gateway it would otherwise
-    fail on a table that is about to exist. Same DDL as sql/01-journal-tables.sql;
-    the two are kept in step deliberately so a hand-built database and a
-    scripted one end up identical.
+    fail on a table that is about to exist.
+
+    This is now the ONLY copy of the DDL. There used to be a matching
+    sql/01-journal-tables.sql shipped beside it "for a hand-built database",
+    which is two definitions of one schema and a drift waiting to happen; the
+    Setup screen creates the tables, so the file had no reader.
     """
     system.db.runUpdateQuery(
         "CREATE TABLE IF NOT EXISTS %s ("
         "  id SERIAL, eventid VARCHAR(255), source VARCHAR(255),"
         "  displaypath VARCHAR(255), priority INTEGER, eventtype INTEGER,"
         "  eventflags INTEGER, eventtime TIMESTAMP NOT NULL,"
-        "  PRIMARY KEY (id, eventtime))" % TABLE, DB)
+        "  PRIMARY KEY (id, eventtime))" % TABLE, DB())
     system.db.runUpdateQuery(
         "CREATE TABLE IF NOT EXISTS %s ("
         "  id INTEGER, propname VARCHAR(255), dtype INTEGER, intvalue BIGINT,"
-        "  floatvalue DOUBLE PRECISION, strvalue TEXT)" % DATA_TABLE, DB)
+        "  floatvalue DOUBLE PRECISION, strvalue TEXT)" % DATA_TABLE, DB())
     system.db.runUpdateQuery(
         "CREATE INDEX IF NOT EXISTS alarm_event_dataidndx ON %s (id)"
-        % DATA_TABLE, DB)
+        % DATA_TABLE, DB())
     system.db.runUpdateQuery(
         "CREATE INDEX IF NOT EXISTS alarm_events_time_type_idx ON %s "
-        "(eventtime, eventtype)" % TABLE, DB)
+        "(eventtime, eventtype)" % TABLE, DB())
     return True
 
 
 def clear():
-    """Empty the journal.
+    """Delete THIS DEMO'S journal history. Nothing else in the table is touched.
 
-    Everything, not just the generated rows: this journal profile exists only
-    for the demo, and now that backfilled rows carry real UUIDs there is no
-    marker left to tell them apart. On a shared journal this would be the wrong
-    thing to do - see the README before pointing the profile at one.
+    It used to be `DELETE FROM alarm_events` with a README note saying not to
+    point the profile at a shared journal. That was the wrong shape for a demo
+    whose whole install story is "import it onto your gateway": the journal
+    TABLE is shared far more often than the profile is, because
+    `alarm_events` / `alarm_event_data` are Ignition's defaults and every
+    profile on a gateway that nobody renamed writes to the same two.
+
+    Found on a gateway with 116,000 rows belonging to two other projects in
+    the table this demo had just been pointed at - which one press of Rebuild
+    30-day history would have deleted.
     """
-    n = system.db.runUpdateQuery("DELETE FROM %s" % TABLE, DB)
-    system.db.runUpdateQuery("DELETE FROM %s" % DATA_TABLE, DB)
-    LOG.info("cleared %d journal rows" % n)
+    ids = "SELECT id FROM %s WHERE source LIKE ?" % TABLE
+    # data rows first: they are addressed by the event ids, so deleting the
+    # events first would leave them orphaned and unfindable.
+    system.db.runPrepUpdate(
+        "DELETE FROM %s WHERE id IN (%s)" % (DATA_TABLE, ids),
+        [AlarmDemo.alarms.SOURCE_PREFIX], DB())
+    n = system.db.runPrepUpdate(
+        "DELETE FROM %s WHERE source LIKE ?" % TABLE,
+        [AlarmDemo.alarms.SOURCE_PREFIX], DB())
+    LOG.info("cleared %d of this demo's journal rows" % n)
     return n
 
 
@@ -462,18 +478,31 @@ def run(days=30, perDay=85, wipe=True):
         for r in chunk:
             args.extend([r[0], r[1], r[2], r[3], r[4],
                          FLAGS.get(r[1], 0), r[5]])
-        system.db.runPrepUpdate(values, args, DB)
+        system.db.runPrepUpdate(values, args, DB())
         written += len(chunk)
 
     LOG.info("backfill complete: %d rows" % written)
     return written
 
 
+def count():
+    """How many journal rows belong to THIS DEMO.
+
+    Not `SELECT COUNT(*)`: on a shared table that counts everybody's, which is
+    how "30 days of history" reported itself ready on a gateway where the
+    backfill had never run - the table held 116,000 rows and none of them were
+    this demo's.
+    """
+    return int(system.db.runPrepQuery(
+        "SELECT COUNT(*) AS n FROM %s WHERE source LIKE ?" % TABLE,
+        [AlarmDemo.alarms.SOURCE_PREFIX], DB())[0]["n"] or 0)
+
+
 def summary():
-    """Quick sanity check - what is actually in the journal."""
-    return system.db.runQuery(
+    """Quick sanity check - what is actually in THIS DEMO's journal history."""
+    return system.db.runPrepQuery(
         "SELECT priority, eventtype, COUNT(*) AS n, MIN(eventtime) AS first, "
-        "MAX(eventtime) AS last FROM %s GROUP BY priority, eventtype "
-        "ORDER BY priority DESC, eventtype" % TABLE,
-        DB,
+        "MAX(eventtime) AS last FROM %s WHERE source LIKE ? "
+        "GROUP BY priority, eventtype ORDER BY priority DESC, eventtype" % TABLE,
+        [AlarmDemo.alarms.SOURCE_PREFIX], DB(),
     )

@@ -764,6 +764,83 @@
                 }
               }
             }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "N_Setup"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "11px",
+                "classes": "ad-nav-item"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.icon",
+                "meta": {
+                  "name": "Icon"
+                },
+                "props": {
+                  "path": "material/build",
+                  "style": {
+                    "width": "18px",
+                    "height": "18px"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "18px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Text"
+                },
+                "props": {
+                  "text": "Setup",
+                  "style": {
+                    "textAlign": "left",
+                    "classes": "ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({page.props.path} = \"/setup\", \"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "38px"
+            },
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "page": "/setup"
+                  },
+                  "scope": "C",
+                  "type": "nav"
+                }
+              }
+            }
           }
         ],
         "position": {
@@ -780,7 +857,7 @@
           "direction": "column",
           "style": {
             "padding": "12px",
-            "borderTop": "1px solid #273140",
+            "borderTop": "1px solid var(--line)",
             "gap": "3px",
             "classes": "ad-nav-footer"
           }
@@ -835,7 +912,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({session.custom.live.counts.Critical} > 0, \"#E5225B\", if({session.custom.live.counts.High} > 0, \"#F58220\", if({session.custom.live.total} > 0, \"#F5C518\", \"#35C46A\")))"
+                        "expression": "if({session.custom.live.counts.Critical} > 0, \"var(--crit)\", if({session.custom.live.counts.High} > 0, \"var(--high)\", if({session.custom.live.total} > 0, \"var(--med)\", \"var(--ok)\")))"
                       }
                     }
                   }
@@ -871,7 +948,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "if({session.custom.live.counts.Critical} > 0, \"#E5225B\", if({session.custom.live.counts.High} > 0, \"#F58220\", if({session.custom.live.total} > 0, \"#F5C518\", \"#35C46A\")))"
+                        "expression": "if({session.custom.live.counts.Critical} > 0, \"var(--crit)\", if({session.custom.live.counts.High} > 0, \"var(--high)\", if({session.custom.live.total} > 0, \"var(--med)\", \"var(--ok)\")))"
                       }
                     }
                   }
@@ -917,12 +994,98 @@
               "shrink": 0,
               "basis": "15px"
             }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Theme"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "paddingTop": "10px",
+                "marginTop": "4px",
+                "borderTop": "1px solid var(--line)",
+                "gap": "3px",
+                "classes": "ad-nav-theme"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ThemeLabel"
+                },
+                "props": {
+                  "text": "THEME",
+                  "style": {
+                    "classes": "ad-kpi-label ad-nav-text"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "13px"
+                }
+              },
+              {
+                "type": "ia.input.dropdown",
+                "meta": {
+                  "name": "Pick"
+                },
+                "props": {
+                  "options": [],
+                  "placeholder": "Theme",
+                  "allowClearing": false,
+                  "showSearch": false,
+                  "style": {
+                    "height": "30px",
+                    "classes": "ad-nav-text ad-theme-select"
+                  }
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.props.theme",
+                        "bidirectional": true
+                      }
+                    }
+                  },
+                  "props.options": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "1"
+                      },
+                      "transforms": [
+                        {
+                          "type": "script",
+                          "code": "\treturn AlarmDemo.ui.themeOptions()"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "30px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "56px"
+            }
           }
         ],
         "position": {
           "grow": 0,
           "shrink": 0,
-          "basis": "104px"
+          "basis": "162px"
         }
       }
     ],

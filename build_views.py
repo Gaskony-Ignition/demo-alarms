@@ -23,17 +23,32 @@ Views produced:
 import io
 import json
 import os
+import re
 import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = os.path.join(HERE, "project", "com.inductiveautomation.perspective", "views")
 
-# ONE source for the build number: the package MANIFEST. The scripts carry it
-# too (AlarmDemo.alarms.VERSION) and package.sh fails the build if the two ever
-# disagree - a version shown in the UI that is not the version in the package is
-# worse than no version at all.
-with io.open(os.path.join(HERE, "exchange", "MANIFEST"), encoding="utf-8") as _f:
-    VERSION = json.load(_f)["version"]
+# ONE source for the build number, and it is the script the gateway runs:
+# AlarmDemo.alarms.VERSION. Reading it out of that file rather than keeping a
+# second copy here is what stops the screens and the scripts disagreeing, which
+# is worse than showing no version at all.
+def _version():
+    path = os.path.join(HERE, "project", "ignition", "script-python",
+                        "AlarmDemo", "alarms", "code.py")
+    with io.open(path, encoding="utf-8") as f:
+        m = re.search(r'^VERSION = "([^"]+)"', f.read(), re.M)
+    if not m:
+        raise SystemExit("no VERSION line in AlarmDemo.alarms - check for drift")
+    return m.group(1)
+
+
+VERSION = _version()
+
+# "v1.2.0" for a release, "(dev build)" for a working copy - "vdev" reads as a
+# version number that is not one.
+BUILD_TEXT = ("ACME Alarm Demo  (dev build)" if VERSION == "dev"
+              else "ACME Alarm Demo  v%s" % VERSION)
 
 PROV = "[AlarmDemo]"
 
@@ -122,6 +137,17 @@ def prop_bind(path):
     return {"binding": {"type": "property", "config": {"path": path}}}
 
 
+def prop_bind_rw(path):
+    """A property binding that also writes back.
+
+    `bidirectional` goes INSIDE `config`. Beside it, the binding still reads
+    and the component still renders the current value - it simply never writes
+    a change back, which reads as "the control is decorative".
+    """
+    return {"binding": {"type": "property",
+                        "config": {"path": path, "bidirectional": True}}}
+
+
 def script_tf(code):
     return [{"type": "script", "code": code}]
 
@@ -208,6 +234,36 @@ def write(path, v):
 def param_in(*names):
     return dict((("params." + n), {"paramDirection": "input", "persistent": True})
                 for n in names)
+
+
+# ---------------------------------------------------------------------------
+# The chart palette - the one place a CSS variable cannot go
+# ---------------------------------------------------------------------------
+#
+# Everything else in this file names a colour as `var(--crit)` and lets the
+# stylesheet resolve it against whichever Perspective theme the session is on.
+# The chart components are the exception: amCharts PARSES its colour props
+# rather than handing them to CSS, so `var(--...)` reaches it as an
+# unrecognised string and it falls back to black - a donut of five black
+# slices and a trend line drawn in black on a dark card. Verified on 8.3.8,
+# 27/08/2026.
+#
+# So chart-internal colours are literals, and they are the same six bases the
+# stylesheet publishes as --crit-base ... --ok-base. Change one, change both.
+# Anything that has to MATCH a chart - the priority legend's swatches sit
+# beside the donut's slices - uses these too, for the same reason.
+#
+# What follows the theme instead is the chart's chrome, and it does it through
+# CSS: `ad-xy-chart` paints every rect the chart draws with var(--card), and
+# `ad-chart` paints its SVG text with var(--ink). Both beat an SVG
+# presentation attribute on every gateway version, which is why the background
+# prop below can stay a literal without a light theme showing a dark slab.
+CHART_CRIT = "#E5225B"
+CHART_HIGH = "#F58220"
+CHART_MED = "#F5C518"
+CHART_LOW = "#4EA8FF"
+CHART_DIAG = "#8B98A9"
+CHART_OK = "#35C46A"
 
 
 # ---------------------------------------------------------------------------
@@ -325,8 +381,8 @@ def w_pump():
                               "if({view.custom.fault} = true, \"FAULT\", "
                               "if({view.custom.run} = true, \"RUNNING\", \"STOPPED\"))"),
                           "props.style.color": expr_bind(
-                              "if({view.custom.fault} = true, \"#E5225B\", "
-                              "if({view.custom.run} = true, \"#35C46A\", \"#6E7A88\"))"),
+                              "if({view.custom.fault} = true, \"var(--crit)\", "
+                              "if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\"))"),
                       }),
                 label("Amps", classes="ad-faint", position=fixed("52px"),
                       style={"fontSize": "11px", "textAlign": "right",
@@ -380,10 +436,10 @@ def w_stat():
                               "numberFormat({view.custom.value}, {view.params.fmt})"),
                           "props.style.color": expr_bind(
                               "if({view.params.invert} = true, "
-                              "  if({view.custom.value} <= {view.params.crit}, \"#E5225B\", "
-                              "  if({view.custom.value} <= {view.params.warn}, \"#F5C518\", \"#E6EDF3\")), "
-                              "  if({view.custom.value} >= {view.params.crit}, \"#E5225B\", "
-                              "  if({view.custom.value} >= {view.params.warn}, \"#F5C518\", \"#E6EDF3\")))"),
+                              "  if({view.custom.value} <= {view.params.crit}, \"var(--crit)\", "
+                              "  if({view.custom.value} <= {view.params.warn}, \"var(--med)\", \"var(--ink)\")), "
+                              "  if({view.custom.value} >= {view.params.crit}, \"var(--crit)\", "
+                              "  if({view.custom.value} >= {view.params.warn}, \"var(--med)\", \"var(--ink)\")))"),
                       }),
                 label("Unit", classes="ad-kpi-unit", position=fixed("46px"),
                       style={"paddingBottom": "3px"},
@@ -423,7 +479,7 @@ def w_meter():
                 label("Name", classes="ad-equip-name", position=grow(1),
                       binds={"props.text": prop_bind("view.params.title")}),
                 label("Val", classes="ad-equip-state", position=fixed("70px"),
-                      style={"textAlign": "right", "color": "#9AA5B1"},
+                      style={"textAlign": "right", "color": "var(--ink-2)"},
                       binds={"props.text": expr_bind(
                           "numberFormat({view.custom.value}, \"0.0\") + \" \" "
                           "+ {view.params.unit}")}),
@@ -448,8 +504,8 @@ def w_meter():
                       "\"turbidity \" + numberFormat({view.custom.sub}, \"0.000\") "
                       "+ \" NTU\" + if({view.custom.bw} = true, \"  -  BACKWASHING\", \"\")"),
                       "props.style.color": expr_bind(
-                          "if({view.custom.bw} = true, \"#4EA8FF\", "
-                          "if({view.custom.sub} >= 0.30, \"#F58220\", \"#6E7A88\"))")}),
+                          "if({view.custom.bw} = true, \"var(--low)\", "
+                          "if({view.custom.sub} >= 0.30, \"var(--high)\", \"var(--ink-3)\"))")}),
         ],
         direction="column", gap=4,
         classes="ad-equip",
@@ -512,9 +568,9 @@ def w_machine():
                               "if({view.custom.jam} = true, \"JAM\", "
                               "if({view.custom.run} = true, \"RUNNING\", \"STOPPED\")))"),
                           "props.style.color": expr_bind(
-                              "if({view.custom.fault} = true, \"#E5225B\", "
-                              "if({view.custom.jam} = true, \"#F5C518\", "
-                              "if({view.custom.run} = true, \"#35C46A\", \"#6E7A88\")))"),
+                              "if({view.custom.fault} = true, \"var(--crit)\", "
+                              "if({view.custom.jam} = true, \"var(--med)\", "
+                              "if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\")))"),
                       }),
                 label("Amps", classes="ad-faint", position=fixed("52px"),
                       style={"fontSize": "11px", "textAlign": "right",
@@ -573,8 +629,8 @@ def w_motor():
                           "if({view.custom.fault} = true, \"FAULT\", "
                           "if({view.custom.run} = true, \"RUNNING\", \"STOPPED\"))"),
                       "props.style.color": expr_bind(
-                          "if({view.custom.fault} = true, \"#E5225B\", "
-                          "if({view.custom.run} = true, \"#35C46A\", \"#6E7A88\"))"),
+                          "if({view.custom.fault} = true, \"var(--crit)\", "
+                          "if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\"))"),
                   }),
         ],
         direction="column", gap=2,
@@ -846,6 +902,7 @@ NAV_ITEMS = [
     ("Notifications", "/notifications", False, "material/contact_phone"),
     ("People & Shifts", "/people", False, "material/people"),
     ("Demo Control", "/demo", False, "material/tune"),
+    ("Setup", "/setup", False, "material/build"),
 ]
 
 
@@ -855,9 +912,9 @@ NAV_ITEMS = [
 # warning triangle. Green when there is nothing standing - the one place on the
 # screen that says "all clear" without being asked.
 ALARM_COLOUR = (
-    "if({session.custom.live.counts.Critical} > 0, \"#E5225B\", "
-    "if({session.custom.live.counts.High} > 0, \"#F58220\", "
-    "if({session.custom.live.total} > 0, \"#F5C518\", \"#35C46A\")))")
+    "if({session.custom.live.counts.Critical} > 0, \"var(--crit)\", "
+    "if({session.custom.live.counts.High} > 0, \"var(--high)\", "
+    "if({session.custom.live.total} > 0, \"var(--med)\", \"var(--ok)\")))")
 
 NAV_OPEN = 230
 NAV_SHUT = 62
@@ -874,6 +931,44 @@ NAV_TOGGLE = (
     "self.session.custom.navOpen = is_open\n"
     "system.perspective.alterDock('nav', "
     "{'size': %d if is_open else %d})" % (NAV_OPEN, NAV_SHUT))
+
+
+def theme_picker():
+    """The theme control, in the sidebar footer rather than the header.
+
+    The header is already at its limit - three of its four blocks are shed by
+    media query on a laptop - and a dropdown there would be the fourth. The
+    footer has the room, the control is a per-session preference rather than
+    part of the demo, and `ad-nav-text` means the collapsed rail drops it with
+    everything else that needs the width.
+
+    No persistence and no `custom` prop: the value binds straight to
+    `session.props.theme`, so the pick holds for the session (a page reload
+    keeps it - it lives in the session, not the component) and a fresh session
+    lands back on the project's own default, `dark-cool`.
+
+    Options come from the gateway rather than a list here, so a theme pack
+    installed on the target shows up without a new release of the demo.
+    """
+    return flex("Theme", [
+        label("ThemeLabel", "THEME", classes="ad-kpi-label ad-nav-text",
+              position=fixed("13px")),
+        C("ia.input.dropdown", "Pick",
+          {"options": [], "placeholder": "Theme",
+           "allowClearing": False, "showSearch": False},
+          classes="ad-nav-text ad-theme-select",
+          style={"height": "30px"}, position=fixed("30px"),
+          binds={"props.value": prop_bind_rw("session.props.theme"),
+                 # a constant expression, so this is read once per session
+                 # rather than polled - the theme list does not change under a
+                 # running session, and a poll here would be a query a second
+                 # for the life of every screen
+                 "props.options": expr_bind(
+                     "1", script_tf("\treturn AlarmDemo.ui.themeOptions()"))}),
+    ], direction="column", gap=3, classes="ad-nav-theme",
+        style={"paddingTop": "10px", "marginTop": "4px",
+               "borderTop": "1px solid var(--line)"},
+        position=fixed("56px"))
 
 
 def v_nav():
@@ -958,9 +1053,10 @@ def v_nav():
                   position=fixed("15px"),
                   binds={"props.text": expr_bind(
                       "toStr({session.custom.live.unacked}) + \" unacknowledged\"")}),
+            theme_picker(),
         ], direction="column", gap=3, classes="ad-nav-footer",
-            style={"padding": "12px", "borderTop": "1px solid #273140"},
-            position=fixed("104px")),
+            style={"padding": "12px", "borderTop": "1px solid var(--line)"},
+            position=fixed("162px")),
     ], direction="column",
         classes="ad-nav ad-root",
         style={"height": "100%"},
@@ -1267,7 +1363,7 @@ def v_overview():
         flex("AllClear", [
             label("Msg", "No active alarms on this site",
                   position=fixed("20px"),
-                  style={"textAlign": "center", "color": "#35C46A",
+                  style={"textAlign": "center", "color": "var(--ok)",
                          "fontSize": "14px", "fontWeight": "600"}),
             label("Sub", "the plant is running within limits",
                   classes="ad-faint", position=fixed("16px"),
@@ -1557,7 +1653,7 @@ AXIS_LOOK = {
     "grid": {"color": "#6D7486", "dashArray": "", "opacity": 0.18,
              "position": 0.5},
     "inside": False,
-    "labels": {"color": "#8B98A9", "opacity": 1, "rotation": 0},
+    "labels": {"color": CHART_DIAG, "opacity": 1, "rotation": 0},
     "opposite": False,
 }
 
@@ -1645,13 +1741,13 @@ def v_analytics():
         # there is no index that can run off the end of the result set.
         rows.append(flex("P%d" % i, [
             label("Name", position=fixed("330px"),
-                  style={"fontSize": "12px", "color": "#E6EDF3",
+                  style={"fontSize": "12px", "color": "var(--ink)",
                          "overflow": "hidden", "whiteSpace": "nowrap"},
                   binds={"props.text": prop_bind(
                       "view.custom.pareto[%d].name" % i)}),
             flex("Track", [
                 flex("Bar", [],
-                     style={"backgroundColor": "#4EA8FF",
+                     style={"backgroundColor": "var(--low)",
                             "borderRadius": "4px", "height": "100%"},
                      position={"grow": 0, "shrink": 0, "basis": "0%"},
                      binds={"position.basis": prop_bind(
@@ -1661,7 +1757,7 @@ def v_analytics():
                 position=grow(1)),
             label("N", position=fixed("52px"),
                   style={"fontSize": "12px", "fontWeight": "650",
-                         "textAlign": "right", "color": "#9AA5B1"},
+                         "textAlign": "right", "color": "var(--ink-2)"},
                   binds={"props.text": prop_bind(
                       "view.custom.pareto[%d].n" % i)}),
         ], gap=10, align="center", position=fixed("23px"),
@@ -1689,8 +1785,8 @@ def v_analytics():
             "visible": True,
             "line": {
                 "appearance": {
-                    "stroke": {"color": "#F58220", "opacity": 1, "width": 2},
-                    "fill": {"color": "#F58220", "opacity": 0.18},
+                    "stroke": {"color": CHART_HIGH, "opacity": 1, "width": 2},
+                    "fill": {"color": CHART_HIGH, "opacity": 0.18},
                     "bullets": [{"enabled": False}],
                 },
             },
@@ -1713,8 +1809,8 @@ def v_analytics():
 
     # --- priority mix: a fixed five-slice donut, one binding per slice, so a
     # priority with no alarms is an empty wedge rather than an error.
-    PRI = [("Critical", "#E5225B"), ("High", "#F58220"), ("Medium", "#F5C518"),
-           ("Low", "#4EA8FF"), ("Diagnostic", "#8B98A9")]
+    PRI = [("Critical", CHART_CRIT), ("High", CHART_HIGH), ("Medium", CHART_MED),
+           ("Low", CHART_LOW), ("Diagnostic", CHART_DIAG)]
     donut = C("ia.chart.pie", "Priority", {
         "colors": [c for _n, c in PRI],
         "cutoutRadius": 55,
@@ -1747,7 +1843,7 @@ def v_analytics():
                  style={"backgroundColor": c, "borderRadius": "3px",
                         "height": "11px", "alignSelf": "center"}),
             label("Name", n, position=grow(1),
-                  style={"fontSize": "12px", "color": "#E6EDF3"}),
+                  style={"fontSize": "12px", "color": "var(--ink)"}),
             label("N", position=fixed("38px"), classes="ad-muted",
                   style={"fontSize": "12px", "textAlign": "right"},
                   binds={"props.text": prop_bind(
@@ -1786,13 +1882,13 @@ def v_analytics():
                  "toStr({view.custom.kpis.ackMedianMin})", "min"),
         kpi_tile("K4", "Never acknowledged",
                  "toStr({view.custom.kpis.unackedPct})", "%",
-                 "if({view.custom.kpis.unackedPct} >= 40, \"#F58220\", \"#E6EDF3\")"),
+                 "if({view.custom.kpis.unackedPct} >= 40, \"var(--high)\", \"var(--ink)\")"),
         kpi_tile("K5", "Top 3 share of load",
                  "toStr({view.custom.kpis.topShare})", "%",
-                 "if({view.custom.kpis.topShare} >= 40, \"#F5C518\", \"#E6EDF3\")"),
+                 "if({view.custom.kpis.topShare} >= 40, \"var(--med)\", \"var(--ink)\")"),
         kpi_tile("K6", "Flood hours",
                  "toStr({view.custom.kpis.floodHours})", "",
-                 "if({view.custom.kpis.floodHours} > 0, \"#E5225B\", \"#35C46A\")"),
+                 "if({view.custom.kpis.floodHours} > 0, \"var(--crit)\", \"var(--ok)\")"),
     ], gap=10, position=fixed("94px"))
 
     controls = flex("Controls", [
@@ -1993,7 +2089,7 @@ def v_metrics():
                                   "toStr({view.custom.areas[%d].active})" % i),
                               "props.style.color": expr_bind(
                                   "if({view.custom.areas[%d].active} > 0, "
-                                  "\"#E6EDF3\", \"#35C46A\")" % i),
+                                  "\"var(--ink)\", \"var(--ok)\")" % i),
                           }),
                     label("L", "ACTIVE", classes="ad-kpi-label",
                           position=fixed("auto"),
@@ -2008,7 +2104,7 @@ def v_metrics():
                                   "toStr({view.custom.areas[%d].unacked})" % i),
                               "props.style.color": expr_bind(
                                   "if({view.custom.areas[%d].unacked} > 0, "
-                                  "\"#F58220\", \"#6E7A88\")" % i),
+                                  "\"var(--high)\", \"var(--ink-3)\")" % i),
                           }),
                     label("L", "UNACKED", classes="ad-kpi-label",
                           position=fixed("auto"),
@@ -2043,9 +2139,9 @@ def v_metrics():
     # getting better or worse". Separate charts rather than one with two
     # y-scales: alarms and minutes share no unit, and a dual axis would let the
     # layout decide which line looks worse.
-    load = day_trend("Load", "view.custom.dailyLoad", "alarms", "#4EA8FF",
+    load = day_trend("Load", "view.custom.dailyLoad", "alarms", CHART_LOW,
                      "Alarms per day", "alarms")
-    ack = day_trend("Ack", "view.custom.dailyAck", "minutes", "#35C46A",
+    ack = day_trend("Ack", "view.custom.dailyAck", "minutes", CHART_OK,
                     "Average minutes to acknowledge", "minutes")
 
     root = flex("root", [
@@ -2252,7 +2348,7 @@ def v_notifications():
             base = "view.custom.rosters[%d].members[%d]" % (i, m)
             rows.append(flex("M%d" % m, [
                 label("Name", position=grow(1),
-                      style={"fontSize": "12.5px", "color": "#E6EDF3",
+                      style={"fontSize": "12.5px", "color": "var(--ink)",
                              "overflow": "hidden", "whiteSpace": "nowrap"},
                       binds={"props.text": prop_bind(base + ".name")}),
                 label("Sched", position=fixed("112px"),
@@ -2420,7 +2516,7 @@ def v_people():
         ]
         return flex("P%d" % p, [
             label("Name", position=fixed("150px"),
-                  style={"fontSize": "13.5px", "color": "#E6EDF3",
+                  style={"fontSize": "13.5px", "color": "var(--ink)",
                          "overflow": "hidden", "whiteSpace": "nowrap"},
                   binds={"props.text": prop_bind(base + ".name")}),
             label("Role", position=fixed("132px"), classes="ad-faint",
@@ -2521,7 +2617,7 @@ def v_people():
                              position={"grow": 0, "shrink": 0,
                                        "basis": pct(end - start)},
                              binds={"props.style.backgroundColor": expr_bind(
-                                 "if(%s, \"#4EA8FF\", \"rgba(78,168,255,0.28)\")"
+                                 "if(%s, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%%, transparent)\")"
                                  % active)}))
             cursor = end
         if cursor < 24:
@@ -2532,7 +2628,7 @@ def v_people():
             label("Name", name, position=fixed("150px"),
                   style={"fontSize": "12.5px", "whiteSpace": "nowrap"},
                   binds={"props.style.color": expr_bind(
-                      "if(%s, \"#E6EDF3\", \"#6E7A88\")" % active)}),
+                      "if(%s, \"var(--ink)\", \"var(--ink-3)\")" % active)}),
             label("Hours", hours, classes="ad-faint", position=fixed("128px"),
                   style={"fontSize": "11.5px", "whiteSpace": "nowrap"}),
             flex("Track", segs, classes="ad-track", position=grow(1)),
@@ -2637,7 +2733,7 @@ def v_people():
             # running?" was not answerable from the running demo, and a chart
             # bug that was actually a browser setting cost four rounds of
             # guessing partly because of it.
-            label("Build", "ACME Alarm Demo  v%s" % VERSION,
+            label("Build", BUILD_TEXT,
                   classes="ad-faint", position=fixed("14px"),
                   style={"fontSize": "10.5px", "letterSpacing": "0.06em",
                          "textAlign": "right"}),
@@ -2664,6 +2760,206 @@ def v_people():
             transform=script_tf("\treturn AlarmDemo.roster.dutySummary()")),
     }
     write("AlarmDemo/People", view(root, custom=custom, propconfig=pc))
+
+
+# ---------------------------------------------------------------------------
+# Setup - what a fresh gateway needs, and the buttons that do it
+# ---------------------------------------------------------------------------
+
+# One row per AlarmDemo.setup.ITEMS entry. The list is generated STATICALLY at
+# this length rather than repeated from data, because Perspective has no repeat
+# container that can carry a per-row button: each row binds to
+# view.custom.state.items[i] and shows nothing when that index is absent, so a
+# tenth item added to the script appears here the moment this count is bumped.
+SETUP_ROWS = 9
+
+
+def setup_row(i):
+    item = "view.custom.state.items[%d]" % i
+    return flex("R%d" % i, [
+        label("Status", classes="ad-chip", position=fixed("94px"),
+              style={"textAlign": "center", "alignSelf": "center",
+                     "lineHeight": "22px"},
+              binds={
+                  "props.text": expr_bind(
+                      "if({%s.ok} = true, \"READY\", \"MISSING\")" % item),
+                  "props.style.classes": expr_bind(
+                      "if({%s.ok} = true, \"ad-chip ad-chip-ok\", "
+                      "\"ad-chip ad-chip-critical\")" % item),
+              }),
+        flex("Text", [
+            label("Title", position=fixed("17px"),
+                  style={"fontSize": "13.5px", "fontWeight": "600"},
+                  binds={"props.text": prop_bind("%s.title" % item)}),
+            # The detail line answers "what is it now"; the why line answers
+            # "what is it for". Both are always present, so a row does not
+            # change height when it goes from missing to ready - a list that
+            # reflows under the button you are about to press is how you press
+            # the wrong one.
+            label("Detail", classes="ad-muted", position=fixed("16px"),
+                  style={"fontSize": "12px", "whiteSpace": "nowrap",
+                         "overflow": "hidden", "textOverflow": "ellipsis"},
+                  binds={"props.text": prop_bind("%s.detail" % item)}),
+            label("Why", classes="ad-faint", position=fixed("15px"),
+                  style={"fontSize": "11px", "whiteSpace": "nowrap",
+                         "overflow": "hidden", "textOverflow": "ellipsis"},
+                  binds={"props.text": prop_bind("%s.why" % item)}),
+        ], direction="column", gap=1, position=grow(1)),
+        C("ia.input.button", "Fix", {
+            "text": "Create",
+            "style": {"classes": "ad-btn ad-btn-sm"},
+        }, position=fixed("94px"),
+            events=on_action(
+                "item = self.view.custom.state['items'][%d]\n"
+                "self.view.custom.busy = 'creating %%s...' %% item['title']\n"
+                "try:\n"
+                "\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n"
+                "except Exception, e:\n"
+                "\tself.view.custom.busy = 'failed: %%s' %% e\n"
+                "self.view.custom.tick = self.view.custom.tick + 1" % i),
+            binds={"props.style.display": expr_bind(
+                # A Create button on a row that is already done invites a press
+                # that changes nothing; on the database row there is nothing to
+                # press at all, and saying so is the point of the row.
+                #
+                # `&&`, not `and`: Ignition's expression language is not
+                # Python, and `and` is a parse error that shows up as a red
+                # outline round the component with the binding unevaluated -
+                # so the button appeared on every row, including the one that
+                # has nothing to press.
+                "if({%s.fixable} = true && {%s.ok} = false, "
+                "\"flex\", \"none\")" % (item, item))}),
+    ], gap=12, align="center", position=fixed("54px"),
+        style={"padding": "0 4px"},
+        binds={"props.style.display": expr_bind(
+            "if(isNull({%s.key}), \"none\", \"flex\")" % item)})
+
+
+def v_setup():
+    db_card = flex("DbRow", [
+        C("ia.input.text-field", "DbName", {
+            "text": "", "placeholder": "database connection name",
+            "style": {"classes": "ad-input"},
+        }, position=fixed("240px"),
+            binds={"props.text": prop_bind_rw("view.custom.dbName")}),
+        C("ia.input.button", "SaveDb", {
+            "text": "Save",
+            "style": {"classes": "ad-btn ad-btn-primary"},
+        }, position=fixed("90px"),
+            events=on_action(
+                "AlarmDemo.config.save(self.view.custom.dbName)\n"
+                "self.view.custom.busy = 'saved - re-checking'\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        label("Where", classes="ad-faint", position=grow(1),
+              style={"fontSize": "11.5px", "alignSelf": "center",
+                     "overflow": "hidden", "textOverflow": "ellipsis",
+                     "whiteSpace": "nowrap"},
+              binds={"props.text": expr_bind(
+                  "\"from the \" + {view.custom.state.db.dbSource} + "
+                  "\"   -   settings are kept at \" + "
+                  "{view.custom.state.db.settingsPath}")}),
+    ], gap=10, align="center", position=fixed("38px"))
+
+    actions = flex("SetupActions", [
+        C("ia.input.button", "All", {
+            "text": "Set up this gateway",
+            "style": {"classes": "ad-btn ad-btn-primary"},
+        }, position=fixed("200px"),
+            events=on_action(
+                "self.view.custom.busy = 'working - this takes about a minute'\n"
+                "r = AlarmDemo.setup.run()\n"
+                "done = r.get('changed', [])\n"
+                "errs = r.get('errors', [])\n"
+                "if errs:\n"
+                "\tself.view.custom.busy = 'finished with problems: ' + '; '.join(errs)\n"
+                "elif done:\n"
+                "\tself.view.custom.busy = '; '.join(done)\n"
+                "else:\n"
+                "\tself.view.custom.busy = 'nothing to do - this gateway was already set up'\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        C("ia.input.button", "Recheck", {
+            "text": "Re-check",
+            "style": {"classes": "ad-btn"},
+        }, position=fixed("110px"),
+            events=on_action(
+                "self.view.custom.busy = ''\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        C("ia.input.button", "ResetPeople", {
+            "text": "Reset rosters and shifts",
+            "style": {"classes": "ad-btn ad-btn-danger"},
+        }, position=fixed("210px"),
+            events=on_action(
+                "AlarmDemo.roster.setup(True)\n"
+                "self.view.custom.busy = "
+                "'rosters and shifts reset to the shipped design'\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        C("ia.input.button", "Rebuild", {
+            "text": "Rebuild 30-day history",
+            "style": {"classes": "ad-btn ad-btn-danger"},
+        }, position=fixed("220px"),
+            events=on_action(
+                "self.view.custom.busy = 'rebuilding history...'\n"
+                "n = AlarmDemo.backfill.run(days=30, perDay=85)\n"
+                "self.view.custom.busy = "
+                "'history rebuilt: %d journal rows' %% n\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        label("Busy", classes="ad-muted", position=grow(1),
+              style={"fontSize": "12px", "alignSelf": "center",
+                     "overflow": "hidden", "textOverflow": "ellipsis",
+                     "whiteSpace": "nowrap"},
+              binds={"props.text": prop_bind("view.custom.busy")}),
+    ], gap=10, align="center", position=fixed("40px"))
+
+    rows = flex("Rows", [setup_row(i) for i in range(SETUP_ROWS)],
+                direction="column", gap=2, position=grow(1))
+
+    root = flex("root", [
+        header(),
+        flex("Body", [
+            card("DbCard", "Database connection", db_card,
+                 fixed("116px", shrink=1),
+                 "The one thing this project cannot create for itself: a "
+                 "connection needs credentials. Make it in Config -> "
+                 "Databases -> Connections, then name it here. The name is "
+                 "kept outside the project, so importing a new version of the "
+                 "demo never overwrites it."),
+            card("ItemsCard", "This gateway",
+                 flex("Wrap", [actions, rows], direction="column", gap=8,
+                      position=grow(1)),
+                 grow(1),
+                 "Everything else the demo needs, created by the project on "
+                 "the gateway it was imported onto. Safe to press twice - "
+                 "each item is only created if it is missing."),
+            label("Build", BUILD_TEXT,
+                  classes="ad-faint", position=fixed("14px"),
+                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                         "textAlign": "right"}),
+        ], direction="column", gap=12, classes="ad-body",
+            style={"padding": "0 12px 12px 12px"}, position=grow(1)),
+    ], direction="column", gap=12,
+        classes="ad-page ad-root",
+        style={"height": "100%", "overflowY": "auto"})
+    root["children"][0]["position"] = fixed("64px")
+
+    write("AlarmDemo/Setup", view(
+        root,
+        custom={"tick": 0, "busy": "", "dbName": "", "state": {}},
+        propconfig={
+            # The whole page is one call. Bound to the tick rather than polled:
+            # a check that walks the config resources, the database and the
+            # journal is not something to run every five seconds behind a
+            # screen nobody is looking at. Every button ends by bumping the
+            # tick, which is what re-runs it.
+            "custom.state": expr_bind(
+                "{view.custom.tick}",
+                script_tf("\treturn AlarmDemo.setup.check()")),
+            # Seeded from the gateway so the box shows what is actually in
+            # force. The text field writes back into this prop, and Save is
+            # what puts it on disk.
+            "custom.dbName": expr_bind(
+                "{view.custom.tick}",
+                script_tf("\treturn AlarmDemo.config.db()")),
+        }))
 
 
 # ---------------------------------------------------------------------------
@@ -2750,52 +3046,7 @@ def v_democontrol():
             "style": {"classes": "ad-btn"},
         }, position=fixed("150px"),
             events=on_action("AlarmDemo.demo.reset()")),
-        C("ia.input.button", "Rebuild", {
-            "text": "Rebuild 30-day history",
-            "style": {"classes": "ad-btn ad-btn-danger"},
-        }, position=fixed("220px"),
-            events=on_action(
-                "self.view.custom.setupResult = 'rebuilding history...'\n"
-                "n = AlarmDemo.backfill.run(days=30, perDay=85)\n"
-                "self.view.custom.setupResult = "
-                "'history rebuilt: %d journal rows' % n")),
         flex("Sp", [], position=grow(1)),
-    ], gap=10, align="center", position=fixed("42px"))
-
-    # --- gateway setup ----------------------------------------------------
-    # Everything the demo needs that is not a project resource, created from
-    # the project. Safe to press on a gateway that is already set up.
-    setup_row = flex("SetupRow", [
-        C("ia.input.button", "SetUp", {
-            "text": "Set up this gateway",
-            "style": {"classes": "ad-btn ad-btn-primary"},
-        }, position=fixed("200px"),
-            events=on_action(
-                "self.view.custom.setupResult = 'working...'\n"
-                "r = AlarmDemo.setup.run(days=30, perDay=85)\n"
-                "self.view.custom.setupResult = "
-                "'done - %s' % ('all steps ok' if r.get('ok') "
-                "else '; '.join(r.get('errors', [])))")),
-        C("ia.input.button", "Recheck", {
-            "text": "Check",
-            "style": {"classes": "ad-btn"},
-        }, position=fixed("110px"),
-            events=on_action(
-                "r = AlarmDemo.setup.check()\n"
-                "self.view.custom.setupResult = ("
-                "'everything is in place' if r.get('ok') else str(r))")),
-        C("ia.input.button", "ResetPeople", {
-            "text": "Reset rosters and shifts",
-            "style": {"classes": "ad-btn ad-btn-danger"},
-        }, position=fixed("220px"),
-            events=on_action(
-                "AlarmDemo.roster.setup(force=True)\n"
-                "self.view.custom.setupResult = "
-                "'rosters and shifts reset to the shipped design'")),
-        label("Result", classes="ad-muted", position=grow(1),
-              style={"fontSize": "12px", "alignSelf": "center",
-                     "overflow": "hidden"},
-              binds={"props.text": prop_bind("view.custom.setupResult")}),
     ], gap=10, align="center", position=fixed("42px"))
 
     root = flex("root", [
@@ -2808,21 +3059,22 @@ def v_democontrol():
                  flex("List", buttons, direction="column", gap=3,
                       position=grow(1),
                       style={"minHeight": "%dpx" % (7 * 34 + 6 * 3)}),
-                 {"grow": 0, "shrink": 1, "basis": "auto"},
+                 # The card takes the page. It used to be sized to its content
+                 # with a spacer underneath, which was right while a Gateway
+                 # Setup card sat below it - that card is a screen of its own
+                 # now, and what was left was two short cards at the top of an
+                 # empty page. A card with room inside it reads as a card with
+                 # room; a gap under two cards reads as something missing.
+                 grow(1),
                  "Scenarios bias the simulation. Every alarm you see still "
                  "goes through the normal Ignition alarm pipeline - "
                  "evaluation, deadband, delay, priority and journal."),
             card("ActionsCard", "Actions", actions, fixed("100px", shrink=1)),
-            card("SetupCard", "Gateway setup", setup_row, fixed("120px", shrink=1),
-                 "Creates the journal tables, the three shift schedules, the "
-                 "seven users, the on-call rosters and 30 days of history. "
-                 "Safe to press twice - it only creates what is missing."),
-            flex("Sp", [], position=grow(1)),
             # The build number, on screen. "Which build is this gateway
             # running?" was not answerable from the running demo, and a chart
             # bug that was actually a browser setting cost four rounds of
             # guessing partly because of it.
-            label("Build", "ACME Alarm Demo  v%s" % VERSION,
+            label("Build", BUILD_TEXT,
                   classes="ad-faint", position=fixed("14px"),
                   style={"fontSize": "10.5px", "letterSpacing": "0.06em",
                          "textAlign": "right"}),
@@ -2832,8 +3084,7 @@ def v_democontrol():
         classes="ad-page ad-root",
         style={"height": "100%", "overflowY": "auto"})
     root["children"][0]["position"] = fixed("64px")
-    write("AlarmDemo/DemoControl",
-          view(root, custom={"setupResult": ""}))
+    write("AlarmDemo/DemoControl", view(root))
 
 
 # ---------------------------------------------------------------------------
@@ -2863,6 +3114,7 @@ def main():
     v_people()
     v_escalation_popup()
     v_democontrol()
+    v_setup()
     n = sum(1 for _r, _d, fs in os.walk(VIEWS) if "view.json" in fs)
     print("generated %d views" % n)
 

@@ -184,7 +184,7 @@
     }
   },
   "props": {
-    "theme": "dark",
+    "theme": "dark-cool",
     "locale": "en-AU",
     "device": {},
     "geolocation": {},

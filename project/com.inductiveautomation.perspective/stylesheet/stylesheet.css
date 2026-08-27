@@ -1,14 +1,34 @@
 /* ==========================================================================
-   Alarm Demo - Northgate Water Treatment Plant
-   Dark industrial theme.
+   Alarm Demo - stylesheet
 
-   Priority colours are a STATUS scale, not a categorical series palette:
-   the meanings are fixed by convention and they are never reused for
-   "series 4". They sit slightly brighter than a chart palette would, which is
-   deliberate - an alarm colour has to pull the eye across a control room. The
-   set was checked for contrast (all >= 3:1 on the card surface) and for
-   red/orange separation, and every place a priority colour appears it is
-   accompanied by the priority word, so nothing is carried by colour alone.
+   THIS SHEET DEFINES NO SURFACE COLOUR OF ITS OWN. Every page, card, border,
+   text and accent colour below resolves to one of Ignition's OWN Perspective
+   theme variables (--containerRoot, --container, --border, --label,
+   --callToAction, ...), so the demo follows whichever theme the session is
+   set to - the six stock variants and any custom theme installed on the
+   gateway alike. The variable NAMES are identical in every theme file
+   Ignition serves; only the values differ, which is why there is no
+   light/dark branching, no [data-theme] selector and no media query for
+   colour anywhere in this file.
+
+   The project's own default is `dark-cool` (session-props), the stock theme
+   whose neutrals are closest to the palette this demo was designed in
+   (#121619 / #21272A / #DDE1E6 against the original #0E1319 / #161B22 /
+   #E6EDF3). The header's theme dropdown switches it per session.
+
+   THE ONE EXCEPTION IS THE PRIORITY SCALE. Critical/High/Medium/Low/
+   Diagnostic are a STATUS scale, not a categorical series palette: the
+   meanings are fixed by convention, they are never reused for "series 4",
+   and a customer must read the same red as Critical on every theme. They are
+   therefore the demo's own colours rather than the theme's --error/--warning
+   (a custom theme is free to define --error as a near-black danger *wash* -
+   `industrial-dark` does - which would make Critical invisible). What they
+   DO take from the theme is contrast: each base is mixed toward the theme's
+   own ink (`--label`) for its text form and toward the theme's own card
+   (`--container`) for its washes, so the scale darkens on a light theme and
+   lightens on a dark one without being redefined. Every place a priority
+   colour appears it is accompanied by the priority word, so nothing is
+   carried by colour alone.
    ========================================================================== */
 
 /* Chrome's "auto dark mode for web contents" repaints pages that do not say
@@ -16,28 +36,92 @@
    it otherwise leaves alone - which is a chart background turning white in one
    browser while the Designer, and every other browser, render it correctly.
    Declaring color-scheme is the documented way to opt out; it also stops the
-   browser restyling scrollbars and form controls against this palette. */
-:root { color-scheme: dark; }
+   browser restyling scrollbars and form controls against this palette.
+   `light dark` rather than `dark`: this project genuinely renders in both now,
+   and neither stock theme file declares a color-scheme of its own. */
+:root { color-scheme: light dark; }
 
 /* On :root, not on a view class - embedded widget views (Tank, Pump, Stat)
    are separate view roots and would not inherit variables scoped to the
-   parent view's class. */
+   parent view's class.
+
+   Read this block as the whole mapping: nothing below reaches for an
+   Ignition variable directly except through one of these aliases.
+
+     --page      --containerRoot   page background
+     --card      --container       card / panel surface
+     --card-2    --containerNested tile, nested and hover surface
+     --line      --border          hairlines
+     --ink       --label           primary text
+     --ink-2     --label--disabled secondary text
+     --accent    --callToAction    links, active nav, primary button
+     --on-accent --neutral-10      text ON a solid accent fill - the same
+                                   token Ignition's own primary button uses
+                                   for its own label
+*/
 :root, .psc-ad-root {
-  --crit:    #E5225B;
-  --high:    #F58220;
-  --med:     #F5C518;
-  --low:     #4EA8FF;
-  --diag:    #8B98A9;
-  --ok:      #35C46A;
+  /* ---- the theme, aliased ---- */
+  --page:    var(--containerRoot);
+  --card:    var(--container);
+  --card-2:  var(--containerNested);
+  --line:    var(--border);
 
-  --page:    #0E1319;
-  --card:    #161B22;
-  --card-2:  #1B222B;
-  --line:    #273140;
+  --ink:     var(--label);
+  --ink-2:   var(--label--disabled);
+  /* Ignition publishes no third text tier; this is the second one pulled
+     back toward the card until it recedes. */
+  --ink-3:   color-mix(in srgb, var(--label--disabled) 72%, var(--container));
 
-  --ink:     #E6EDF3;
-  --ink-2:   #9AA5B1;
-  --ink-3:   #6E7A88;
+  --accent:      var(--callToAction);
+  --accent-soft: var(--callToActionHighlight);
+  --on-accent:   var(--neutral-10);
+
+  /* ---- surfaces derived from the theme's own two ends ----
+     A theme gives a page, a card and a nested surface, and this demo needs
+     three more: a header/toolbar strip, a hover lift, and a recessed well.
+     Each is the theme's card mixed toward the theme's page or its ink, so
+     they move the right way on a light theme without a second definition:
+     +ink darkens a light card and lightens a dark one, which is "raised"
+     in both directions. */
+  --head:    color-mix(in srgb, var(--container) 72%, var(--containerRoot));
+  --hover:   color-mix(in srgb, var(--container) 90%, var(--label));
+  --hover-2: color-mix(in srgb, var(--container) 82%, var(--label));
+  --well:    var(--containerRoot);
+
+  /* ---- the priority scale ----
+     Bases are fixed (see the header comment). Each is published in three
+     forms so a rule never has to mix inline:
+       --*-base   the convention colour itself, for a solid fill or an SVG
+       --*        its text form, pulled toward the theme's ink
+       --*-wash   its surface form, a tint of the theme's card
+       --*-edge   its border form */
+  --crit-base: #E5225B;
+  --high-base: #F58220;
+  --med-base:  #F5C518;
+  --low-base:  #4EA8FF;
+  --diag-base: #8B98A9;
+  --ok-base:   #35C46A;
+
+  --crit: color-mix(in srgb, var(--crit-base) 84%, var(--label));
+  --high: color-mix(in srgb, var(--high-base) 84%, var(--label));
+  --med:  color-mix(in srgb, var(--med-base)  84%, var(--label));
+  --low:  color-mix(in srgb, var(--low-base)  84%, var(--label));
+  --diag: color-mix(in srgb, var(--diag-base) 84%, var(--label));
+  --ok:   color-mix(in srgb, var(--ok-base)   84%, var(--label));
+
+  --crit-wash: color-mix(in srgb, var(--crit-base) 16%, var(--container));
+  --high-wash: color-mix(in srgb, var(--high-base) 15%, var(--container));
+  --med-wash:  color-mix(in srgb, var(--med-base)  14%, var(--container));
+  --low-wash:  color-mix(in srgb, var(--low-base)  14%, var(--container));
+  --diag-wash: color-mix(in srgb, var(--diag-base) 14%, var(--container));
+  --ok-wash:   color-mix(in srgb, var(--ok-base)   14%, var(--container));
+
+  --crit-edge: color-mix(in srgb, var(--crit-base) 45%, var(--container));
+  --high-edge: color-mix(in srgb, var(--high-base) 42%, var(--container));
+  --med-edge:  color-mix(in srgb, var(--med-base)  40%, var(--container));
+  --low-edge:  color-mix(in srgb, var(--low-base)  40%, var(--container));
+  --diag-edge: color-mix(in srgb, var(--diag-base) 38%, var(--container));
+  --ok-edge:   color-mix(in srgb, var(--ok-base)   40%, var(--container));
 }
 
 /* ---------- Perspective app bar -----------------------------------------
@@ -61,18 +145,18 @@
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-corner { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.10);
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
   border-radius: 99px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
   background-clip: padding-box;
 }
 
 /* Firefox */
-* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 18%, transparent) transparent; }
 
 /* ---------- layout ------------------------------------------------------ */
 
@@ -102,7 +186,7 @@
 /* ---------- header ------------------------------------------------------ */
 
 .psc-ad-header {
-  background: linear-gradient(90deg, #131A23 0%, #0E1319 60%);
+  background: linear-gradient(90deg, var(--head) 0%, var(--page) 60%);
   border-bottom: 1px solid var(--line);
 }
 
@@ -123,7 +207,7 @@
 /* ---------- navigation -------------------------------------------------- */
 
 .psc-ad-nav {
-  background: #10161D;
+  background: color-mix(in srgb, var(--page) 70%, var(--card));
   border-right: 1px solid var(--line);
 }
 
@@ -145,14 +229,14 @@
 .psc-ad-nav-item svg { fill: currentColor; width: 18px; height: 18px; }
 
 .psc-ad-nav-item:hover {
-  background: #1A222C;
+  background: var(--hover);
   color: var(--ink);
 }
 
 .psc-ad-nav-item-active {
-  background: #1C2632;
+  background: var(--accent-soft);
   color: var(--ink);
-  border-left: 3px solid var(--low);
+  border-left: 3px solid var(--accent);
 }
 
 /* ---------- KPI tiles --------------------------------------------------- */
@@ -201,19 +285,19 @@
   font-variant-numeric: tabular-nums;
 }
 
-.psc-ad-chip-critical   { background: rgba(229,34,91,0.16);  color: var(--crit); border-color: rgba(229,34,91,0.45); }
-.psc-ad-chip-high       { background: rgba(245,130,32,0.15); color: var(--high); border-color: rgba(245,130,32,0.42); }
-.psc-ad-chip-medium     { background: rgba(245,197,24,0.14); color: var(--med);  border-color: rgba(245,197,24,0.40); }
-.psc-ad-chip-low        { background: rgba(78,168,255,0.14); color: var(--low);  border-color: rgba(78,168,255,0.40); }
-.psc-ad-chip-diagnostic { background: rgba(139,152,169,0.14);color: var(--diag); border-color: rgba(139,152,169,0.38); }
-.psc-ad-chip-ok         { background: rgba(53,196,106,0.14); color: var(--ok);   border-color: rgba(53,196,106,0.40); }
+.psc-ad-chip-critical   { background: var(--crit-wash); color: var(--crit); border-color: var(--crit-edge); }
+.psc-ad-chip-high       { background: var(--high-wash); color: var(--high); border-color: var(--high-edge); }
+.psc-ad-chip-medium     { background: var(--med-wash);  color: var(--med);  border-color: var(--med-edge); }
+.psc-ad-chip-low        { background: var(--low-wash);  color: var(--low);  border-color: var(--low-edge); }
+.psc-ad-chip-diagnostic { background: var(--diag-wash); color: var(--diag); border-color: var(--diag-edge); }
+.psc-ad-chip-ok         { background: var(--ok-wash);   color: var(--ok);   border-color: var(--ok-edge); }
 
 /* a priority with nothing standing - present so the row never reflows, but
    recessive so it does not compete with the counts that matter */
 .psc-ad-chip-zero {
-  background: rgba(110,122,136,0.08);
-  color: #55606D;
-  border-color: rgba(110,122,136,0.20);
+  background: color-mix(in srgb, var(--diag-base) 8%, var(--card));
+  color: var(--ink-3);
+  border-color: color-mix(in srgb, var(--diag-base) 20%, var(--card));
 }
 
 /* A live Critical or High alarm should be impossible to miss on a wall
@@ -257,32 +341,39 @@
   flex: 0 0 10px;
 }
 
-.psc-ad-dot-run   { background: var(--ok);   box-shadow: 0 0 8px rgba(53,196,106,0.75); }
-.psc-ad-dot-stop  { background: #3B4552; }
+.psc-ad-dot-run   { background: var(--ok);   box-shadow: 0 0 8px color-mix(in srgb, var(--ok-base) 75%, transparent); }
+.psc-ad-dot-stop  { background: color-mix(in srgb, var(--diag-base) 35%, var(--card)); }
 /* a jam stops the line but is not a fault - amber, and it does not pulse */
-.psc-ad-dot-jam   { background: var(--med); box-shadow: 0 0 8px rgba(245,197,24,0.7); }
+.psc-ad-dot-jam   { background: var(--med); box-shadow: 0 0 8px color-mix(in srgb, var(--med-base) 70%, transparent); }
 
-.psc-ad-dot-fault { background: var(--crit); box-shadow: 0 0 9px rgba(229,34,91,0.85); animation: ad-pulse 1.2s ease-in-out infinite; }
+.psc-ad-dot-fault { background: var(--crit); box-shadow: 0 0 9px color-mix(in srgb, var(--crit-base) 85%, transparent); animation: ad-pulse 1.2s ease-in-out infinite; }
 
 /* ---------- tanks ------------------------------------------------------- */
 
 .psc-ad-tank-shell {
-  background: #0B1016;
+  background: var(--well);
   border: 1px solid var(--line);
   border-radius: 6px;
   overflow: hidden;
   position: relative;
 }
 
+/* The liquid in a tank is the PRODUCT, not chrome: water stays blue and the
+   chemical tank stays green on a light theme as much as on a dark one. Each
+   fill is its own priority/status base darkened by a fixed amount (rather
+   than mixed toward the theme's ink), so the surface line at the top stays
+   readable against the body of the fill in either direction. */
 .psc-ad-tank-fill {
-  background: linear-gradient(180deg, #2E7FD1 0%, #1D5FA6 100%);
-  border-top: 2px solid #64B0F5;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--low-base) 74%, #000) 0%,
+    color-mix(in srgb, var(--low-base) 52%, #000) 100%);
+  border-top: 2px solid color-mix(in srgb, var(--low-base) 78%, #FFF);
   width: 100%;
 }
 
-.psc-ad-tank-fill-warn { background: linear-gradient(180deg, #C9930F 0%, #8E6708 100%); border-top-color: var(--med); }
-.psc-ad-tank-fill-crit { background: linear-gradient(180deg, #B31C47 0%, #7C1231 100%); border-top-color: var(--crit); }
-.psc-ad-tank-fill-chem { background: linear-gradient(180deg, #3FA86E 0%, #24754A 100%); border-top-color: var(--ok); }
+.psc-ad-tank-fill-warn { background: linear-gradient(180deg, color-mix(in srgb, var(--med-base)  74%, #000) 0%, color-mix(in srgb, var(--med-base)  50%, #000) 100%); border-top-color: var(--med); }
+.psc-ad-tank-fill-crit { background: linear-gradient(180deg, color-mix(in srgb, var(--crit-base) 74%, #000) 0%, color-mix(in srgb, var(--crit-base) 50%, #000) 100%); border-top-color: var(--crit); }
+.psc-ad-tank-fill-chem { background: linear-gradient(180deg, color-mix(in srgb, var(--ok-base)   74%, #000) 0%, color-mix(in srgb, var(--ok-base)   50%, #000) 100%); border-top-color: var(--ok); }
 
 .psc-ad-tank-value {
   color: var(--ink);
@@ -294,7 +385,7 @@
 /* ---------- bar meters (filter head loss) ------------------------------- */
 
 .psc-ad-meter {
-  background: #0B1016;
+  background: var(--well);
   border: 1px solid var(--line);
   border-radius: 999px;
   overflow: hidden;
@@ -360,7 +451,7 @@
 .psc-ad-table .ia_table__footContainer { background: transparent; }
 
 .psc-ad-table .ia_table__headContainer {
-  background: #131A22;
+  background: var(--head);
   border-bottom: 1px solid var(--line);
 }
 
@@ -418,8 +509,8 @@
 }
 
 .psc-ad-table .ia_pager__page--active {
-  background: #1B4F86;
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* --- plain tables only: zebra striping ---------------------------------- */
@@ -430,7 +521,7 @@
 .psc-ad-table-plain .ia_table__body__row--even { background: var(--card); }
 .psc-ad-table-plain .ia_table__body__row--odd  { background: var(--card-2); }
 
-.psc-ad-table-plain .ia_table__body__row:hover { background: #22303D; }
+.psc-ad-table-plain .ia_table__body__row:hover { background: var(--hover-2); }
 
 /* --- alarm status rows: priority colour, and greying of cleared ---------
    Applied through the component's own `rowStyles` prop. In "Priority only"
@@ -440,14 +531,14 @@
    row shifts by one, moving the colour onto the Display Path column.
    ------------------------------------------------------------------------ */
 
-.psc-ad-colour-cells .psc-ad-alm-critical   .ia_table__cell[data-column-id="priority"] { background: rgba(229,34,91,0.30);  color: #FF9DB6; font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-high       .ia_table__cell[data-column-id="priority"] { background: rgba(245,130,32,0.28); color: #FFC08A; font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-medium     .ia_table__cell[data-column-id="priority"] { background: rgba(245,197,24,0.24); color: #FFE08A; font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-low        .ia_table__cell[data-column-id="priority"] { background: rgba(78,168,255,0.22); color: #A9D3FF; font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-diagnostic .ia_table__cell[data-column-id="priority"] { background: rgba(139,152,169,0.18); color: #C3CCD8; font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-critical   .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--crit-base) 30%, var(--card)); color: var(--crit); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-high       .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--high-base) 28%, var(--card)); color: var(--high); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-medium     .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--med-base) 24%, var(--card)); color: var(--med); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-low        .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--low-base) 22%, var(--card)); color: var(--low); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-diagnostic .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--diag-base) 18%, var(--card)); color: var(--diag); font-weight: 650; }
 
-.psc-ad-alm-cleared .ia_table__cell { color: #7E8A99 !important; font-style: italic; }
-.psc-ad-colour-cells .psc-ad-alm-cleared .ia_table__cell[data-column-id="priority"] { background: rgba(110,122,136,0.14); color: #7E8A99; }
+.psc-ad-alm-cleared .ia_table__cell { color: var(--ink-3) !important; font-style: italic; }
+.psc-ad-colour-cells .psc-ad-alm-cleared .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--diag-base) 14%, var(--card)); color: var(--ink-3); }
 
 /* Whole-row priority tint for the two CUSTOM tables (Overview, Journal).
    The stock Alarm Status Table does this through its own `rowStyles` prop;
@@ -459,16 +550,16 @@
    the Alarm Status screen and the Journal sees one colour scheme, not two.
    The background goes on the CELL, not the row - the striping rules above
    already own the row background, and cells paint over it. */
-.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-critical) .ia_table__cell   { background: rgba(229,34,91,0.30); }
-.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-high) .ia_table__cell       { background: rgba(245,130,32,0.26); }
-.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-medium) .ia_table__cell     { background: rgba(245,197,24,0.20); }
-.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-low) .ia_table__cell        { background: rgba(78,168,255,0.19); }
-.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-diagnostic) .ia_table__cell { background: rgba(139,152,169,0.15); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-critical) .ia_table__cell   { background: color-mix(in srgb, var(--crit-base) 30%, var(--card)); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-high) .ia_table__cell       { background: color-mix(in srgb, var(--high-base) 26%, var(--card)); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-medium) .ia_table__cell     { background: color-mix(in srgb, var(--med-base) 20%, var(--card)); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-low) .ia_table__cell        { background: color-mix(in srgb, var(--low-base) 19%, var(--card)); }
+.psc-ad-colour-rows .ia_table__body__row:has(.psc-ad-p-diagnostic) .ia_table__cell { background: color-mix(in srgb, var(--diag-base) 15%, var(--card)); }
 
 /* --- alarm status / journal table chrome -------------------------------- */
 
 .psc-ad-table .ia_alarmTableComponent__toolbar {
-  background: #131A22;
+  background: var(--head);
   border-bottom: 1px solid var(--line);
 }
 
@@ -476,7 +567,7 @@
 
 .psc-ad-table .ia_alarmTableComponent__toolbar__tab--active {
   color: var(--ink);
-  border-bottom-color: var(--low);
+  border-bottom-color: var(--accent);
 }
 
 .psc-ad-table .ia_alarmTableComponent__toolbar__filter__preFilterContainer {
@@ -508,7 +599,7 @@
 /* ---------- buttons ----------------------------------------------------- */
 
 .psc-ad-btn {
-  background: #1D2733;
+  background: var(--hover);
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -517,12 +608,27 @@
   cursor: pointer;
 }
 
-.psc-ad-btn:hover { background: #26333F; border-color: #35455A; }
+.psc-ad-btn:hover { background: var(--hover-2); border-color: color-mix(in srgb, var(--line) 70%, var(--ink)); }
 
-.psc-ad-btn-primary        { background: #1B4F86; border-color: #2B6FB8; }
-.psc-ad-btn-primary:hover  { background: #235F9E; }
-.psc-ad-btn-danger         { background: #6B1230; border-color: #A31D48; }
-.psc-ad-btn-danger:hover   { background: #86173C; }
+.psc-ad-btn-primary        { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.psc-ad-btn-primary:hover  { background: var(--callToAction--hover); border-color: var(--callToAction--hover); }
+.psc-ad-btn-danger         { background: color-mix(in srgb, var(--crit-base) 26%, var(--card)); border-color: var(--crit-edge); color: var(--crit); }
+.psc-ad-btn-danger:hover   { background: color-mix(in srgb, var(--crit-base) 38%, var(--card)); }
+
+/* ---------- text input --------------------------------------------------
+   Ignition's own text field already themes itself; this only matches it to
+   the buttons beside it, which are this project's own chrome.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-input {
+  background: var(--well);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.psc-ad-input:focus-within { border-color: var(--accent); }
 
 /* compact variant for in-card toggles */
 .psc-ad-btn-sm { font-size: 12px; padding: 0 10px; }
@@ -540,16 +646,17 @@
 }
 
 .psc-ad-btn-active {
-  background: #1B4F86;
-  border-color: var(--low);
-  box-shadow: 0 0 0 1px rgba(78,168,255,0.4);
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 /* ---------- scenario banner -------------------------------------------- */
 
 .psc-ad-scenario-banner {
-  background: rgba(245,130,32,0.12);
-  border: 1px solid rgba(245,130,32,0.45);
+  background: var(--high-wash);
+  border: 1px solid var(--high-edge);
   border-radius: 8px;
   color: var(--high);
   font-size: 12.5px;
@@ -569,12 +676,12 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 10px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--boxShadow4);
   overflow: hidden;
 }
 
 .ia_popup__header {
-  background: #131A22;
+  background: var(--head);
   border-bottom: 1px solid var(--line);
   color: var(--ink-2);
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
@@ -591,14 +698,14 @@
 /* ---------- shift timeline ---------------------------------------------- */
 
 .psc-ad-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--ink) 7%, var(--card));
   border-radius: 5px;
   height: 16px;
   overflow: hidden;
 }
 
 .psc-ad-track-tick {
-  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   height: 100%;
 }
 
@@ -663,6 +770,27 @@
 /* nothing but the bell is left in the rail, so the row's gap would push it off
    centre */
 .psc-ad-nav-shut .psc-ad-nav-count { gap: 0 !important; }
+
+/* ---------- theme picker -------------------------------------------------
+   The dropdown is a stock Ignition component and themes itself from the same
+   variables everything else here reads, so it needs no colours - only a size
+   that suits a 230px sidebar.
+   ------------------------------------------------------------------------ */
+
+.psc-ad-theme-select .ia_dropdown { font-size: 12.5px; }
+
+/* In the rail the picker goes entirely, and the footer gives back the height
+   it was holding - otherwise the rail ends in 58px of empty border. Zero-width
+   as well as `display: none`, for the same reason as everything else in the
+   rail: Perspective writes `display: flex` inline and inline wins. */
+.psc-ad-nav-shut .psc-ad-nav-theme {
+  display: none !important;
+  flex: 0 0 0 !important;
+  height: 0 !important; max-height: 0 !important;
+  padding: 0 !important; margin: 0 !important; border: 0 !important;
+}
+
+.psc-ad-nav-shut .psc-ad-nav-footer { flex-basis: 104px !important; }
 
 
 

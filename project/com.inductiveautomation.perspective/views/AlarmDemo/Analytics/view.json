@@ -1159,7 +1159,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({view.custom.kpis.unackedPct} >= 40, \"#F58220\", \"#E6EDF3\")"
+                                "expression": "if({view.custom.kpis.unackedPct} >= 40, \"var(--high)\", \"var(--ink)\")"
                               }
                             }
                           }
@@ -1268,7 +1268,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({view.custom.kpis.topShare} >= 40, \"#F5C518\", \"#E6EDF3\")"
+                                "expression": "if({view.custom.kpis.topShare} >= 40, \"var(--med)\", \"var(--ink)\")"
                               }
                             }
                           }
@@ -1377,7 +1377,7 @@
                             "binding": {
                               "type": "expr",
                               "config": {
-                                "expression": "if({view.custom.kpis.floodHours} > 0, \"#E5225B\", \"#35C46A\")"
+                                "expression": "if({view.custom.kpis.floodHours} > 0, \"var(--crit)\", \"var(--ok)\")"
                               }
                             }
                           }
@@ -1522,7 +1522,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -1565,7 +1565,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1604,7 +1604,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -1662,7 +1662,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -1705,7 +1705,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1744,7 +1744,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -1802,7 +1802,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -1845,7 +1845,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1884,7 +1884,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -1942,7 +1942,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -1985,7 +1985,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2024,7 +2024,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -2082,7 +2082,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -2125,7 +2125,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2164,7 +2164,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -2222,7 +2222,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -2265,7 +2265,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2304,7 +2304,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -2362,7 +2362,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -2405,7 +2405,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2444,7 +2444,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -2502,7 +2502,7 @@
                               "text": "",
                               "style": {
                                 "fontSize": "12px",
-                                "color": "#E6EDF3",
+                                "color": "var(--ink)",
                                 "overflow": "hidden",
                                 "whiteSpace": "nowrap"
                               }
@@ -2545,7 +2545,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
+                                    "backgroundColor": "var(--low)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2584,7 +2584,7 @@
                                 "fontSize": "12px",
                                 "fontWeight": "650",
                                 "textAlign": "right",
-                                "color": "#9AA5B1"
+                                "color": "var(--ink-2)"
                               }
                             },
                             "propConfig": {
@@ -2826,7 +2826,7 @@
                                   "text": "Critical",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#E6EDF3"
+                                    "color": "var(--ink)"
                                   }
                                 },
                                 "position": {
@@ -2942,7 +2942,7 @@
                                   "text": "High",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#E6EDF3"
+                                    "color": "var(--ink)"
                                   }
                                 },
                                 "position": {
@@ -3058,7 +3058,7 @@
                                   "text": "Medium",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#E6EDF3"
+                                    "color": "var(--ink)"
                                   }
                                 },
                                 "position": {
@@ -3174,7 +3174,7 @@
                                   "text": "Low",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#E6EDF3"
+                                    "color": "var(--ink)"
                                   }
                                 },
                                 "position": {
@@ -3290,7 +3290,7 @@
                                   "text": "Diagnostic",
                                   "style": {
                                     "fontSize": "12px",
-                                    "color": "#E6EDF3"
+                                    "color": "var(--ink)"
                                   }
                                 },
                                 "position": {
