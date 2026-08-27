@@ -14,10 +14,22 @@
  *    which puts light scrollbars and light form controls on a dark page for
  *    any viewer whose OS prefers light.
  *
- * 2. Stock text fields and dropdowns have a border that is actually DRAWN.
- *    Ignition's `.ia_inputField` does `border: var(--containerBorder)` and
- *    expects the shorthand; a theme that defines that variable as a bare
- *    colour makes the declaration invalid and the border vanishes.
+ * 2. `--containerBorder` is usable as a `border` shorthand AT ALL. Asserted
+ *    on a throwaway element, so it holds independently of what happens to be
+ *    on screen. Ignition's `.ia_inputField` does
+ *    `border: var(--containerBorder)` and expects the shorthand; a theme that
+ *    defines that variable as a bare colour makes the declaration invalid and
+ *    the border vanishes.
+ *
+ *    This is the load-bearing assertion, and it is deliberately not the same
+ *    question as (3). (3) can be defeated by a wrong exclusion list or by a
+ *    page where every control happens to be project-styled; this one cannot
+ *    be defeated by anything on the page, because there is no page in it.
+ *    Belt to (3)'s braces - the idea, and the framing, from the session
+ *    working on ignition-themes.
+ *
+ * 3. Stock text fields and dropdowns on screen have a border that is actually
+ *    DRAWN - the same contract, observed where it matters.
  *
  *    It asserts the border is drawn, NOT how wide it is, and only on
  *    controls whose border THIS PROJECT does not set. Both halves come from
@@ -98,6 +110,19 @@ const { chromium } = loadPlaywright();
 
       const r = await pg.evaluate((owned) => {
         const cs = getComputedStyle(document.documentElement).colorScheme.trim();
+
+        // Does --containerBorder work as a `border` shorthand? Asked by DOING
+        // exactly what .ia_inputField does, on an element of our own, rather
+        // than by parsing the variable's text and hoping the heuristic
+        // matches the CSS parser's opinion.
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:absolute;left:-9999px;width:40px;height:20px;border:var(--containerBorder)';
+        document.body.appendChild(probe);
+        const ps = getComputedStyle(probe);
+        const varOk = parseFloat(ps.borderTopWidth) > 0 && ps.borderTopStyle !== 'none';
+        const varRaw = getComputedStyle(document.documentElement)
+          .getPropertyValue('--containerBorder').trim();
+        probe.remove();
         const all = [...document.querySelectorAll('.ia_dropdown, .ia_inputField, .ia_textField')]
           .filter(e => e.offsetWidth > 60 && e.offsetHeight > 15);
         const ours = all.filter(e => owned.some(c => e.classList.contains(c)));
@@ -107,17 +132,19 @@ const { chromium } = loadPlaywright();
           // DRAWN, not a particular width.
           return parseFloat(s.borderTopWidth) === 0 || s.borderTopStyle === 'none';
         }).length;
-        return { cs, asserted: theirs.length, skipped: ours.length, borderless };
+        return { cs, varOk, varRaw, asserted: theirs.length,
+                 skipped: ours.length, borderless };
       }, BORDERED_BY_PROJECT);
 
       const csOk = r.cs === 'light' || r.cs === 'dark' || r.cs === 'light dark';
       // No assertable control on screen is a FAILURE of the check, not a pass:
       // it means every control here is project-bordered and nothing was tested.
       const bOk = r.asserted > 0 && r.borderless === 0;
-      if (!csOk || !bOk) failures++;
+      const pass = csOk && r.varOk && bOk;
+      if (!pass) failures++;
       const note = r.asserted === 0 ? 'NOTHING ASSERTABLE ON SCREEN'
         : `${r.asserted - r.borderless}/${r.asserted} bordered (${r.skipped} project-styled, not asserted)`;
-      console.log(`  ${csOk && bOk ? 'ok  ' : 'FAIL'} ${label.padEnd(18)} color-scheme: ${r.cs.padEnd(11)} ${note}`);
+      console.log(`  ${pass ? 'ok  ' : 'FAIL'} ${label.padEnd(18)} color-scheme: ${r.cs.padEnd(11)} border-var: ${(r.varOk ? 'ok' : 'NOT A SHORTHAND (' + r.varRaw + ')').padEnd(12)} ${note}`);
     }
   } catch (e) {
     console.error('theme-check: FAILED -', e.message.split('\n')[0]);

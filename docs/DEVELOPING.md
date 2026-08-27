@@ -120,8 +120,25 @@ session working on `ignition-themes`, 27–28/08/2026.)
 node tools/theme-check.js --gateway http://host:8088
 ```
 
+It makes **three independent assertions**, and the order matters:
+
+1. `color-scheme` computes to something sane.
+2. `--containerBorder` works as a `border` shorthand **on a throwaway element
+   of the check's own** — asked by doing exactly what `.ia_inputField` does,
+   rather than by parsing the variable's text and hoping the heuristic agrees
+   with the CSS parser. This is the load-bearing one: it cannot be defeated by
+   a wrong exclusion list, or by a page where every control happens to be
+   project-styled, because there is no page in it. It also names the fault
+   (`NOT A SHORTHAND (#d3dbd8)`) rather than its symptom.
+3. Stock controls on screen actually have a drawn border — the same contract,
+   observed where it matters.
+
+(2) is belt to (3)'s braces, and the idea came from the session working on
+`ignition-themes`: hardening (3)'s exclusion list fixes the symptom, whereas
+asserting the variable removes the whole class of false green.
+
 There are two ways to test your own CSS while believing you are testing the
-theme's, and the check avoids both:
+theme's, and (3) avoids both:
 
 * **Never pin a width.** It asserts a border is *drawn*. `1px` would fail on a
   project class that deliberately sets 2px and report a broken theme when
@@ -140,8 +157,13 @@ exercises the contract is the **sidebar's theme picker**, which carries only
 `ad-theme-select` (font-size) — and which is on every page, so the navigation
 to Analytics is for breadth rather than because it is load-bearing.
 
-Proven by removing the `--containerBorder` line and re-running: 10 custom
-themes FAIL, 6 stock pass. A check that has never failed is not a check.
+Every guard has been made to fire, because a check that has never failed is
+not a check:
+
+| test | result |
+| --- | --- |
+| remove the `--containerBorder` line | 10 custom themes FAIL, 6 stock pass — both (2) and (3) fire, and (2) names the bare colour |
+| point the control selector at a class that exists nowhere | all 16 FAIL with `NOTHING ASSERTABLE ON SCREEN`, while `border-var: ok` — which is what proves (2) and (3) are independent rather than one implying the other |
 
 **A stock variable this project restates, and why.** Ignition's own
 `.ia_inputField` does `border: var(--containerBorder)` - it expects the
