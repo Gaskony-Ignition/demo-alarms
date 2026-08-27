@@ -57,7 +57,14 @@ ALBACKUP="$HERE/.alarms.code.py.orig"
 if [[ -n "$VERSION" ]]; then
   cp "$PROJJSON" "$PJBACKUP"
   cp "$ALARMS" "$ALBACKUP"
-  trap 'mv "$PJBACKUP" "$PROJJSON"; mv "$ALBACKUP" "$ALARMS"' EXIT
+  # Restore the two SOURCES, then regenerate from them. Restoring alone is not
+  # enough: the views are generated and carry the version on screen, so a tree
+  # left un-regenerated after a release says "v2.0.0" in 21 view.json files
+  # while AlarmDemo.alarms.VERSION says "dev" - which is a release build
+  # sitting in the working tree waiting to be committed as if it were one.
+  trap 'mv "$PJBACKUP" "$PROJJSON"; mv "$ALBACKUP" "$ALARMS"; \
+        python3 "$HERE/build_views.py" >/dev/null; \
+        python3 "$HERE/stamp_resources.py" >/dev/null' EXIT
 
   grep -q '^VERSION = "dev"' "$ALARMS" || {
     echo "package.sh: AlarmDemo.alarms.VERSION was not \"dev\" - check for drift" >&2
