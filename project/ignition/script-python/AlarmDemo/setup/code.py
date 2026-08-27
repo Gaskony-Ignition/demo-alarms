@@ -150,6 +150,162 @@ def _upsert(typeId, name, config, description):
 
 
 # --------------------------------------------------------------------------
+# the database connection
+# --------------------------------------------------------------------------
+# The last thing that used to need a human in the gateway's config pages.
+#
+# It is different from every other item on this page in one way that matters:
+# it needs a host, a user and a PASSWORD, and none of those can travel inside
+# a project export. So the project cannot carry the answer - but it can carry
+# the FORM. The Setup screen asks for the five values, and this creates the
+# connection from them through `system.config`, exactly as the Config ->
+# Databases -> Connections page would.
+#
+# The password is handed straight to the config resource and is never written
+# to AlarmDemo.config's settings file, never logged, and never returned in a
+# message. Ignition stores it as a wrapped secret in the resource, the same as
+# a connection made through the gateway's own page.
+
+# The pool and timeout settings are Ignition's own defaults for a new
+# connection, read off one the gateway made itself - not tuned here. A demo
+# has no business inventing a connection pool.
+DB_DEFAULTS = {
+    "connectionProps": "",
+    "connectionResetParams": "",
+    "defaultTransactionLevel": "DEFAULT",
+    "evictionRate": -1,
+    "evictionTests": 3,
+    "evictionTime": 1800000,
+    "failoverMode": "STANDARD",
+    "failoverProfile": "",
+    "includeSchemaInTableName": False,
+    "poolInitSize": 0,
+    "poolMaxActive": 8,
+    "poolMaxIdle": 8,
+    "poolMaxWait": 5000,
+    "poolMinIdle": 0,
+    "slowQueryLogThreshold": 60000,
+    "testOnBorrow": True,
+    "testOnReturn": False,
+    "testWhileIdle": False,
+    "validationQuery": "SELECT 1",
+    "validationSleepTime": 10000,
+}
+
+# The demo's queries are PostgreSQL - split_part, generate_series,
+# percentile_cont, to_char - so this is the only combination worth offering.
+# `driver` names a database-driver resource the JDBC driver module registers;
+# `translator` names a stock database-translator.
+DB_DRIVER = "PostgreSQL"
+DB_TRANSLATOR = "POSTGRES"
+
+
+def databaseDefaults():
+    """What the Setup screen puts in the boxes before anyone types.
+
+    The host is the gateway's own machine, which is right whenever the
+    database runs beside it and is at least a recognisable starting point
+    when it does not. The database name is the connection name the demo
+    defaults to, for the same reason.
+    """
+    return {"host": "localhost", "port": "5432",
+            "database": AlarmDemo.config.DEFAULT_DB, "username": ""}
+
+
+def _secret(plaintext):
+    """A password in the shape a config resource stores one: encrypted.
+
+    TWO calls, and each of the shorter versions writes a password in clear
+    text into a file that reads as though it were encrypted:
+
+      * a plain string is REJECTED - "Unable to read required property
+        'type'";
+      * a hand-built `{"type": "Embedded", "data": {"plaintext": "..."}}` is
+        ACCEPTED and written to disk verbatim;
+      * `createEmbeddedSecretConfig(plaintext)` - the call whose name says it
+        does this - is also accepted and ALSO writes it verbatim:
+        `{"type": "Embedded", "data": "a-throwaway-value"}`, seventeen
+        characters of it, and reading it back then fails with "Unable to
+        decrypt ciphertext" because there is no ciphertext.
+
+    `system.secrets.encrypt()` is the half that encrypts, and
+    `createEmbeddedSecretConfig()` is the half that wraps. Both, in that
+    order, produce what the gateway's own connection page produces:
+    `{"type": "Embedded", "data": {ciphertext, encrypted_key, iv, protected,
+    tag}}`. Verified 8.3.8, 27/08/2026, by writing one and checking the
+    plaintext is not in the file.
+
+    A blank password stays blank rather than becoming an encrypted empty
+    string - Ignition's own connection page allows one, and a Postgres started
+    with POSTGRES_HOST_AUTH_METHOD=trust wants it.
+    """
+    if not plaintext:
+        return None
+    return system.secrets.createEmbeddedSecretConfig(
+        system.secrets.encrypt(plaintext))
+
+
+def createDatabase(name, host, port, database, username, password):
+    """Create a PostgreSQL connection called `name` and point the demo at it.
+
+    Returns a one-line account WITHOUT the password in it. Raises, with
+    something readable, on anything missing.
+
+    It will NOT overwrite a connection that already exists. A gateway running
+    this demo is usually a gateway running other things too, and silently
+    replacing a connection someone else's project reads - with credentials
+    typed into a demo's setup page - is not a thing a demo gets to do.
+    """
+    name = (name or "").strip()
+    if not name:
+        raise ValueError("give the connection a name")
+    if _resource("database-connection", name) is not None:
+        raise ValueError(
+            "a connection called '%s' already exists on this gateway - this "
+            "will not overwrite it. Either use it as it is, or make the demo "
+            "a connection under a different name." % name)
+
+    have = AlarmDemo.config.drivers()
+    if DB_DRIVER not in have:
+        raise ValueError(
+            "this gateway has no '%s' JDBC driver (it has: %s). Install the "
+            "PostgreSQL JDBC Driver module - a driver is a module, and a "
+            "project cannot install one."
+            % (DB_DRIVER, ", ".join(have) if have else "none"))
+
+    for label, value in (("host", host), ("port", port),
+                         ("database", database), ("username", username)):
+        if not (value or "").strip():
+            raise ValueError("%s is required" % label)
+    # The password is NOT required. Ignition's own connection page allows a
+    # blank one and there are real databases that want it: a Postgres started
+    # with POSTGRES_HOST_AUTH_METHOD=trust - which is most test containers -
+    # authenticates on the username alone and refuses nothing.
+
+    config = dict(DB_DEFAULTS)
+    config.update({
+        "connectURL": "jdbc:postgresql://%s:%s/%s"
+                      % (host.strip(), str(port).strip(), database.strip()),
+        "driver": DB_DRIVER,
+        "translator": DB_TRANSLATOR,
+        "username": username.strip(),
+        "password": _secret(password),
+    })
+    system.config.create(moduleId="ignition", typeId="database-connection",
+                         name=name, config=config,
+                         description="Created by the ACME Alarm Demo's Setup "
+                                     "screen",
+                         actor="AlarmDemo.setup")
+    AlarmDemo.config.save(name)
+    # Deliberately does not log or return the password, or the whole config
+    # dict that holds it.
+    LOG.info("created database connection '%s' for %s@%s:%s/%s"
+             % (name, username.strip(), host.strip(), str(port).strip(),
+                database.strip()))
+    return (u"connection '%s' created and the demo pointed at it" % name)
+
+
+# --------------------------------------------------------------------------
 # the items
 # --------------------------------------------------------------------------
 # Each item is (key, title, check, fix, why). `check` returns (ok, detail);
@@ -395,9 +551,8 @@ def _historyFix():
 
 ITEMS = [
     ("database", "Database connection", _database, None,
-     "Config -> Databases -> Connections. Then put its name in the box above "
-     "- a connection needs credentials, so it is the one thing this project "
-     "cannot make for itself."),
+     "The analytics and the journal history are SQL. Name one this gateway "
+     "already has, or fill in the boxes above and this page will make it."),
     ("tagProvider", "Tag provider", _tagProviderCheck, _tagProviderFix,
      "A standard provider named AlarmDemo, created live through "
      "system.config."),

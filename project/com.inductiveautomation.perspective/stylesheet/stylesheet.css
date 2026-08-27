@@ -630,6 +630,18 @@
 
 .psc-ad-input:focus-within { border-color: var(--accent); }
 
+/* A masked text box. `-webkit-text-security` is the only way to mask a field
+   that is not `<input type=password>`, and it is what this project needs
+   because the Password Field component's typed value cannot be read back from
+   a script - see build_views.py's db_field(). Supported in every browser
+   Perspective runs in (Blink and WebKit natively, Firefox since 117); if it
+   ever were not, the failure is a visible password in a setup form, not a
+   broken one. */
+.psc-ad-secret input {
+  -webkit-text-security: disc;
+  text-security: disc;
+}
+
 /* compact variant for in-card toggles */
 .psc-ad-btn-sm { font-size: 12px; padding: 0 10px; }
 

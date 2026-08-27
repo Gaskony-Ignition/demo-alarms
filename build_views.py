@@ -2835,17 +2835,48 @@ def setup_row(i):
             "if(isNull({%s.key}), \"none\", \"flex\")" % item)})
 
 
+def db_field(name, placeholder, basis, default=None, password=False):
+    """One box in the make-a-connection row.
+
+    Deliberately bound to NOTHING that persists. The Create button reads each
+    box straight off the component (`self.getSibling(name).props.text`), so
+    the password never lands in a view or session property at all - it goes
+    from the box into the gateway's own config resource and nowhere else.
+
+    The three boxes that have a sensible starting value get it from a
+    CONSTANT expression, which evaluates once when the view opens and never
+    again, so it seeds the box without ever overwriting what someone typed.
+    """
+    binds = None
+    if default is not None:
+        binds = {"props.text": expr_bind(
+            "1", script_tf(
+                "\treturn AlarmDemo.setup.databaseDefaults()['%s']" % default))}
+    # A Text Field for the password too, masked in CSS.
+    # `ia.input.password-field` renders correctly and looks like the obvious
+    # component, but nothing this script can read gets the typed value out of
+    # it - neither `props.text` (which is what the Text Field uses, and what
+    # the other four boxes are read with) nor `props.value`. The create
+    # refused for a missing password every time while the box plainly had one
+    # in it. One component, one prop, and the masking is a CSS rule.
+    return C("ia.input.text-field", name,
+             {"text": "", "placeholder": placeholder,
+              "style": {"classes": "ad-input ad-secret" if password
+                        else "ad-input"}},
+             position=fixed(basis), binds=binds)
+
+
 def v_setup():
-    db_card = flex("DbRow", [
+    name_row = flex("DbRow", [
         C("ia.input.text-field", "DbName", {
             "text": "", "placeholder": "database connection name",
             "style": {"classes": "ad-input"},
         }, position=fixed("240px"),
             binds={"props.text": prop_bind_rw("view.custom.dbName")}),
         C("ia.input.button", "SaveDb", {
-            "text": "Save",
+            "text": "Use this one",
             "style": {"classes": "ad-btn ad-btn-primary"},
-        }, position=fixed("90px"),
+        }, position=fixed("130px"),
             events=on_action(
                 "AlarmDemo.config.save(self.view.custom.dbName)\n"
                 "self.view.custom.busy = 'saved - re-checking'\n"
@@ -2859,6 +2890,53 @@ def v_setup():
                   "\"   -   settings are kept at \" + "
                   "{view.custom.state.db.settingsPath}")}),
     ], gap=10, align="center", position=fixed("38px"))
+
+    # --- make one -------------------------------------------------------
+    # Shown only while the named connection is not answering. Once it does,
+    # the form is finished with and goes; leaving a credentials form on screen
+    # for the rest of the demo's life would be furniture at best.
+    make_row = flex("MakeDb", [
+        label("MakeLabel", "or make one", classes="ad-muted",
+              position=fixed("86px"),
+              style={"fontSize": "12px", "alignSelf": "center"}),
+        db_field("Host", "host", "150px", default="host"),
+        db_field("Port", "port", "72px", default="port"),
+        db_field("Database", "database", "150px", default="database"),
+        db_field("User", "username", "130px"),
+        db_field("Pass", "password", "130px", password=True),
+        C("ia.input.button", "MakeIt", {
+            "text": "Create connection",
+            "style": {"classes": "ad-btn ad-btn-sm"},
+        }, position=fixed("160px"),
+            events=on_action(
+                # Read straight off the boxes. A bidirectional binding into a
+                # view property looked equivalent and was not: the typed
+                # password never arrived, the create refused for a missing
+                # password, and nothing on screen said which of the two had
+                # gone wrong. Reading the component is also the only version
+                # in which the credential is never a property at all.
+                "box = lambda n: self.getSibling(n).props.text\n"
+                "self.view.custom.busy = 'creating the connection...'\n"
+                "try:\n"
+                "\tself.view.custom.busy = AlarmDemo.setup.createDatabase(\n"
+                "\t\tself.view.custom.dbName, box('Host'), box('Port'),\n"
+                "\t\tbox('Database'), box('User'), box('Pass'))\n"
+                "\tself.getSibling('Pass').props.text = ''\n"
+                "except Exception, e:\n"
+                "\tself.view.custom.busy = 'could not create it: %s' % e\n"
+                "self.view.custom.tick = self.view.custom.tick + 1")),
+        flex("MakeSp", [], position=grow(1)),
+    ], gap=8, align="center", position=fixed("38px"),
+        # items[0] is the database row - AlarmDemo.setup.ITEMS is ordered as
+        # the install runs and the connection is necessarily first. There is
+        # no lookup-by-key in an Ignition expression, so this is the index or
+        # a script transform, and an index with a comment is the smaller of
+        # the two.
+        binds={"props.style.display": expr_bind(
+            "if({view.custom.state.items[0].ok} = true, \"none\", \"flex\")")})
+
+    db_card = flex("DbCard", [name_row, make_row],
+                   direction="column", gap=6, position=grow(1))
 
     actions = flex("SetupActions", [
         C("ia.input.button", "All", {
@@ -2922,12 +3000,13 @@ def v_setup():
         header(),
         flex("Body", [
             card("DbCard", "Database connection", db_card,
-                 fixed("116px", shrink=1),
-                 "The one thing this project cannot create for itself: a "
-                 "connection needs credentials. Make it in Config -> "
-                 "Databases -> Connections, then name it here. The name is "
-                 "kept outside the project, so importing a new version of the "
-                 "demo never overwrites it."),
+                 fixed("162px", shrink=1),
+                 "Name a connection this gateway already has, or fill in the "
+                 "second row and this page will make one. Only the NAME is "
+                 "remembered, and it is kept outside the project - so "
+                 "importing a new version of the demo never overwrites what "
+                 "this gateway is pointed at, and no export can carry a "
+                 "credential."),
             card("ItemsCard", "This gateway",
                  flex("Wrap", [actions, rows], direction="column", gap=8,
                       position=grow(1)),
@@ -2964,6 +3043,7 @@ def v_setup():
             "custom.dbName": expr_bind(
                 "{view.custom.tick}",
                 script_tf("\treturn AlarmDemo.config.db()")),
+
         }))
 
 

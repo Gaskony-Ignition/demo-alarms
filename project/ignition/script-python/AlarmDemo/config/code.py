@@ -156,6 +156,24 @@ def connections():
         return []
 
 
+def drivers():
+    """The JDBC drivers this gateway has, by name.
+
+    A driver is a config resource registered by a JDBC driver module; the
+    name is what a connection's `driver` field has to match. Listed so that
+    "PostgreSQL" not being one of them is a sentence rather than a stack
+    trace.
+    """
+    from java.lang import Throwable as JThrowable
+    try:
+        return sorted([unicode(r.getName()) for r in
+                       system.config.getResources(moduleId="ignition",
+                                                  typeId="database-driver")])
+    except (JThrowable, Exception) as e:
+        LOG.warn("could not list database drivers: %s" % e)
+        return []
+
+
 def describe():
     """What the Setup page shows: the value AND where it came from, so "why is
     it pointing there" is answerable without reading code."""

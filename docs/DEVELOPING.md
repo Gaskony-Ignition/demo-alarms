@@ -116,11 +116,35 @@ journal tables, shift schedules, users, on-call rosters and history. Every item
 is checked and fixed independently; the Setup screen is one row per entry in
 `AlarmDemo.setup.ITEMS`, and `?cmd=check` / `?cmd=fix` are the same calls.
 
-The **one** thing it cannot create is the database CONNECTION — that needs
-credentials, and a credential has no business inside a project export. Its
-name lives in `AlarmDemo.config`, in a settings file beside the gateway's data
-directory, written from the Setup screen. Same pattern as Order Intake's
-`Orders.Config`, deliberately.
+The database CONNECTION is created here too, from the boxes on the Setup
+screen, because a project cannot carry a host or a password but it can carry
+the form that asks for them. Only the connection's NAME is remembered, in
+`AlarmDemo.config`'s settings file beside the gateway's data directory — same
+pattern as Order Intake's `Orders.Config`, deliberately.
+
+**Writing the password takes TWO calls, and each of the shorter versions
+silently writes it in clear text into a file that reads as though it were
+encrypted** (verified 8.3.8, 27/08/2026):
+
+| What you pass as `password` | What happens |
+| --- | --- |
+| `"plaintext"` | rejected — `DecodingException: Unable to read required property 'type'` |
+| `{"type": "Embedded", "data": {"plaintext": "..."}}` | **accepted, written verbatim** |
+| `system.secrets.createEmbeddedSecretConfig("plaintext")` | **accepted, written verbatim** — `{"type": "Embedded", "data": "a-throwaway-value"}`, and reading it back fails with "Unable to decrypt ciphertext" |
+| `system.secrets.createEmbeddedSecretConfig(system.secrets.encrypt("plaintext"))` | correct — `{"type": "Embedded", "data": {ciphertext, encrypted_key, iv, protected, tag}}` |
+
+`encrypt()` is the half that encrypts and `createEmbeddedSecretConfig()` is the
+half that wraps; the name of the second one reads as though it did both.
+Neither takes keyword arguments. `system.secrets.decrypt()` returns a
+`PyPlaintext` wrapper that deliberately will not stringify, so a round-trip
+test has to compare through the API rather than through `str()`.
+
+Two more `system.config` traps found the same day: **`delete()` needs a
+`signature`** exactly as `replace()` does (the error says "missing required
+argument", which is at least honest), and `getResourceTypes()` returns
+`(moduleId, typeId)` tuples — `('ignition', 'roster-config')` is registered by
+the **Alarm Notification module**, so its absence is how you detect a gateway
+without that module from a script.
 
 Two things remain manual, because no API creates them: the `AlarmDemo` **tag
 provider** and the `AlarmDemo` **alarm journal profile**. Both ship as config

@@ -49,10 +49,10 @@ point is to demonstrate what Ignition does.
 
 ### Install
 
-You need Ignition **8.3.8+** with Perspective and a **SQL database connection** —
-the analytics and journal history are SQL, not tag history. Shipped against
-PostgreSQL. The Alarm Notification module is needed for the on-call rosters;
-without it everything else still works and the Setup screen says so.
+You need Ignition **8.3.8+** with Perspective and the PostgreSQL JDBC driver —
+the analytics and journal history are SQL, not tag history. The Alarm
+Notification module is needed for the on-call rosters; without it everything
+else still works and the Setup screen says so.
 
 1. **Import the project.** Config → Platform → Projects → Import Project,
    choose `Alarm_Demo-<version>.zip` from the
@@ -63,21 +63,30 @@ without it everything else still works and the Setup screen says so.
 
    ![The Setup screen on a gateway that has nothing yet](docs/images/setup-fresh.png)
 
-   That creates the tag provider, the 122 tags and their alarms, the alarm
-   journal profile, the journal tables, the three shift schedules, the seven
-   users, the three on-call rosters and 30 days of history — all of it, on the
-   gateway, from the project. It takes about a minute and it is safe to press
-   twice: each item is only created if it is missing.
+   That creates the database connection, the tag provider, the 122 tags and
+   their alarms, the alarm journal profile, the journal tables, the three shift
+   schedules, the seven users, the three on-call rosters and 30 days of
+   history — all of it, on the gateway, from the project. It takes about a
+   minute and it is safe to press twice: each item is only created if it is
+   missing.
 
 That is the whole install. There is no package to unpack, no tag file to import
 in the Designer, and no config scan to remember.
 
-**If your database connection is not called `ignition`**, put its name in the
-box at the top of the Setup screen and press Save first. That name is the one
-thing the demo keeps outside the project — a connection needs credentials, so
-it is the one piece of gateway state a project export has no business carrying.
-Keeping it outside also means importing a newer version of the demo never
-overwrites what the gateway is pointed at.
+**The database connection** is the only item that asks you anything, because a
+connection needs a host and a password and neither can travel inside a project
+export. Name one this gateway already has and press *Use this one*, or fill in
+the second row — host, port, database, user, password — and press *Create
+connection*, and the page makes it. The password goes straight into the
+gateway's own resource, encrypted with the gateway's secret provider, exactly
+as a connection made on Ignition's own page would be; the demo stores only the
+connection's NAME, and it stores that outside the project, so importing a newer
+version never overwrites what the gateway is pointed at.
+
+The only things left that a button cannot do are the **modules** — Perspective,
+the JDBC driver, and Alarm Notification for the rosters. A project cannot
+install a module, and the Setup screen names the one that is missing rather
+than failing obscurely.
 
 Every item is checked independently rather than stopping at the first failure.
 "The connection is fine but the tables are missing" and "the connection is

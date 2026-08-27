@@ -105,6 +105,26 @@ pointing at the first one's connection. The project deliberately has no
 `ignition/global-props` resource at all, which is where a project's Default
 Database and identity provider would otherwise travel.
 
+**The Setup screen will make the connection if the gateway has not got one.**
+Host, port, database, user and password, and it creates a PostgreSQL
+connection through `system.config` — the password encrypted with the gateway's
+own secret provider, byte-for-byte the shape Ignition's own Databases page
+writes. It will **not** overwrite a connection that already exists under that
+name: a gateway running this demo is usually running other things too, and
+replacing someone else's connection with credentials typed into a demo's setup
+page is not a thing a demo gets to do.
+
+## What the button cannot do
+
+Modules. Perspective, a JDBC driver, and Alarm Notification for the rosters —
+a project script cannot install one, and there is no API that would let it. The
+Setup screen names the missing one instead of failing obscurely: without Alarm
+Notification the rosters row says so and every other row still goes green, and
+without a PostgreSQL driver the create-connection button says which drivers the
+gateway does have.
+
+Everything else the demo needs, it makes.
+
 ## Things worth knowing
 
 - **The simulation runs at 60×.** One second of wall clock is one simulated
@@ -144,24 +164,25 @@ Database and identity provider would otherwise travel.
 **Modules**
 
 - Perspective
+- PostgreSQL JDBC Driver — the queries use `split_part`, `generate_series`,
+  `percentile_cont` and `to_char`, so another database needs those translated
 - Web Developer — for the headless control endpoint
 - Alarm Notification — for the on-call rosters. Optional: without it the demo
   installs and runs, the Setup screen says the module is missing, and the
   Notifications and People screens lose their roster half.
 
-**Other:** a SQL database connection. PostgreSQL as shipped — the queries use
-`split_part`, `generate_series`, `percentile_cont` and `to_char`, so another
-database needs those translated.
+**Other:** a PostgreSQL server the gateway can reach. The connection itself is
+made by the Setup screen if the gateway has not got one.
 
 ## Release notes
 
-**2.0.0** — A standalone project instead of an Ignition Exchange package. The
-demo now creates its own tag provider, its own tags and its own alarm journal
-profile through `system.config` and `system.tag.configure`, so importing the
-project is the entire install: no package to unpack, no tag file to import in
-the Designer, no config scan. The database connection's *name* moved out of the
-scripts and onto a Setup screen that reports on every item independently and
-can create each one. Every colour resolves to an Ignition theme variable, so
+**2.0.0** — A standalone project instead of an Ignition Exchange package.
+Importing the project is the entire install: no package to unpack, no tag file
+to import in the Designer, no config scan. Everything the demo needs that is
+not a project resource — the database connection, the tag provider, the tags,
+the alarm journal profile, the tables, the schedules, the people, the rosters
+and the history — is created by the project itself, from a Setup screen that
+reports on every item independently and has a button for each. Every colour resolves to an Ignition theme variable, so
 the demo follows the six stock themes and any custom theme on the gateway;
 default `dark-cool`. Journal reads and the history wipe are scoped to the
 demo's own tag provider, so it is safe on a gateway whose `alarm_events` table

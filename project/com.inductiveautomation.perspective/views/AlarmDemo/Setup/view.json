@@ -517,7 +517,7 @@
                   "name": "S"
                 },
                 "props": {
-                  "text": "The one thing this project cannot create for itself: a connection needs credentials. Make it in Config -> Databases -> Connections, then name it here. The name is kept outside the project, so importing a new version of the demo never overwrites it.",
+                  "text": "Name a connection this gateway already has, or fill in the second row and this page will make one. Only the NAME is remembered, and it is kept outside the project - so importing a new version of the demo never overwrites what this gateway is pointed at, and no export can carry a credential.",
                   "style": {
                     "fontSize": "11px",
                     "classes": "ad-faint ad-card-sub"
@@ -532,116 +532,363 @@
               {
                 "type": "ia.container.flex",
                 "meta": {
-                  "name": "DbRow"
+                  "name": "DbCard"
                 },
                 "props": {
-                  "direction": "row",
-                  "alignItems": "center",
+                  "direction": "column",
                   "style": {
-                    "gap": "10px"
+                    "gap": "6px"
                   }
                 },
                 "children": [
                   {
-                    "type": "ia.input.text-field",
+                    "type": "ia.container.flex",
                     "meta": {
-                      "name": "DbName"
+                      "name": "DbRow"
                     },
                     "props": {
-                      "text": "",
-                      "placeholder": "database connection name",
+                      "direction": "row",
+                      "alignItems": "center",
                       "style": {
-                        "classes": "ad-input"
+                        "gap": "10px"
                       }
                     },
-                    "propConfig": {
-                      "props.text": {
-                        "binding": {
-                          "type": "property",
-                          "config": {
-                            "path": "view.custom.dbName",
-                            "bidirectional": true
+                    "children": [
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "DbName"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "database connection name",
+                          "style": {
+                            "classes": "ad-input"
                           }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.dbName",
+                                "bidirectional": true
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "240px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "SaveDb"
+                        },
+                        "props": {
+                          "text": "Use this one",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tAlarmDemo.config.save(self.view.custom.dbName)\n\tself.view.custom.busy = 'saved - re-checking'\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "130px"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Where"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "fontSize": "11.5px",
+                            "alignSelf": "center",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "whiteSpace": "nowrap",
+                            "classes": "ad-faint"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "\"from the \" + {view.custom.state.db.dbSource} + \"   -   settings are kept at \" + {view.custom.state.db.settingsPath}"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
                         }
                       }
-                    },
+                    ],
                     "position": {
                       "grow": 0,
                       "shrink": 0,
-                      "basis": "240px"
+                      "basis": "38px"
                     }
                   },
                   {
-                    "type": "ia.input.button",
+                    "type": "ia.container.flex",
                     "meta": {
-                      "name": "SaveDb"
+                      "name": "MakeDb"
                     },
                     "props": {
-                      "text": "Save",
+                      "direction": "row",
+                      "alignItems": "center",
                       "style": {
-                        "classes": "ad-btn ad-btn-primary"
+                        "gap": "8px"
                       }
                     },
-                    "events": {
-                      "component": {
-                        "onActionPerformed": {
-                          "config": {
-                            "script": "\tAlarmDemo.config.save(self.view.custom.dbName)\n\tself.view.custom.busy = 'saved - re-checking'\n\tself.view.custom.tick = self.view.custom.tick + 1"
-                          },
-                          "scope": "G",
-                          "type": "script"
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "MakeLabel"
+                        },
+                        "props": {
+                          "text": "or make one",
+                          "style": {
+                            "fontSize": "12px",
+                            "alignSelf": "center",
+                            "classes": "ad-muted"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "86px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "Host"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "host",
+                          "style": {
+                            "classes": "ad-input"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "1"
+                              },
+                              "transforms": [
+                                {
+                                  "type": "script",
+                                  "code": "\treturn AlarmDemo.setup.databaseDefaults()['host']"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "150px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "Port"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "port",
+                          "style": {
+                            "classes": "ad-input"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "1"
+                              },
+                              "transforms": [
+                                {
+                                  "type": "script",
+                                  "code": "\treturn AlarmDemo.setup.databaseDefaults()['port']"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "72px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "Database"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "database",
+                          "style": {
+                            "classes": "ad-input"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "1"
+                              },
+                              "transforms": [
+                                {
+                                  "type": "script",
+                                  "code": "\treturn AlarmDemo.setup.databaseDefaults()['database']"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "150px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "User"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "username",
+                          "style": {
+                            "classes": "ad-input"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "130px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "Pass"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "password",
+                          "style": {
+                            "classes": "ad-input ad-secret"
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "130px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "MakeIt"
+                        },
+                        "props": {
+                          "text": "Create connection",
+                          "style": {
+                            "classes": "ad-btn ad-btn-sm"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tbox = lambda n: self.getSibling(n).props.text\n\tself.view.custom.busy = 'creating the connection...'\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.createDatabase(\n\t\t\tself.view.custom.dbName, box('Host'), box('Port'),\n\t\t\tbox('Database'), box('User'), box('Pass'))\n\t\tself.getSibling('Pass').props.text = ''\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'could not create it: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "160px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "MakeSp"
+                        },
+                        "props": {
+                          "direction": "row"
+                        },
+                        "children": [],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
                         }
                       }
-                    },
-                    "position": {
-                      "grow": 0,
-                      "shrink": 0,
-                      "basis": "90px"
-                    }
-                  },
-                  {
-                    "type": "ia.display.label",
-                    "meta": {
-                      "name": "Where"
-                    },
-                    "props": {
-                      "text": "",
-                      "style": {
-                        "fontSize": "11.5px",
-                        "alignSelf": "center",
-                        "overflow": "hidden",
-                        "textOverflow": "ellipsis",
-                        "whiteSpace": "nowrap",
-                        "classes": "ad-faint"
-                      }
-                    },
+                    ],
                     "propConfig": {
-                      "props.text": {
+                      "props.style.display": {
                         "binding": {
                           "type": "expr",
                           "config": {
-                            "expression": "\"from the \" + {view.custom.state.db.dbSource} + \"   -   settings are kept at \" + {view.custom.state.db.settingsPath}"
+                            "expression": "if({view.custom.state.items[0].ok} = true, \"none\", \"flex\")"
                           }
                         }
                       }
                     },
                     "position": {
-                      "grow": 1,
-                      "shrink": 1
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "38px"
                     }
                   }
                 ],
                 "position": {
-                  "grow": 0,
-                  "shrink": 0,
-                  "basis": "38px"
+                  "grow": 1,
+                  "shrink": 1
                 }
               }
             ],
             "position": {
               "grow": 0,
               "shrink": 1,
-              "basis": "116px"
+              "basis": "162px"
             }
           },
           {
