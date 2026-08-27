@@ -78,6 +78,21 @@ Two things that are not obvious:
   an SVG presentation attribute on every gateway version, which is why the
   background prop can stay a literal without a light theme showing a dark slab.
 
+**A stock variable this project restates, and why.** Ignition's own
+`.ia_inputField` does `border: var(--containerBorder)` - it expects the
+SHORTHAND, which is what the six stock themes give it
+(`1px solid var(--border)`). All ten of Nigel's custom themes define it as a
+bare COLOUR, so under any of them that declaration is invalid, the browser
+drops it, and every stock text field and dropdown renders with no border at
+all - on `finance-ledger` a white box on a white card, findable only by its
+chevron. The stylesheet restates the stock shorthand on `:root`, which is a
+no-op on a stock theme and repairs the custom ones; verified by computed
+style (`1px solid rgb(211, 219, 216)` on finance-ledger), not by eye, because
+on that theme the border colour is close enough to the card that a screenshot
+cannot settle it. Found by the session working on `ignition-themes`,
+27/08/2026 - the real fix is in that repo's `mapping.py`, and this is here so
+the demo does not depend on which version of the pack a gateway has.
+
 The default theme is `dark-cool` (`session-props/props.json`), the stock theme
 whose neutrals are closest to the palette the demo was originally drawn in.
 

@@ -76,6 +76,23 @@
   --accent-soft: var(--callToActionHighlight);
   --on-accent:   var(--neutral-10);
 
+  /* ---- a stock variable, restated ----
+     NOT this project's to define, and defined here anyway. Ignition's own
+     `.ia_inputField` does `border: var(--containerBorder)`, i.e. it expects
+     the SHORTHAND - which is what the six stock themes give it
+     (`1px solid var(--border)`). Every one of Nigel's ten custom themes
+     defines it as a bare COLOUR instead, so under any of them that
+     declaration is invalid and every stock text field and dropdown renders
+     with no border at all: on `finance-ledger` that is a white box on a white
+     card, findable only by its chevron.
+
+     Restating it as the stock shorthand is a no-op on a stock theme and
+     repairs the custom ones. The real fix is in the theme pack's mapping.py
+     (found by the session working on it, 27/08/2026); this is here so the
+     demo does not depend on which version of the pack a gateway happens to
+     have installed. */
+  --containerBorder: 1px solid var(--border);
+
   /* ---- surfaces derived from the theme's own two ends ----
      A theme gives a page, a card and a nested surface, and this demo needs
      three more: a header/toolbar strip, a hover lift, and a recessed well.
