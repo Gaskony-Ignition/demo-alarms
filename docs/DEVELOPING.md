@@ -146,9 +146,17 @@ theme's, and (3) avoids both:
 * **Never assert on a control this project gives a border to.** Such a control
   cannot fail however broken the theme is, so a green run can sit over a broken
   page. `BORDERED_BY_PROJECT` in the script is that exclusion list, explicit so
-  it is reviewable — add a class to it the moment you give it a border, or the
-  check quietly stops testing anything. A screen where *everything* is
-  project-styled reports FAIL, not pass: nothing was asserted.
+  it is reviewable — a prefix match would be a rule that quietly widens. A
+  screen where *everything* is project-styled reports FAIL, not pass: nothing
+  was asserted.
+
+  **That list will go stale, and it is designed not to matter.** A stale
+  exclusion list is only dangerous while the exclusion is the one thing
+  standing between you and a false green. Because assertion (2) is
+  independent, a rotted list costs a *probe* — coverage narrows, and the check
+  still fails when the fault is real. What it cannot do is go silently green,
+  which is the failure that actually hurt. The mitigation is the design, not
+  remembering to update the list.
 
 Measured here rather than assumed: of the two dropdowns on Analytics, the "All
 areas" selector carries `ad-btn` and sets its own border, so it stayed green
