@@ -37,9 +37,23 @@
    browser while the Designer, and every other browser, render it correctly.
    Declaring color-scheme is the documented way to opt out; it also stops the
    browser restyling scrollbars and form controls against this palette.
-   `light dark` rather than `dark`: this project genuinely renders in both now,
-   and neither stock theme file declares a color-scheme of its own. */
-:root { color-scheme: light dark; }
+   ON `html`, NOT `:root`, and that is the whole point of the rule.
+
+   These are the same element and differ only in specificity: `html` is
+   0-0-1, `:root` is 0-1-0. This declaration wants to LOSE to any theme that
+   has an opinion, which is the opposite of the --containerBorder rule below
+   - that one is on `:root` deliberately, to outrank the theme.
+
+   Every theme that declares a color-scheme declares it at `:root`: all ten
+   custom themes, and the four stock variants served as config resources
+   (`dark-cool` says `dark`). Only the two base stock themes inside the
+   Perspective jar, `light` and `dark`, declare none. On `:root` this line
+   loads after the theme's, wins on order, and replaces every one of those
+   correct answers with "either" - so a viewer whose OS prefers light gets
+   light scrollbars and light form controls on a dark page, which is the
+   exact class of fault the auto-dark-mode incident was. On `html` it applies
+   only where nothing else has spoken, which is what it is for. */
+html { color-scheme: light dark; }
 
 /* On :root, not on a view class - embedded widget views (Tank, Pump, Stat)
    are separate view roots and would not inherit variables scoped to the

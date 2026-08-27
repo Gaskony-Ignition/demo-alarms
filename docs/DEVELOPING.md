@@ -78,6 +78,47 @@ Two things that are not obvious:
   an SVG presentation attribute on every gateway version, which is why the
   background prop can stay a literal without a light theme showing a dark slab.
 
+**Two overrides in this stylesheet pull opposite ways, and the difference is
+specificity, not taste.** `html` is 0-0-1; `:root` is 0-1-0; both match the
+same element. The project stylesheet loads AFTER the theme's, so at equal
+specificity it wins on order.
+
+| declaration | selector | why |
+| --- | --- | --- |
+| `--containerBorder` | `:root` | must **outrank** the theme — the theme's value is the broken one |
+| `color-scheme` | `html` | must **lose** to the theme — the theme's value is the right one |
+
+Every theme that has an opinion about `color-scheme` states it at `:root`:
+all ten custom themes, and the four stock variants served as config resources
+(`dark-cool` says `dark`). Only the two base themes inside the Perspective
+jar, `light` and `dark`, say nothing, and those are the only two this
+project's default should reach. On `:root` this line replaced every theme's
+correct answer with "either", which puts light scrollbars and light form
+controls on a dark page for any viewer whose OS prefers light — the same
+class of fault as the auto-dark-mode incident, and equally invisible in a
+screenshot. (Both halves of this pairing came from the session working on
+`ignition-themes`, 27/08/2026.)
+
+`tools/theme-check.js` asserts both, on every theme a gateway has:
+
+```bash
+node tools/theme-check.js --gateway http://host:8088
+```
+
+It asserts a border is **drawn**, never how wide it is — pinning `1px` tests
+this project's own style classes rather than the theme's contract and reports
+a broken theme when nothing is broken. It reads the theme list from the demo's
+own sidebar dropdown, and it checks the **Analytics** page rather than the
+landing page because the "All areas" selector there is a stock dropdown
+carrying no project class, which is the component that actually broke; the
+landing page has only the sidebar's own picker, and checking that alone passes
+while the thing that broke goes unchecked.
+
+Proven by removing the `--containerBorder` line and re-running: 10 custom
+themes FAIL, 6 stock pass, and it is the stock dropdown that loses its border
+while the project-classed text field beside it keeps one. A check that has
+never failed is not a check.
+
 **A stock variable this project restates, and why.** Ignition's own
 `.ia_inputField` does `border: var(--containerBorder)` - it expects the
 SHORTHAND, which is what the six stock themes give it
