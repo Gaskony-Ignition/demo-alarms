@@ -2889,9 +2889,14 @@ def v_setup():
             "style": {"classes": "ad-btn ad-btn-danger"},
         }, position=fixed("210px"),
             events=on_action(
-                "AlarmDemo.roster.setup(True)\n"
-                "self.view.custom.busy = "
-                "'rosters and shifts reset to the shipped design'\n"
+                # through setup.fix, not straight into roster.setup: the fix
+                # is the thing that knows a gateway without Alarm Notification
+                # still gets its schedules and people, and says so instead of
+                # throwing.
+                "try:\n"
+                "\tself.view.custom.busy = AlarmDemo.setup.fix('rosters', True)\n"
+                "except Exception, e:\n"
+                "\tself.view.custom.busy = 'failed: %s' % e\n"
                 "self.view.custom.tick = self.view.custom.tick + 1")),
         C("ia.input.button", "Rebuild", {
             "text": "Rebuild 30-day history",

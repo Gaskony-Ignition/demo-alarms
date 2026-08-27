@@ -789,7 +789,7 @@
                           "component": {
                             "onActionPerformed": {
                               "config": {
-                                "script": "\tAlarmDemo.roster.setup(True)\n\tself.view.custom.busy = 'rosters and shifts reset to the shipped design'\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                "script": "\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix('rosters', True)\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
                               },
                               "scope": "G",
                               "type": "script"
