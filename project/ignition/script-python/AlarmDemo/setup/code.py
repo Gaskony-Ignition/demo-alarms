@@ -302,7 +302,25 @@ def createDatabase(name, host, port, database, username, password):
     LOG.info("created database connection '%s' for %s@%s:%s/%s"
              % (name, username.strip(), host.strip(), str(port).strip(),
                 database.strip()))
-    return (u"connection '%s' created and the demo pointed at it" % name)
+
+    # Creating the RESOURCE and having a live, pooled CONNECTION are not the
+    # same moment. The resource registers straight away; the pool then has to
+    # start and reach the server, and until it does a query against the name
+    # fails. Returning immediately meant the page could say "created" on one
+    # line and "did not answer" on the next, about the same connection, in the
+    # same second - which reads as a create that did not work.
+    #
+    # Fifteen seconds, then say so rather than pretend: a connection that is
+    # still not answering by then usually has the host or the credentials
+    # wrong, and the row above will say which once it gives up.
+    from java.lang import Thread as JThread
+    for _attempt in range(15):
+        ok, _detail = _database()
+        if ok:
+            return u"connection '%s' created and the demo pointed at it" % name
+        JThread.sleep(1000)
+    return (u"connection '%s' was created and the demo is pointed at it, but "
+            u"it is not answering yet - check the row below in a moment" % name)
 
 
 # --------------------------------------------------------------------------

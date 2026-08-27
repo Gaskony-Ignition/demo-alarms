@@ -139,6 +139,20 @@ Neither takes keyword arguments. `system.secrets.decrypt()` returns a
 `PyPlaintext` wrapper that deliberately will not stringify, so a round-trip
 test has to compare through the API rather than through `str()`.
 
+**Creating the RESOURCE and having a live CONNECTION are different moments.**
+The resource registers straight away; the pool then has to start and reach the
+server, and until it does a query against the name fails - so returning as soon
+as `create()` came back had the page saying "created" on one line and "did not
+answer" on the next, about the same connection, in the same second.
+`createDatabase()` waits for it to answer (bounded, then says so rather than
+pretending). Worth generalising: the pre-`system.config` route of writing the
+resource files and calling `getConfigurationManager().requestScan()` is
+asynchronous too, and anything that reads back the new resource acts on
+pre-scan state unless it waits for `getScanInformation()` to change - which is
+how Launchpad's setup got a bug where the second project's tags looked like
+they needed a human to press Scan File System (thanks to the session working on
+that repo for the trade).
+
 Two more `system.config` traps found the same day: **`delete()` needs a
 `signature`** exactly as `replace()` does (the error says "missing required
 argument", which is at least honest), and `getResourceTypes()` returns
