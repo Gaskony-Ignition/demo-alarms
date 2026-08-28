@@ -220,6 +220,22 @@ does not.
 
 ## Release notes
 
+**3.0.2** — The sidebar's theme picker drew a scrollbar down its side, on every
+screen, with nothing to scroll to. Perspective writes a flex position as a
+fixed pixel height and the box is **border-box**, so the block's `border-top:
+1px` came out of its content area: 56 − 1 border − 10 padding = 45px, holding a
+13px label, a 3px gap and a 30px dropdown = 46px. One pixel over, and Chromium
+answers a one-pixel overflow with a full scroll rail.
+
+It is the third of these in the same file — the brand row went 22 → 24 and the
+alarm count 30 → 36 for the same reason — and all three were found by a human
+noticing a scrollbar in a screenshot, because nothing on the server can see it:
+the JSON is right, the props are right, and only the rendered box model
+disagrees. So `tools/layout-check.js` now measures instead, failing on anything
+that overflows by one to four pixels on an axis set to scroll. Large overflows
+are left alone: real scrollers overflow by a lot, and this project lets tables
+scroll rather than paginate.
+
 **3.0.1** — An in-place upgrade from 2.0.0 could report itself healthy and show
 nothing. 2.0.0 had the human make a PostgreSQL connection by hand and told the
 demo its name; that name is a *setting*, so it survives the import of 3.0.0
