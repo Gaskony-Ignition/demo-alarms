@@ -965,10 +965,21 @@ def theme_picker():
                  # for the life of every screen
                  "props.options": expr_bind(
                      "1", script_tf("\treturn AlarmDemo.ui.themeOptions()"))}),
+    # 57, not 56, and the extra pixel is the BORDER. Perspective writes the
+    # flex basis as a height and the box is border-box, so the 1px borderTop
+    # comes out of the content area: 56 - 1 border - 10 padding = 45px for a
+    # 13px label + 3px gap + 30px dropdown = 46px. One pixel over, and
+    # Chromium answers a one-pixel overflow with a full scrollbar down the
+    # side of the control - which is what it looks like, a scrollbar beside
+    # the theme picker on a sidebar that has nothing to scroll.
+    #
+    # Third time in this file: see the brand row (24, not 22) and the alarm
+    # count (36, not 30). Padding is inside the basis and margin is outside
+    # it, and a border is inside it too - that last one is what this missed.
     ], direction="column", gap=3, classes="ad-nav-theme",
         style={"paddingTop": "10px", "marginTop": "4px",
                "borderTop": "1px solid var(--line)"},
-        position=fixed("56px"))
+        position=fixed("57px"))
 
 
 def v_nav():

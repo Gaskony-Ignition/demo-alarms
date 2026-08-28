@@ -34,6 +34,8 @@ node ../../launchpad/tools/preflight.js --gateway fresh   # optional, see below
 node tools/import-project.js --gateway fresh \
      --zip dist/Alarm_Demo-3.0.1.zip --name AlarmDemo [--overwrite]
 
+node tools/layout-check.js --gateway fresh        # no hairline overflows
+
 docker compose -f tools/fresh-gateway.yml down -v    # and it is blank again
 ```
 
@@ -129,6 +131,28 @@ return zeros too, and the failure being reproduced is *populated* tables
 returning zeros. With 400 rows present, `?cmd=analytics` came back `ok:true`
 with every KPI at 0 and an empty Pareto. That is the whole defect in one line —
 it does not fail, it succeeds and says nothing.
+
+**`tools/layout-check.js` is the gate for a bug this project keeps making.**
+Perspective writes a flex position as a fixed pixel height and the box is
+**border-box**, so padding *and borders* come out of the content area. One pixel
+wrong and Chromium draws a full scrollbar down the side of a decorative
+container that has nothing to scroll to. Nothing on the server can see it: the
+JSON is right, the props are right, and only the rendered box model disagrees —
+which is why all three of these were found by a human noticing a scrollbar in a
+screenshot.
+
+| Where | Was | Is | The pixel went to |
+| ----- | --- | -- | ----------------- |
+| brand row | 22 | 24 | a 17px brand and a 20px glyph needing 23px of line box |
+| alarm count | 30 | 36 | a 26px number needing a 35px line box |
+| theme picker | 56 | 57 | `border-top: 1px` |
+
+The check measures instead. It walks every element on all nine pages, in both
+sidebar states, and fails on anything overflowing by **1 to 4 pixels** on an
+axis whose `overflow` is `auto` or `scroll`. The threshold is the whole idea:
+real scrollers overflow by a lot — a table of thirty rows — and this project
+deliberately lets tables scroll rather than paginate, so a large overflow is
+never a finding. A hairline one always is.
 
 ## Theming
 
