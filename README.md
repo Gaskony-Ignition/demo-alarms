@@ -167,6 +167,9 @@ and the wider alarm tables need the width.
 
 ## More
 
+- **[What the Setup button does](docs/WHAT-SETUP-DOES.md)** — every gateway
+  object it creates, reads and refuses to touch, and how to remove all of it.
+  Read this before pressing it on a gateway that matters.
 - **[Reference](docs/REFERENCE.md)** — every screen, the headless control
   endpoint, and the things worth knowing before you point it at a shared
   journal.
