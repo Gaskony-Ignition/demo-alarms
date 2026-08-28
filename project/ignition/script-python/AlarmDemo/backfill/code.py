@@ -408,23 +408,33 @@ def ensureSchema():
     sql/01-journal-tables.sql shipped beside it "for a hand-built database",
     which is two definitions of one schema and a drift waiting to happen; the
     Setup screen creates the tables, so the file had no reader.
+
+    It is not invented, either. It is what Ignition's own SQLite journal
+    writer creates, read straight off `sqlite_master` on a gateway where the
+    profile was made first and left to write the tables itself. That matters
+    more here than it looks: a schema of our own that Ignition merely
+    tolerated would work until the first event it wrote, and the demo inserts
+    into these tables directly. `eventtime` in particular is TEXT holding
+    epoch milliseconds - SQLite has no date type, and this is the
+    representation every query in AlarmDemo.alarms is written against.
     """
     system.db.runUpdateQuery(
-        "CREATE TABLE IF NOT EXISTS %s ("
-        "  id SERIAL, eventid VARCHAR(255), source VARCHAR(255),"
-        "  displaypath VARCHAR(255), priority INTEGER, eventtype INTEGER,"
-        "  eventflags INTEGER, eventtime TIMESTAMP NOT NULL,"
-        "  PRIMARY KEY (id, eventtime))" % TABLE, DB())
+        'CREATE TABLE IF NOT EXISTS %s ('
+        '"id" INTEGER PRIMARY KEY, "eventid" TEXT, "source" TEXT,'
+        '"displaypath" TEXT, "priority" INTEGER, "eventtype" INTEGER,'
+        '"eventflags" INTEGER, "eventtime" TEXT)' % TABLE, DB())
     system.db.runUpdateQuery(
-        "CREATE TABLE IF NOT EXISTS %s ("
-        "  id INTEGER, propname VARCHAR(255), dtype INTEGER, intvalue BIGINT,"
-        "  floatvalue DOUBLE PRECISION, strvalue TEXT)" % DATA_TABLE, DB())
+        'CREATE TABLE IF NOT EXISTS %s ('
+        '"id" INTEGER, "propname" TEXT, "dtype" INTEGER, "intvalue" INTEGER,'
+        '"floatvalue" REAL, "strvalue" TEXT)' % DATA_TABLE, DB())
     system.db.runUpdateQuery(
-        "CREATE INDEX IF NOT EXISTS alarm_event_dataidndx ON %s (id)"
+        'CREATE INDEX IF NOT EXISTS alarm_event_dataidndx ON %s ("id")'
         % DATA_TABLE, DB())
+    # Ignition does not make this one, and every analytic on the Analytics
+    # screen filters on source and then on time.
     system.db.runUpdateQuery(
-        "CREATE INDEX IF NOT EXISTS alarm_events_time_type_idx ON %s "
-        "(eventtime, eventtype)" % TABLE, DB())
+        'CREATE INDEX IF NOT EXISTS alarm_events_source_time_idx ON %s '
+        '("source", "eventtime")' % TABLE, DB())
     return True
 
 
@@ -476,7 +486,14 @@ def run(days=30, perDay=85, wipe=True):
         )
         args = []
         for r in chunk:
-            args.extend([r[0], r[1], r[2], r[3], r[4],
+            # eventtime as the digits Ignition's own writer stores - epoch
+            # milliseconds in a TEXT column. Binding the Date and letting the
+            # driver choose would put SOME representation in the column, and
+            # backfilled rows that do not compare against journalled ones are
+            # worse than none: the charts would simply be missing half their
+            # history with nothing to say why.
+            args.extend([unicode(long(system.date.toMillis(r[0]))),
+                         r[1], r[2], r[3], r[4],
                          FLAGS.get(r[1], 0), r[5]])
         system.db.runPrepUpdate(values, args, DB())
         written += len(chunk)

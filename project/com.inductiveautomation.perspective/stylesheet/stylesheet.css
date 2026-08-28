@@ -119,10 +119,26 @@ html { color-scheme: light dark; }
      card, findable only by its chevron.
 
      Restating it as the stock shorthand is a no-op on a stock theme and
-     repairs the custom ones. The real fix is in the theme pack's mapping.py
-     (found by the session working on it, 27/08/2026); this is here so the
-     demo does not depend on which version of the pack a gateway happens to
-     have installed. */
+     repairs the custom ones.
+
+     The pack itself was fixed in ignition-themes v1.5.1 (28/08/2026), and
+     this line still stays for now. The question to ask before removing a
+     compatibility line is not "has everyone upgraded" - which nothing
+     distributed can ever establish - but "can the affected combination still
+     exist": a gateway holding a pre-1.5.1 pack AND running this project.
+
+     Here it can, but only just. The theme packs are a PRIVATE repo, so nobody
+     downloading this demo from its public releases can have them: they are on
+     Ignition's stock six, where --containerBorder has always been the correct
+     shorthand and this line has always been a no-op. That leaves the Gaskony
+     estate, which is enumerable, and which still has gateways carrying old
+     packs. When those are regenerated the combination stops existing and this
+     goes.
+
+     (Launchpad removed its identical override on 28/08/2026 and was right to;
+     it runs on no estate gateway that has the packs. Same test, different
+     answer - thanks to that session for pushing back on a framing of mine
+     that would have justified keeping every shim forever.) */
   --containerBorder: 1px solid var(--border);
 
   /* ---- surfaces derived from the theme's own two ends ----
@@ -679,17 +695,12 @@ html { color-scheme: light dark; }
 
 .psc-ad-input:focus-within { border-color: var(--accent); }
 
-/* A masked text box. `-webkit-text-security` is the only way to mask a field
-   that is not `<input type=password>`, and it is what this project needs
-   because the Password Field component's typed value cannot be read back from
-   a script - see build_views.py's db_field(). Supported in every browser
-   Perspective runs in (Blink and WebKit natively, Firefox since 117); if it
-   ever were not, the failure is a visible password in a setup form, not a
-   broken one. */
-.psc-ad-secret input {
-  -webkit-text-security: disc;
-  text-security: disc;
-}
+/* The masked-text-box rule that used to live here is gone with the form it
+   masked. The Setup screen asked for a database host, user and password
+   because the demo wanted PostgreSQL; it runs on SQLite now, in a file in the
+   gateway's own data directory, so there is no credential to type and nothing
+   to hide. The best way to keep a password out of a screen turned out to be
+   not to need one. */
 
 /* compact variant for in-card toggles */
 .psc-ad-btn-sm { font-size: 12px; padding: 0 10px; }

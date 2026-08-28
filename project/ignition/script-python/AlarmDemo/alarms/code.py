@@ -113,32 +113,108 @@ def siteInfo(site):
             "areas": list(s["areas"])}
 
 
+def _areaPattern(area):
+    """The source prefix every alarm in one area shares.
+
+    `prov:AlarmDemo:/tag:Intake/WetWell/Level:/alm:High Level` -> the area is
+    the first path segment after `/tag:`, so every alarm in Intake starts
+    `prov:AlarmDemo:/tag:Intake/`.
+    """
+    return u"prov:%s:/tag:%s/%%" % (PROVIDER, area)
+
+
+def _millis(when):
+    """Epoch milliseconds, which is what `eventtime` actually holds.
+
+    Ignition's SQLite journal writer stores eventtime as TEXT digits - epoch
+    milliseconds - not as a date type, because SQLite has none. Read straight
+    back out of a table Ignition created and filled: `typeof(eventtime)` is
+    'text' and the value is '1787875575442'.
+
+    So every comparison against it CASTs the column to INTEGER and binds a
+    number, rather than binding a Date and hoping the driver and SQLite's type
+    affinity agree on what to do with it. They might: 13-digit strings happen
+    to sort the same way the numbers do, until the year 2286. That is not a
+    thing to rely on without saying so.
+    """
+    return long(system.date.toMillis(when))
+
+
 def _scope(hours, site, area, alias="a"):
     """(whereSql, args) for the time window plus the site/area restriction.
 
     Area names come from the fixed SITES map, never from user input, and are
     still passed as bind parameters rather than interpolated.
+
+    The area test is a `source LIKE` on that area's own prefix. It used to be
+    `split_part(split_part(source,'/tag:',2),'/',1) = ?`, which said the same
+    thing and said it in PostgreSQL - SQLite has no split_part, and the demo
+    now runs on SQLite so that a gateway needs no database server at all. The
+    prefix is the better test regardless: it is what the source path is FOR,
+    and it is the shape an index can use.
+
+    It also subsumes the old separate `source LIKE 'prov:AlarmDemo:%'` term -
+    every area pattern already carries that prefix - so the provider scoping
+    that keeps this demo out of another project's rows is still here, one
+    layer more specific.
     """
     end = system.date.now()
     start = system.date.addHours(end, -int(hours))
-    args = [start, end]
-    if area:
-        pred = "split_part(split_part(%s.source,'/tag:',2),'/',1) = ?" % alias
-        args.append(area)
-    else:
-        areas = siteAreas(site)
-        pred = ("split_part(split_part(%s.source,'/tag:',2),'/',1) IN (%s)"
-                % (alias, ", ".join(["?"] * len(areas))))
-        args.extend(areas)
-    # Scope to this demo's own provider as well as to the area. `alarm_events`
-    # is Ignition's default table name, so on any gateway where another
-    # project journals to the same table its alarms would otherwise appear in
-    # this demo's Pareto and its alarm rate - seen live on a gateway holding
-    # 116,000 rows from two other projects.
-    where = ("%s.eventtime >= ? AND %s.eventtime < ? AND %s.source LIKE ? AND "
-             % (alias, alias, alias)) + pred
-    args = args[:2] + [SOURCE_PREFIX] + args[2:]
+    args = [_millis(start), _millis(end)]
+    areas = [area] if area else siteAreas(site)
+    pred = "(%s)" % " OR ".join(["%s.source LIKE ?" % alias] * len(areas))
+    args.extend([_areaPattern(a) for a in areas])
+    where = ("CAST(%s.eventtime AS INTEGER) >= ? AND "
+             "CAST(%s.eventtime AS INTEGER) < ? AND " % (alias, alias)) + pred
     return where, args
+
+
+# `strftime` with 'unixepoch' reads the value as seconds, so the milliseconds
+# are divided out first; 'localtime' then puts the bucket boundaries where the
+# gateway's own day starts, which is what `date_trunc` used to do and what
+# anyone reading a daily chart means by a day.
+def _bucket(expr, unit):
+    fmt = "%Y-%m-%d %H:00:00" if unit == "hour" else "%Y-%m-%d 00:00:00"
+    return ("strftime('" + fmt + "', CAST(" + expr +
+            " AS INTEGER)/1000, 'unixepoch', 'localtime')")
+
+
+BUCKET_FORMAT = "yyyy-MM-dd HH:mm:ss"
+
+# The activation-to-acknowledgement gap, in milliseconds, and the test that
+# the acknowledgement really came after the activation. Both are used by two
+# queries and are written once so the two cannot drift apart.
+_ACK_MILLIS = "(CAST(k.eventtime AS INTEGER) - CAST(a.eventtime AS INTEGER))"
+_ACK_AFTER = "CAST(k.eventtime AS INTEGER) > CAST(a.eventtime AS INTEGER)"
+
+
+def _truncHour(when):
+    """The top of the hour `when` falls in."""
+    return system.date.addHours(system.date.midnight(when),
+                                system.date.getHour24(when))
+
+
+def _zeroFilled(rows, start, end, unit, columns):
+    """Turn (bucketKey, n) rows into one dataset row per bucket in the window.
+
+    The zero-fill used to be a `generate_series` LEFT JOIN, which SQLite has
+    no equivalent for. Doing it here is less SQL and the same result, and the
+    bucket comes back out as a real Date rather than a string, so the charts'
+    axes are unchanged.
+
+    A gap in a rate trend reads as 'no data', not as 'quiet' - which is why
+    the empty buckets have to be present at all.
+    """
+    counts = {}
+    for r in rows:
+        counts[unicode(r["bucket"])] = int(r["n"])
+    out, cursor = [], start
+    while cursor.getTime() <= end.getTime():
+        key = system.date.format(cursor, BUCKET_FORMAT)
+        out.append([cursor, counts.get(key, 0)])
+        cursor = (system.date.addHours(cursor, 1) if unit == "hour"
+                  else system.date.addDays(cursor, 1))
+    return system.dataset.toDataSet(columns, out)
 
 
 def sourceFilter(site, area=""):
@@ -475,16 +551,16 @@ def rateByHour(hours=24, site="Water", area=""):
 
     def go():
         where, args = _scope(hours, site, area)
-        # the generate_series bounds need the window again, ahead of the rest
-        return system.db.runPrepQuery(
-            "SELECT g.h AS bucket, COALESCE(e.n, 0) AS occurrences "
-            "FROM generate_series(date_trunc('hour', CAST(? AS timestamp)), "
-            "  date_trunc('hour', CAST(? AS timestamp)), interval '1 hour') AS g(h) "
-            "LEFT JOIN (SELECT date_trunc('hour', a.eventtime) AS h, COUNT(*) AS n "
-            "  FROM %s a WHERE a.eventtype = 0 AND %s GROUP BY 1) e ON e.h = g.h "
-            "ORDER BY g.h" % (TABLE, where),
-            args[:2] + args, DB(),
+        rows = system.db.runPrepQuery(
+            "SELECT %s AS bucket, COUNT(*) AS n FROM %s a "
+            "WHERE a.eventtype = 0 AND %s GROUP BY 1"
+            % (_bucket("a.eventtime", "hour"), TABLE, where),
+            args, DB(),
         )
+        end = system.date.now()
+        first = system.date.addHours(end, -int(hours))
+        return _zeroFilled(rows, _truncHour(first), _truncHour(end), "hour",
+                           ["bucket", "occurrences"])
 
     return _safe(go, system.dataset.toDataSet(["bucket", "occurrences"], []))
 
@@ -499,19 +575,20 @@ def dailyLoad(days=30, site="Water", area=""):
 
     def go():
         where, args = _scope(int(days) * 24, site, area)
+        rows = system.db.runPrepQuery(
+            "SELECT %s AS bucket, COUNT(*) AS n FROM %s a "
+            "WHERE a.eventtype = 0 AND %s GROUP BY 1"
+            % (_bucket("a.eventtime", "day"), TABLE, where),
+            args, DB(),
+        )
         # Both bounds stop at the last COMPLETE day. Today is a few hours old
         # and would plot as a cliff at the right-hand edge that reads like the
         # plant went quiet, when all it means is that the day is not over.
-        return system.db.runPrepQuery(
-            "SELECT g.d AS bucket, COALESCE(e.n, 0) AS alarms "
-            "FROM generate_series(date_trunc('day', CAST(? AS timestamp)), "
-            "  date_trunc('day', CAST(? AS timestamp)) - interval '1 day', "
-            "  interval '1 day') AS g(d) "
-            "LEFT JOIN (SELECT date_trunc('day', a.eventtime) AS d, COUNT(*) AS n "
-            "  FROM %s a WHERE a.eventtype = 0 AND %s GROUP BY 1) e ON e.d = g.d "
-            "ORDER BY g.d" % (TABLE, where),
-            args[:2] + args, DB(),
-        )
+        lastComplete = system.date.addDays(system.date.midnight(
+            system.date.now()), -1)
+        first = system.date.addDays(lastComplete, -(int(days) - 1))
+        return _zeroFilled(rows, first, lastComplete, "day",
+                           ["bucket", "alarms"])
 
     return _safe(go, system.dataset.toDataSet(["bucket", "alarms"], []))
 
@@ -533,16 +610,24 @@ def dailyAckTime(days=30, site="Water", area=""):
         where, args = _scope(int(days) * 24, site, area)
         # Same last-complete-day cut-off as dailyLoad, so the two charts beside
         # each other cover exactly the same period.
-        return system.db.runPrepQuery(
-            "SELECT date_trunc('day', a.eventtime) AS bucket, "
-            "  ROUND(AVG(EXTRACT(EPOCH FROM (k.eventtime - a.eventtime)))/60.0, 1) "
-            "    AS minutes "
+        rows = system.db.runPrepQuery(
+            "SELECT %s AS bucket, "
+            "  ROUND(AVG(%s)/60000.0, 1) AS minutes "
             "FROM %s a JOIN %s k ON k.eventid = a.eventid AND k.eventtype = 2 "
-            "WHERE a.eventtype = 0 AND %s AND k.eventtime > a.eventtime "
-            "  AND a.eventtime < date_trunc('day', CAST(? AS timestamp)) "
-            "GROUP BY 1 ORDER BY 1" % (TABLE, TABLE, where),
-            args + [args[1]], DB(),
+            "WHERE a.eventtype = 0 AND %s AND %s "
+            "  AND CAST(a.eventtime AS INTEGER) < ? "
+            "GROUP BY 1 ORDER BY 1"
+            % (_bucket("a.eventtime", "day"), _ACK_MILLIS, TABLE, TABLE,
+               where, _ACK_AFTER),
+            args + [_millis(system.date.midnight(system.date.now()))], DB(),
         )
+        # bucket comes back as the text key the GROUP BY produced; the chart
+        # wants the same Date it has always had.
+        out = []
+        for r in rows:
+            out.append([system.date.parse(unicode(r["bucket"]), BUCKET_FORMAT),
+                        r["minutes"]])
+        return system.dataset.toDataSet(["bucket", "minutes"], out)
 
     return _safe(go, system.dataset.toDataSet(["bucket", "minutes"], []))
 
@@ -619,19 +704,31 @@ def kpis(hours=24, site="Water", area=""):
         top_n = sum([r["n"] for r in top3])
 
         flood = system.db.runPrepQuery(
-            "SELECT COUNT(*) AS n FROM (SELECT date_trunc('hour', a.eventtime) AS h, "
+            "SELECT COUNT(*) AS n FROM (SELECT %s AS h, "
             "COUNT(*) AS c FROM %s a WHERE a.eventtype = 0 AND %s "
-            "GROUP BY 1 HAVING COUNT(*) > 60) f" % (TABLE, where), args, DB())[0]["n"]
+            "GROUP BY 1 HAVING COUNT(*) > 60) f"
+            % (_bucket("a.eventtime", "hour"), TABLE, where), args, DB())[0]["n"]
 
-        ack = system.db.runPrepQuery(
-            "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY secs) AS med, "
-            "COUNT(*) AS acked FROM ("
-            "  SELECT EXTRACT(EPOCH FROM (k.eventtime - a.eventtime)) AS secs"
-            "  FROM %s a JOIN %s k ON k.eventid = a.eventid AND k.eventtype = 2"
-            "  WHERE a.eventtype = 0 AND %s) d" % (TABLE, TABLE, where),
-            args, DB())[0]
-        med = ack["med"] or 0
-        acked = ack["acked"] or 0
+        # SQLite has no percentile_cont, so the median is the middle row of the
+        # ordered set - counted, then fetched by OFFSET. Two small queries
+        # rather than one that repeats its own subquery twice.
+        #
+        # For an even count this is the LOWER of the two middle values, where
+        # percentile_cont would have interpolated between them. On a headline
+        # figure rounded to one decimal of a minute, over thousands of
+        # acknowledgements, that is not a difference anyone can read.
+        inner = ("SELECT %s AS ms "
+                 "FROM %s a JOIN %s k ON k.eventid = a.eventid "
+                 "  AND k.eventtype = 2 "
+                 "WHERE a.eventtype = 0 AND %s AND %s"
+                 % (_ACK_MILLIS, TABLE, TABLE, where, _ACK_AFTER))
+        acked = int(system.db.runPrepQuery(
+            "SELECT COUNT(*) AS n FROM (%s) d" % inner, args, DB())[0]["n"] or 0)
+        med = 0
+        if acked:
+            med = (system.db.runPrepQuery(
+                "SELECT ms FROM (%s) d ORDER BY ms LIMIT 1 OFFSET %d"
+                % (inner, (acked - 1) // 2), args, DB())[0]["ms"] or 0) / 1000.0
 
         return {
             "total": total,

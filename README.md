@@ -13,8 +13,12 @@ priority, acknowledgement, journal, roster and schedule.
 
 **[Download the project →](https://github.com/Gaskony-Ignition/ignition-alarm-demo/releases/latest)**
 
-One zip. Import it, press one button on its Setup screen, and the demo is
-running.
+**Nothing to install but Ignition.** Install a gateway from scratch, import one
+zip, press one button. No database server, no JDBC driver to find, no
+credentials to type: the demo's database is SQLite, in a file in the gateway's
+own data directory, and the button makes it. That is the whole install, on a
+laptop in front of a customer, on a machine that has never run Ignition
+before.
 
 ## What it looks like
 
@@ -49,10 +53,10 @@ point is to demonstrate what Ignition does.
 
 ### Install
 
-You need Ignition **8.3.8+** with Perspective and the PostgreSQL JDBC driver —
-the analytics and journal history are SQL, not tag history. The Alarm
-Notification module is needed for the on-call rosters; without it everything
-else still works and the Setup screen says so.
+You need Ignition **8.3.8+** with Perspective. Nothing else — the analytics and
+journal history are SQL rather than tag history, and the SQLite driver they run
+on ships with Ignition. The Alarm Notification module is needed for the on-call
+rosters; without it everything else still works and the Setup screen says so.
 
 1. **Import the project.** Config → Platform → Projects → Import Project,
    choose `Alarm_Demo-<version>.zip` from the
@@ -70,23 +74,27 @@ else still works and the Setup screen says so.
    minute and it is safe to press twice: each item is only created if it is
    missing.
 
-That is the whole install. There is no package to unpack, no tag file to import
-in the Designer, and no config scan to remember.
+That is the whole install. There is no database server to stand up, no package
+to unpack, no tag file to import in the Designer, and no config scan to
+remember.
 
-**The database connection** is the only item that asks you anything, because a
-connection needs a host and a password and neither can travel inside a project
-export. Name one this gateway already has and press *Use this one*, or fill in
-the second row — host, port, database, user, password — and press *Create
-connection*, and the page makes it. The password goes straight into the
-gateway's own resource, encrypted with the gateway's secret provider, exactly
-as a connection made on Ignition's own page would be; the demo stores only the
-connection's NAME, and it stores that outside the project, so importing a newer
-version never overwrites what the gateway is pointed at.
+**The database** is a SQLite file in the gateway's own data directory, made by
+the same button. It used to be PostgreSQL, and the Setup screen used to ask for
+a host, a port, a database, a user and a password — one honest form, and the
+wrong answer to the question this demo exists to answer. A database server
+somebody has to install first is not a step in "open a laptop and show a
+customer", it is the end of it. On a stock gateway it is not even possible: a
+blank Ignition 8.3.8 registers three JDBC drivers — MySQL, Oracle and SQLite —
+and PostgreSQL is not one of them.
+
+So there is nothing to type. If the gateway already carries a connection the
+demo should use instead, name it and press *Use this one*: the demo remembers
+only the NAME, and keeps it outside the project, so importing a newer version
+never overwrites what the gateway is pointed at.
 
 The only things left that a button cannot do are the **modules** — Perspective,
-the JDBC driver, and Alarm Notification for the rosters. A project cannot
-install a module, and the Setup screen names the one that is missing rather
-than failing obscurely.
+and Alarm Notification for the rosters. A project cannot install a module, and
+the Setup screen names the one that is missing rather than failing obscurely.
 
 Every item is checked independently rather than stopping at the first failure.
 "The connection is fine but the tables are missing" and "the connection is
@@ -101,7 +109,8 @@ gateway you cannot open a browser onto:
 /system/webdev/AlarmDemo/admin?cmd=check
                             ?cmd=setup
                             ?cmd=fix&name=tags
-                            ?cmd=db&name=Postgres_Test
+                            ?cmd=createdb
+                            ?cmd=analytics
 ```
 
 The **build number** is at the bottom of the Setup and Demo Control screens, and

@@ -66,7 +66,9 @@ For scripted demos, and for checking a gateway you cannot open a browser onto:
 /system/webdev/AlarmDemo/admin?cmd=check
                             ?cmd=setup
                             ?cmd=fix&name=tags
-                            ?cmd=db[&name=Postgres_Test]
+                            ?cmd=db[&name=<connection>]
+                            ?cmd=createdb[&name=]
+                            ?cmd=analytics[&site=&hours=&days=]
                             ?cmd=status
                             ?cmd=rosters
                             ?cmd=scenario&name=Storm
@@ -81,21 +83,65 @@ For scripted demos, and for checking a gateway you cannot open a browser onto:
 `?cmd=check` is the same list the Setup screen shows, and `?cmd=fix` presses
 one of its Create buttons. `?cmd=journal` reads the journal back *through the
 profile*, which makes it the fastest way to tell a missing profile from an
-empty one.
+empty one. `?cmd=analytics` returns every number the Analytics screen shows —
+each one through a different query, so it is also the fastest way to tell
+whether the analytics survived a change.
+
+`?cmd=createdb` can exist at all only because the connection is SQLite. It
+takes a name and nothing else; the PostgreSQL version needed five values, one
+of them a password, and a password in a URL is a password in the access log.
+
+## The database
+
+**SQLite, in the gateway's own data directory.** The Setup screen creates a
+connection named `AlarmDemoDB` pointing at `${data}/alarm-demo.db`, and the
+driver makes the file on first use. There is no server, no host, no port, no
+user and no password — which is the point: the demo has to install on a machine
+where nothing but Ignition has ever been installed.
+
+It is also the only thing that works there. A blank Ignition 8.3.8 registers
+exactly three JDBC drivers — MySQL, Oracle Database and SQLite — and PostgreSQL
+arrives with a module somebody has to install first.
+
+The connect URL carries two parameters, and both earn their place:
+
+- **`journal_mode=WAL`** is what makes the demo work at all. The plant
+  simulation writes journal rows from a gateway timer while a Perspective
+  session reads them for the analytics, and rollback-journal SQLite blocks the
+  readers for the length of every write.
+- **`busy_timeout=30000`** covers the case WAL does not — two writers, the
+  timer and the history backfill — by waiting rather than failing.
+
+The pool is Ignition's own default with one change: `poolMaxActive` 8 → 4.
+Eight pooled connections onto one SQLite file is eight threads contending for
+one write lock.
+
+**The schema is Ignition's, not ours.** `AlarmDemo.backfill.ensureSchema()`
+creates `alarm_events` and `alarm_event_data` because the history backfill
+inserts into them directly and a brand new gateway has neither — but the DDL
+was read off `sqlite_master` on a gateway where the journal profile was made
+first and left to create them itself. That matters more than it looks:
+`eventtime` is a TEXT column holding epoch **milliseconds** (SQLite has no date
+type), and every query in `AlarmDemo.alarms` is written against that
+representation. A schema of our own that Ignition merely tolerated would work
+until the first event Ignition wrote.
 
 ## Sharing a gateway with other work
 
 The demo is built to be imported onto a gateway that already has projects on
 it, and two things follow from that.
 
-**Its journal reads and writes are scoped to its own tag provider.**
-`alarm_events` and `alarm_event_data` are Ignition's *default* journal table
-names, so on a gateway where nobody renamed them, several projects' profiles
-write to the same two tables. Every row this demo produces has a source under
-`prov:AlarmDemo:`, and every query, every analytic and the history wipe filter
-on that prefix. Verified on a gateway holding 116,000 rows belonging to two
-other projects: the demo's Pareto shows only its own alarms, and **Rebuild
-30-day history** deletes only its own rows.
+**Its journal reads and writes are scoped to its own tag provider.** On SQLite
+the demo has its own file and nothing else is in it, so this is now
+belt-and-braces rather than load-bearing — but it is still true, and it is what
+makes naming an *existing* connection safe. `alarm_events` and
+`alarm_event_data` are Ignition's *default* journal table names, so on a
+gateway where nobody renamed them several projects' profiles write to the same
+two tables. Every row this demo produces has a source under `prov:AlarmDemo:`,
+and every query, every analytic and the history wipe filter on that prefix.
+Verified on a gateway holding 116,000 rows belonging to two other projects: the
+demo's Pareto showed only its own alarms, and **Rebuild 30-day history** deleted
+only its own rows.
 
 **Its settings live outside the project.** The name of the database connection
 is written to `<install dir>/data/alarm-demo-settings.json`, not into a project
@@ -105,23 +151,15 @@ pointing at the first one's connection. The project deliberately has no
 `ignition/global-props` resource at all, which is where a project's Default
 Database and identity provider would otherwise travel.
 
-**The Setup screen will make the connection if the gateway has not got one.**
-Host, port, database, user and password, and it creates a PostgreSQL
-connection through `system.config` — the password encrypted with the gateway's
-own secret provider, byte-for-byte the shape Ignition's own Databases page
-writes. It will **not** overwrite a connection that already exists under that
-name: a gateway running this demo is usually running other things too, and
-replacing someone else's connection with credentials typed into a demo's setup
-page is not a thing a demo gets to do.
+**It will not overwrite a connection that already exists** under the name it is
+about to use. A gateway running this demo may be running other things too.
 
 ## What the button cannot do
 
-Modules. Perspective, a JDBC driver, and Alarm Notification for the rosters —
-a project script cannot install one, and there is no API that would let it. The
-Setup screen names the missing one instead of failing obscurely: without Alarm
-Notification the rosters row says so and every other row still goes green, and
-without a PostgreSQL driver the create-connection button says which drivers the
-gateway does have.
+Modules. Perspective, and Alarm Notification for the rosters — a project script
+cannot install one, and there is no API that would let it. The Setup screen
+names the missing one instead of failing obscurely: without Alarm Notification
+the rosters row says so and every other row still goes green.
 
 Everything else the demo needs, it makes.
 
@@ -159,22 +197,48 @@ Everything else the demo needs, it makes.
 
 ## Requirements
 
-**Ignition** 8.3.8 or later (built and verified on 8.3.8).
+**Ignition** 8.3.8 or later (built and verified on 8.3.8), with nothing added
+to it.
 
 **Modules**
 
 - Perspective
-- PostgreSQL JDBC Driver — the queries use `split_part`, `generate_series`,
-  `percentile_cont` and `to_char`, so another database needs those translated
 - Web Developer — for the headless control endpoint
 - Alarm Notification — for the on-call rosters. Optional: without it the demo
   installs and runs, the Setup screen says the module is missing, and the
   Notifications and People screens lose their roster half.
 
-**Other:** a PostgreSQL server the gateway can reach. The connection itself is
-made by the Setup screen if the gateway has not got one.
+**Other:** nothing. The SQLite driver ships with Ignition and the Setup screen
+makes the connection.
+
+The queries are SQLite's dialect — `strftime(... 'unixepoch', 'localtime')` for
+the date buckets, an OFFSET row for the median, and the zero-filling of empty
+buckets done in Jython rather than by `generate_series`. Pointing the demo at
+another engine means translating those; pointing it at another *SQLite* file
+does not.
 
 ## Release notes
+
+**3.0.0** — SQLite, so the demo needs nothing but Ignition. The Setup screen's
+five-box connection form — host, port, database, user, password — is one
+**Create it** button, and the connection it makes is a file in the gateway's
+own data directory. That closes the last gap in the install story: a
+salesperson can install Ignition on a laptop that has never run it, import one
+zip, press one button and be showing a customer alarms. It also closes one that
+was worse than a gap — a blank Ignition has no PostgreSQL driver at all, so the
+previous release could not actually install on the machine its README described.
+
+Everything that made the old form careful is gone with it rather than kept:
+there is no password to encrypt, no masked text box, and no CSS rule to mask
+one. The best way to keep a credential out of a demo turned out to be not to
+need one.
+
+The analytics were rewritten for SQLite's dialect and are unchanged on screen.
+Two defects were found on the way, both in code that reported success as
+failure: `system.user.addUser` and `editUser` return a `UIResponse`, which is
+truthy whether or not anything went wrong and is not iterable — so every person
+created reported itself "refused by the gateway", and every shift change on the
+People screen reported that it had not happened while happening.
 
 **2.0.0** — A standalone project instead of an Ignition Exchange package.
 Importing the project is the entire install: no package to unpack, no tag file

@@ -257,6 +257,41 @@ def ensureSchedules():
     return _safe(go, [])
 
 
+def _uiProblems(response):
+    """The error strings out of what a system.user write returns, or [].
+
+    `system.user.addUser`, `editUser` and `removeUser` do NOT return a list of
+    validation errors. They return a `UIResponse`, which is a Java object that
+    is TRUTHY whether or not anything went wrong and is not iterable - so
+
+        errors = system.user.addUser(src, user)
+        if errors:
+            LOG.warn(... list(errors))
+
+    reports every success as a failure, and then raises `TypeError:
+    'UIResponse' object is not iterable` while trying to say so. On a fresh
+    gateway that read as seven people "refused by the gateway" on the Setup
+    screen, in the same breath as the row above it reporting seven people
+    created - because they had been. The same shape cost `setSchedule` its
+    return value: every shift change succeeded and every one of them reported
+    that it had not.
+
+    The errors live in `getErrors()`. Some builds hand back a plain list
+    instead, so that is tried second rather than assumed away.
+    """
+    from java.lang import Throwable as JThrowable
+    if response is None:
+        return []
+    try:
+        return [unicode(e) for e in response.getErrors()]
+    except (JThrowable, Exception):
+        pass
+    try:
+        return [unicode(e) for e in response]
+    except (JThrowable, Exception):
+        return []
+
+
 def _addPerson(username, fullname, email, phone, schedule):
     """Create one demo user. Returns 1 if it was created, 0 if refused.
 
@@ -271,10 +306,11 @@ def _addPerson(username, fullname, email, phone, schedule):
     user.set("firstname", fullname.split(" ")[0])
     user.set("lastname", " ".join(fullname.split(" ")[1:]))
     # An internal user source rejects a user with no password, and addUser
-    # REPORTS that by returning a list of validation errors rather than
-    # raising - so without this the call looked like it worked and nothing was
-    # created. The value is random and never logged: these users carry contact
-    # details for notification, they are not accounts anyone signs in with.
+    # REPORTS that rather than raising - so without this the call looked like
+    # it worked and nothing was created. See _uiProblems for what it actually
+    # returns and why reading it wrongly is worse than not reading it. The
+    # value is random and never logged: these users carry contact details for
+    # notification, they are not accounts anyone signs in with.
     user.set("password", str(UUID.randomUUID()))
     user.set("schedule", schedule)
     for kind, value in (("email", email), ("sms", phone)):
@@ -283,9 +319,9 @@ def _addPerson(username, fullname, email, phone, schedule):
         except:
             LOG.info("%s contact info not accepted for %s on this gateway"
                      % (kind, username))
-    errors = system.user.addUser(USER_SOURCE, user)
-    if errors:
-        LOG.warn("user %s rejected: %s" % (username, list(errors)))
+    problems = _uiProblems(system.user.addUser(USER_SOURCE, user))
+    if problems:
+        LOG.warn("user %s rejected: %s" % (username, ", ".join(problems)))
         return 0
     return 1
 
@@ -439,10 +475,10 @@ def setSchedule(username, schedule):
         if u is None:
             return False
         u.set("schedule", schedule)
-        errors = system.user.editUser(USER_SOURCE, u)
-        if errors:
+        problems = _uiProblems(system.user.editUser(USER_SOURCE, u))
+        if problems:
             LOG.warn("schedule change for %s rejected: %s"
-                     % (username, list(errors)))
+                     % (username, ", ".join(problems)))
             return False
         return True
 

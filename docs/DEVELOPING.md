@@ -23,12 +23,36 @@ There are two user-facing documents and neither is this one:
 ```bash
 ./deploy.sh                       # generate, ship and project-scan
 ./package.sh                      # dist/Alarm_Demo.zip           (dev)
-./package.sh --release 2.0.0      # dist/Alarm_Demo-2.0.0.zip     (stamped)
+./package.sh --release 3.0.0      # dist/Alarm_Demo-3.0.0.zip     (stamped)
+
+# a gateway with NOTHING on it, for proving the claim the demo makes
+docker compose -f tools/fresh-gateway.yml up -d      # http://localhost:8188
+node ../../launchpad/tools/preflight.js --gateway fresh   # dismiss Quick Start
+./tools/deploy-fresh.sh                              # dev loop, ships project/
 
 # prove the zip on a gateway that has never seen it
-node tools/import-project.js --gateway module-testing \
-     --zip dist/Alarm_Demo-2.0.0.zip --name AlarmDemo [--overwrite]
+node tools/import-project.js --gateway fresh \
+     --zip dist/Alarm_Demo-3.0.0.zip --name AlarmDemo [--overwrite]
+
+docker compose -f tools/fresh-gateway.yml down -v    # and it is blank again
 ```
+
+**`tools/fresh-gateway.yml` is the acceptance rig, and it matters more than it
+looks.** The demo's whole claim is "install Ignition, import one zip, press one
+button" — which is only true on a gateway with nothing on it. A gateway that
+has been used for anything else cannot prove it, because whatever is already
+there might be the reason it works. That is not hypothetical: the PostgreSQL
+version of this demo was verified on a gateway that had a PostgreSQL driver,
+and a blank Ignition has none, so the release could not install on the machine
+its own README described. Its own volume, no database container beside it, and
+`down -v` throws it away.
+
+`deploy-fresh.sh` carries two things learned the hard way, both silent: `docker
+cp` lands files owned by the host user and the gateway cannot rewrite paths it
+does not own, and the `chown` that fixes it has to be `docker exec -u root`
+because `exec` otherwise runs as the unprivileged `ignition` user and fails
+with "Operation not permitted" — which looks like the copy worked, because it
+did.
 
 Target gateway is `ignition-maker` on the docker server, toolkit alias
 `testbed`. Everything else about it lives in the toolkit's credentials file.
@@ -47,7 +71,9 @@ dev gateway. `tools/import-project.js` drives Config → Platform → Projects �
 Import Project headlessly, so that is one command rather than an intention.
 2.0.0 was verified that way onto `ignition-module-testing`: a gateway with no
 AlarmDemo provider, no journal profile, a database connection under a different
-name, and another project's 116,000 rows already in `alarm_events`.
+name, and another project's 116,000 rows already in `alarm_events`. 3.0.0 was
+verified onto a container built from nothing minutes earlier, which is the only
+gateway that can prove what 3.0.0 changed.
 
 ## Theming
 
@@ -226,32 +252,25 @@ journal tables, shift schedules, users, on-call rosters and history. Every item
 is checked and fixed independently; the Setup screen is one row per entry in
 `AlarmDemo.setup.ITEMS`, and `?cmd=check` / `?cmd=fix` are the same calls.
 
-The database CONNECTION is created here too, from the boxes on the Setup
-screen, because a project cannot carry a host or a password but it can carry
-the form that asks for them. Only the connection's NAME is remembered, in
-`AlarmDemo.config`'s settings file beside the gateway's data directory — same
-pattern as Order Intake's `Orders.Config`, deliberately.
+The database CONNECTION is created here too — a SQLite connection at
+`jdbc:sqlite:${data}/alarm-demo.db`, from a button with no boxes beside it.
+Only the connection's NAME is remembered, in `AlarmDemo.config`'s settings file
+beside the gateway's data directory — same pattern as Order Intake's
+`Orders.Config`, deliberately.
 
-**Writing the password takes TWO calls, and each of the shorter versions
-silently writes it in clear text into a file that reads as though it were
-encrypted** (verified 8.3.8, 27/08/2026):
-
-| What you pass as `password` | What happens |
-| --- | --- |
-| `"plaintext"` | rejected — `DecodingException: Unable to read required property 'type'` |
-| `{"type": "Embedded", "data": {"plaintext": "..."}}` | **accepted, written verbatim** |
-| `system.secrets.createEmbeddedSecretConfig("plaintext")` | **accepted, written verbatim** — `{"type": "Embedded", "data": "a-throwaway-value"}`, and reading it back fails with "Unable to decrypt ciphertext" |
-| `system.secrets.createEmbeddedSecretConfig(system.secrets.encrypt("plaintext"))` | correct — `{"type": "Embedded", "data": {ciphertext, encrypted_key, iv, protected, tag}}` |
-
-`encrypt()` is the half that encrypts and `createEmbeddedSecretConfig()` is the
-half that wraps; the name of the second one reads as though it did both.
-Neither takes keyword arguments. `system.secrets.decrypt()` returns a
-`PyPlaintext` wrapper that deliberately will not stringify, so a round-trip
-test has to compare through the API rather than through `str()`.
+It used to be PostgreSQL, and the five boxes it needed carried a password,
+which is why this section used to carry the two-call `system.secrets` recipe
+for writing one safely. That has gone with the form. The finding it recorded is
+real and still true — `createEmbeddedSecretConfig()` alone writes the plaintext
+verbatim into a file that reads as though it were encrypted, and only
+`createEmbeddedSecretConfig(encrypt(x))` is correct — so it lives on in
+the workspace note on 8.3 secrets scripting and in Order Intake, both of which
+still need it. What is worth keeping *here* is what replaced it: the safest way
+to handle a credential in a demo turned out to be to design one that has none.
 
 **Creating the RESOURCE and having a live CONNECTION are different moments.**
-The resource registers straight away; the pool then has to start and reach the
-server, and until it does a query against the name fails - so returning as soon
+The resource registers straight away; the pool then has to start and open the
+file, and until it does a query against the name fails - so returning as soon
 as `create()` came back had the page saying "created" on one line and "did not
 answer" on the next, about the same connection, in the same second.
 `createDatabase()` waits for it to answer (bounded, then says so rather than
@@ -307,8 +326,56 @@ once, which is the one bug this project keeps having to fix. The script
 versions are site-scoped, zero-filled where a gap and a zero mean different
 things, and shaped for the binding that consumes them.
 
+## SQLite
+
+The demo runs on SQLite so that a gateway needs no database server. Four things
+about that are worth knowing before touching a query.
+
+**`eventtime` is TEXT holding epoch milliseconds.** SQLite has no date type,
+and this is what Ignition's own journal writer stores — read straight off a
+table Ignition created and filled: `typeof(eventtime)` is `'text'` and the
+value is `'1787875575442'`. So every comparison CASTs the column to INTEGER and
+binds a number (`AlarmDemo.alarms._millis`), rather than binding a Date and
+hoping the driver and SQLite's type affinity agree. They might: 13-digit
+strings happen to sort the way the numbers do, until the year 2286. That is not
+a thing to rely on without saying so.
+
+The backfill has to write the same representation, and does — `unicode(long(
+system.date.toMillis(...)))`. Backfilled rows that do not compare against
+journalled ones would be worse than none: the charts would simply be missing
+half their history with nothing to say why.
+
+**The schema is read off Ignition, not invented.** See the reference doc.
+
+**Three PostgreSQL constructs had no SQLite equivalent**, and each was replaced
+by something that is arguably better rather than by a workaround:
+
+| Was | Now |
+| --- | --- |
+| `split_part(split_part(source,'/tag:',2),'/',1) = ?` | `source LIKE 'prov:AlarmDemo:/tag:<area>/%'` — the prefix is what the source path is *for*, and it is a shape an index can use |
+| `generate_series(...) LEFT JOIN` to zero-fill empty buckets | the buckets are built in Jython, which is less SQL for the same result, and hands the chart a real Date rather than a string |
+| `percentile_cont(0.5) WITHIN GROUP` | count, then fetch the middle row by `OFFSET`. For an even count that is the lower of the two middle values where `percentile_cont` interpolated; on a figure rounded to one decimal of a minute over thousands of acknowledgements, nobody can read the difference |
+
+**`strftime` buckets in UTC unless told otherwise.** The date-bucket helper
+passes `'localtime'` as well as `'unixepoch'`, so a day starts where the
+gateway's day starts — which is what `date_trunc` did, and what anyone reading
+a daily chart means by a day.
+
 ## Findings worth keeping
 
+- **`system.user.addUser`, `editUser` and `removeUser` return a `UIResponse`,
+  not a list of validation errors.** It is truthy whether or not anything went
+  wrong, and it is not iterable — so `if errors: LOG.warn(list(errors))`
+  reports every success as a failure and then raises `TypeError: 'UIResponse'
+  object is not iterable` while trying to say so. On a fresh gateway that read
+  as seven people "refused by the gateway" on the Setup screen, in the same
+  breath as the row above reporting seven people created, because they had
+  been. The same shape had quietly cost `setSchedule` its return value: every
+  shift change on the People screen succeeded and every one of them reported
+  that it had not. The errors are in `getErrors()`; `AlarmDemo.roster.
+  _uiProblems` is the only place that reads it. This is the same class of trap
+  as a Jython `except Exception` missing a Java `Throwable` — an API that
+  signals success and failure through one object that is always present.
 - **On-call rosters are config resources in 8.3**, at
   `config/resources/core/ignition/roster-config/<name>/config.json`, holding
   `{"users":[{"profile": ..., "userId": ...}]}`. The field names come from

@@ -3,19 +3,22 @@ AlarmDemo.config - the one thing about this demo that belongs to the GATEWAY
 rather than to the project: which database connection it uses.
 
 Everything else the demo needs it can create for itself (see AlarmDemo.setup).
-A database CONNECTION it cannot: creating one needs credentials, and a
-credential has no business travelling inside a project export. So the name of
-the connection is a setting, and it is stored OUTSIDE the project - beside the
-gateway's data directory, not inside it - for two reasons:
+A database CONNECTION it now can, because the demo runs on SQLite: a file in
+the gateway's data directory, no server, no credential. What still cannot
+travel inside a project export is WHICH connection a given gateway should use,
+so the name is a setting, stored OUTSIDE the project - beside the gateway's
+data directory, not inside it - for two reasons:
 
   * importing a new version of the demo never overwrites the target gateway's
     setting, and
   * the setting never travels inside an export zip, so a demo exported from
     here cannot arrive somewhere else pointing at this rig's connection.
 
-The default is "ignition", the connection name a stock Ignition install
-already has. On a gateway that names it something else, the Setup page writes
-the override; nothing here needs a script editor.
+The default is "AlarmDemoDB", which is the connection the Setup page makes if
+the gateway has not got one - a SQLite file in the gateway's own data
+directory. On a gateway that already carries a connection the demo should use
+instead, the Setup page writes the override; nothing here needs a script
+editor.
 
 Same shape as Order Intake's `Orders.Config`, deliberately - two projects
 solving the identical problem should not each invent their own answer.
@@ -27,7 +30,7 @@ import traceback
 from java.lang import System as JSystem
 from java.nio.file import Files, Paths
 
-DEFAULT_DB = "ignition"
+DEFAULT_DB = "AlarmDemoDB"
 SETTINGS_FILE_NAME = "alarm-demo-settings.json"
 
 LOG = system.util.getLogger("AlarmDemo.config")
@@ -159,10 +162,14 @@ def connections():
 def drivers():
     """The JDBC drivers this gateway has, by name.
 
-    A driver is a config resource registered by a JDBC driver module; the
-    name is what a connection's `driver` field has to match. Listed so that
-    "PostgreSQL" not being one of them is a sentence rather than a stack
-    trace.
+    A driver is a config resource; the name is what a connection's `driver`
+    field has to match. Listed so that a missing one is a sentence rather than
+    a stack trace.
+
+    A blank 8.3.8 registers three - MySQL, Oracle Database and SQLite - and
+    that is the whole reason this demo runs on SQLite: it is the only engine
+    a gateway can reach with nothing installed alongside it. Anything else
+    here means a JDBC driver module was added.
     """
     from java.lang import Throwable as JThrowable
     try:

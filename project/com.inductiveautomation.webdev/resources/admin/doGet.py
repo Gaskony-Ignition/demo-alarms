@@ -13,6 +13,9 @@ def doGet(request, session):
 	    ?cmd=fix&name=tags          create ONE setup item
 	    ?cmd=check                  report on every item, change nothing
 	    ?cmd=db[&name=<connection>] read or set the database connection
+	    ?cmd=createdb[&name=]       make the demo's SQLite connection
+	    ?cmd=analytics[&site=&hours=&days=]
+	                                every number on the Analytics screen
 	    ?cmd=rosters                rosters, people and who is on duty
 	    ?cmd=backfill&days=30       regenerate the journal history
 	    ?cmd=summary                what is actually in the journal, by
@@ -116,6 +119,45 @@ def doGet(request, session):
 				AlarmDemo.config.save(name)
 			return {'json': {'ok': True, 'db': AlarmDemo.config.describe(),
 			                 'connections': AlarmDemo.config.connections()}}
+
+		if cmd == 'analytics':
+			# What the Analytics screen shows, without a browser. Every one of
+			# these goes through a different query, so it is also the fastest
+			# way to tell whether the analytics survived a change to them.
+			site = params.get('site', 'Water')
+			hours = int(params.get('hours', 24))
+			days = int(params.get('days', 30))
+			rate = AlarmDemo.alarms.rateByHour(hours, site)
+			load = AlarmDemo.alarms.dailyLoad(days, site)
+			ack = AlarmDemo.alarms.dailyAckTime(days, site)
+			return {'json': {
+				'ok': True,
+				'site': site,
+				'kpis': AlarmDemo.alarms.kpis(hours, site),
+				'priorityMix': AlarmDemo.alarms.priorityCounts(hours, site),
+				'pareto': [r['name'] + ' x' + str(r['n'])
+				           for r in AlarmDemo.alarms.paretoRows(hours, site, rows=5)
+				           if r['n']],
+				'series': {
+					'rateByHour': rate.getRowCount(),
+					'rateTotal': sum([rate.getValueAt(i, 1)
+					                  for i in range(rate.getRowCount())]),
+					'dailyLoad': load.getRowCount(),
+					'dailyLoadTotal': sum([load.getValueAt(i, 1)
+					                       for i in range(load.getRowCount())]),
+					'dailyAckTime': ack.getRowCount(),
+				},
+			}}
+
+		if cmd == 'createdb':
+			# Make the demo's SQLite connection. Takes a name and nothing
+			# else - there is no host, user or password to pass, which is the
+			# whole reason this command can exist at all. It used to be
+			# unreachable from here: a create needed five values, one of them
+			# a password, and a password in a URL is a password in the access
+			# log.
+			return {'json': {'ok': True, 'result': AlarmDemo.setup.createDatabase(
+				params.get('name', None))}}
 
 		if cmd == 'rosters':
 			return {'json': {'ok': True,
