@@ -2,7 +2,7 @@
 # Build the importable project zip.
 #
 #   ./package.sh                    -> dist/Alarm_Demo.zip
-#   ./package.sh --release 2.0.0    -> dist/Alarm_Demo-2.0.0.zip
+#   ./package.sh --release 3.0.1    -> dist/Alarm_Demo-3.0.1.zip
 #
 # A PLAIN IGNITION PROJECT EXPORT, and nothing else. It used to be an Ignition
 # Exchange resource - a MANIFEST, a README, Projects/, Tags/, Gateway/ and

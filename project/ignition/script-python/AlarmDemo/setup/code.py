@@ -66,8 +66,10 @@ PROBE_TAGS = ["Intake/RawTurbidity", "Plant/DemoScenario"]
 # scan and no restart.
 #
 # The two config bodies below are the same JSON the resources have on disk at
-# data/config/resources/core/ignition/<type>/<name>/config.json - they are kept
-# in gateway/ as files too, for anyone who would rather scan them in.
+# data/config/resources/core/ignition/<type>/<name>/config.json. They are kept
+# HERE and nowhere else. A `gateway/` directory used to hold a second copy as
+# files, for anyone who would rather scan them in, and a second copy of a
+# definition is a definition that goes stale on one side without saying so.
 
 TAG_PROVIDER_CONFIG = {
     "profile": {

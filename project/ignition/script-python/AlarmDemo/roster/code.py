@@ -18,10 +18,10 @@ On-Call Rosters, or Security -> Schedules, and see exactly what the demo is
 showing. An earlier version kept membership in a `demo_roster_member` table,
 which demonstrated a table rather than Ignition.
 
-Rosters and schedules ship with the project as gateway config resources
-(`gateway/roster-config`, `gateway/schedule`). `setup()` recreates them if they
-are missing, so the demo also stands itself up on a gateway that only got the
-project.
+Rosters and schedules are gateway config resources, so they cannot be inside a
+project export. They do not travel as files beside it either: `setup()` writes
+them onto whatever gateway the project lands on, which is what lets importing
+the project be the entire install.
 
 WRITING a roster
 ----------------

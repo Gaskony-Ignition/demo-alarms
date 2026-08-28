@@ -99,9 +99,10 @@ driver makes the file on first use. There is no server, no host, no port, no
 user and no password — which is the point: the demo has to install on a machine
 where nothing but Ignition has ever been installed.
 
-It is also the only thing that works there. A blank Ignition 8.3.8 registers
-exactly three JDBC drivers — MySQL, Oracle Database and SQLite — and PostgreSQL
-arrives with a module somebody has to install first.
+It is also the only engine that needs nothing beside it. Other drivers do work
+on a stock gateway — 8.3.8 ships PostgreSQL, MariaDB and MSSQL as JDBC driver
+modules — but every one of them still wants a *server* somebody installed and a
+credential somebody typed. SQLite wants a file path.
 
 The connect URL carries two parameters, and both earn their place:
 

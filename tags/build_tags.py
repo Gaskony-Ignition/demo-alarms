@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Generate the AlarmDemo tag tree.
 
-Emits two things from one model:
+Emits two things from one model, and only the first is part of the product:
 
-  build/ondisk/<Area>/tags.json + unary-resource.json
-      drop straight into  data/config/resources/core/ignition/tag-definition/AlarmDemo/
-      then run a gateway config scan.
+  project/ignition/script-python/AlarmDemo/tagdata/code.py
+      the tags as a string literal INSIDE the project, which is what makes
+      importing the project the entire install - AlarmDemo.setup writes them
+      into the provider with system.tag.configure.
 
   build/AlarmDemo-tags.json
-      a single Designer-importable tag export (Tag Browser -> Import), for moving
-      the demo to any other 8.3 gateway.
+      a Designer-importable export of the same tree. Not part of the install
+      and not shipped; it is the file to hand someone who asks "what are the
+      tags". An earlier build also wrote build/ondisk/ resource files for a
+      gateway config scan - that was the old install and it is gone.
 
 Areas sit at the root of the provider on purpose: both the Exchange "Alarm
 Intelligence Center" and this project derive an alarm's Area from the first tag

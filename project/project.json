@@ -1,6 +1,6 @@
 {
   "title": "ACME Alarm Demo (dev)",
-  "description": "Self-contained Ignition alarm demonstration across two simulated sites: 120 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules.",
+  "description": "Self-contained Ignition alarm demonstration across two simulated sites: 122 tags, 76 alarms, live status, 30 days of journal history, analytics, and notification routing over real on-call rosters and shift schedules.",
   "enabled": true,
   "inheritable": false,
   "parent": ""
