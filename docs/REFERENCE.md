@@ -219,14 +219,75 @@ does not.
 
 ## Release notes
 
+**3.0.1** — An in-place upgrade from 2.0.0 could report itself healthy and show
+nothing. 2.0.0 had the human make a PostgreSQL connection by hand and told the
+demo its name; that name is a *setting*, so it survives the import of 3.0.0
+untouched. The connection still exists, `SELECT 1` still succeeds against it,
+so the Setup screen's Database row went **READY** — while every screen returned
+nothing, because 3.0.0's queries are SQLite's dialect and against PostgreSQL
+they come back empty rather than failing. A green connection and empty charts,
+with nothing on screen joining the two.
+
+The check now reads the connection's driver as well as asking whether it
+answers, and says which engine it actually is. Pressing **Create it** then
+makes the demo a SQLite connection under a free name and repoints the demo's
+own setting at it — and **leaves the existing connection exactly as it was**.
+That is deliberate rather than cautious: the connection name is something a
+human chose, so it may be a connection other projects on that gateway read
+from, and a repair path has no business being more invasive than the create
+path it repairs — which refuses to overwrite a connection at all.
+
+**One roster in three could go missing on a fresh install, at random.** The
+demo writes its rosters and shift schedules as gateway config resource *files*,
+and it wrote them in place. `open(path, "w")` truncates the file immediately,
+so there is a window in which `resource.json` is empty or partial — and the
+gateway's file-tree scanner reads those directories whenever it likes, prompted
+by any resource write anywhere. A `resource.json` it catches mid-write is not
+retried: it is logged once at WARN as `Skipping resource directory with corrupt
+resource.json` and skipped for good. The file on disk is perfect afterwards, so
+the evidence and the symptom disagree — three rosters written, three correct
+directories on disk, two rosters live, and the Setup screen showing 8 of 9 on
+the one path the demo exists to demonstrate.
+
+The writes are staged and renamed now, which is atomic: a scanner sees the old
+file or the new one and never a partial one. `AlarmDemo.config.save()` had done
+it that way from the start and said why in a comment; the roster writer had
+not, and the roster writer is the one a scan races.
+
+**A claim published in 3.0.0 was wrong, and is corrected here.** 3.0.0's notes
+said a blank Ignition has no PostgreSQL driver at all. It does: 8.3.8 ships
+PostgreSQL, MariaDB and MSSQL as JDBC driver *modules*, and a working
+PostgreSQL connection can be made on a gateway built from nothing — which is
+how the upgrade case above was reproduced. The mistake was reading
+`system.config`'s `database-driver` resources as the list of usable drivers.
+It is not. A blank gateway carries three of those resources — MySQL, Oracle
+Database and SQLite — and MySQL and Oracle are precisely the two that *do not*
+work, because `user-lib/jdbc` is empty and their jars are not redistributable;
+the gateway's own create-connection form disables exactly those two under a
+"Drivers with Missing Files" banner, while offering three drivers that have no
+resource at all. The list is definitions, not capability, and it is wrong in
+both directions.
+
+None of that changes why the demo runs on SQLite — no server to install, no
+credential to carry — only the extra claim that the old way was impossible. It
+was not; it was just a burden.
+
+Also: `AlarmDemo.setup`'s own module docstring still opened by saying the one
+thing setup could not do was create the database connection. That had been
+false since 3.0.0 and contradicted the rest of the same file.
+
 **3.0.0** — SQLite, so the demo needs nothing but Ignition. The Setup screen's
 five-box connection form — host, port, database, user, password — is one
 **Create it** button, and the connection it makes is a file in the gateway's
 own data directory. That closes the last gap in the install story: a
 salesperson can install Ignition on a laptop that has never run it, import one
-zip, press one button and be showing a customer alarms. It also closes one that
-was worse than a gap — a blank Ignition has no PostgreSQL driver at all, so the
-previous release could not actually install on the machine its README described.
+zip, press one button and be showing a customer alarms — with no server to
+install first and no password to invent, store and type in front of a customer.
+
+*(Corrected in 3.0.1: this note originally claimed a blank Ignition has no
+PostgreSQL driver, and that 2.0.0 therefore could not install on the machine
+its README described. That is wrong — see 3.0.1 below. 2.0.0's install was a
+burden, not an impossibility.)*
 
 Everything that made the old form careful is gone with it rather than kept:
 there is no password to encrypt, no masked text box, and no CSS rule to mask

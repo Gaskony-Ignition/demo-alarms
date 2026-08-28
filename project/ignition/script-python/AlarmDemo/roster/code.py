@@ -128,6 +128,45 @@ def _configDir():
     return File("data/config/resources/core/ignition").getAbsolutePath()
 
 
+def _write(path, text):
+    """Write a config-resource file so a scan can never see it half-written.
+
+    STAGED, THEN RENAMED - and this is not tidiness. `open(path, "w")`
+    truncates immediately, so between that call and the flush the file on disk
+    is empty or partial. The gateway's own file-tree scanner reads these
+    directories whenever it likes - after any resource write anywhere, from
+    the Config scan button, from another module - and a resource.json it reads
+    mid-write is not retried. It is logged once, at WARN,
+
+        Skipping resource directory with corrupt resource.json: .../Maintenance
+
+    and skipped for good. The file on disk is perfect afterwards and the
+    gateway never looks again, so the evidence and the symptom disagree: three
+    rosters written, three correct directories, two rosters live.
+
+    That is what cost the "press one button" path a green row on one run in
+    two. A rename is atomic, so the scanner sees the old file or the new one
+    and never a partial one. AlarmDemo.config.save() already did this and said
+    why; the roster writer did not, and it is the roster writer that a scan
+    races.
+    """
+    from java.io import File
+    staged = File(path + ".tmp")
+    f = open(staged.getAbsolutePath(), "w")
+    try:
+        f.write(text)
+    finally:
+        f.close()
+    target = File(path)
+    if not staged.renameTo(target):
+        # Same directory, so a rename should never fail; if it does, say so
+        # rather than leaving a .tmp behind and reporting success.
+        if target.exists() and not target.delete():
+            raise IOError("could not replace %s" % path)
+        if not staged.renameTo(target):
+            raise IOError("could not rename %s.tmp into place" % path)
+
+
 def _writeResource(kind, name, config, description):
     """Write one gateway config resource and return its directory.
 
@@ -139,11 +178,7 @@ def _writeResource(kind, name, config, description):
     d = os.path.join(_configDir(), kind, name)
     if not os.path.exists(d):
         os.makedirs(d)
-    f = open(os.path.join(d, "config.json"), "w")
-    try:
-        f.write(system.util.jsonEncode(config))
-    finally:
-        f.close()
+    _write(os.path.join(d, "config.json"), system.util.jsonEncode(config))
     meta = {
         "scope": "A",
         "description": description,
@@ -161,11 +196,9 @@ def _writeResource(kind, name, config, description):
             },
         },
     }
-    f = open(os.path.join(d, "resource.json"), "w")
-    try:
-        f.write(system.util.jsonEncode(meta))
-    finally:
-        f.close()
+    # resource.json LAST, and atomically: it is the file that names the others,
+    # so a scan that sees it sees a directory that is already complete.
+    _write(os.path.join(d, "resource.json"), system.util.jsonEncode(meta))
     return d
 
 

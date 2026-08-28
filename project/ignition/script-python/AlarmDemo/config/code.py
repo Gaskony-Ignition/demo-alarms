@@ -166,10 +166,16 @@ def drivers():
     field has to match. Listed so that a missing one is a sentence rather than
     a stack trace.
 
-    A blank 8.3.8 registers three - MySQL, Oracle Database and SQLite - and
-    that is the whole reason this demo runs on SQLite: it is the only engine
-    a gateway can reach with nothing installed alongside it. Anything else
-    here means a JDBC driver module was added.
+    THIS IS NOT THE LIST OF DRIVERS THAT WORK, and it is worth knowing why
+    before quoting it at anyone. A blank 8.3.8 carries three of these
+    resources - MySQL, Oracle Database and SQLite - and two of them do not
+    work: user-lib/jdbc is empty, so MySQL and Oracle have no jar, and the
+    gateway's own create-connection form disables them. Meanwhile PostgreSQL,
+    MariaDB and MSSQL arrive as JDBC driver MODULES, work out of the box, and
+    do not appear here at all.
+
+    It is still the right thing to ask for the one question setup asks it -
+    "is SQLite registered" - which it answers correctly.
     """
     from java.lang import Throwable as JThrowable
     try:

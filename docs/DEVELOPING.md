@@ -23,7 +23,7 @@ There are two user-facing documents and neither is this one:
 ```bash
 ./deploy.sh                       # generate, ship and project-scan
 ./package.sh                      # dist/Alarm_Demo.zip           (dev)
-./package.sh --release 3.0.0      # dist/Alarm_Demo-3.0.0.zip     (stamped)
+./package.sh --release 3.0.1      # dist/Alarm_Demo-3.0.1.zip     (stamped)
 
 # a gateway with NOTHING on it, for proving the claim the demo makes
 docker compose -f tools/fresh-gateway.yml up -d      # http://localhost:8188
@@ -32,7 +32,7 @@ node ../../launchpad/tools/preflight.js --gateway fresh   # dismiss Quick Start
 
 # prove the zip on a gateway that has never seen it
 node tools/import-project.js --gateway fresh \
-     --zip dist/Alarm_Demo-3.0.0.zip --name AlarmDemo [--overwrite]
+     --zip dist/Alarm_Demo-3.0.1.zip --name AlarmDemo [--overwrite]
 
 docker compose -f tools/fresh-gateway.yml down -v    # and it is blank again
 ```
@@ -41,11 +41,20 @@ docker compose -f tools/fresh-gateway.yml down -v    # and it is blank again
 looks.** The demo's whole claim is "install Ignition, import one zip, press one
 button" — which is only true on a gateway with nothing on it. A gateway that
 has been used for anything else cannot prove it, because whatever is already
-there might be the reason it works. That is not hypothetical: the PostgreSQL
-version of this demo was verified on a gateway that had a PostgreSQL driver,
-and a blank Ignition has none, so the release could not install on the machine
-its own README described. Its own volume, no database container beside it, and
-`down -v` throws it away.
+there might be the reason it works. Its own volume, no database container
+beside it, and `down -v` throws it away.
+
+It also catches the opposite mistake, which is the one that actually happened.
+3.0.0 shipped claiming a blank Ignition has no PostgreSQL driver — read off
+`system.config`'s `database-driver` resources, which list MySQL, Oracle and
+SQLite. That list is definitions, not capability: MySQL and Oracle are the two
+that *do not* work (`user-lib/jdbc` is empty, their jars are not
+redistributable), while PostgreSQL, MariaDB and MSSQL ship as JDBC driver
+**modules**, work out of the box, and appear in no resource list at all. The
+rig disproved the claim as easily as it proved the other one — a PostgreSQL
+connection was created on a gateway built from nothing and came up VALID. **An
+API that lists things is not the same as an API that lists what works**, and a
+blank gateway is the place to find out which one you are holding.
 
 `deploy-fresh.sh` carries two things learned the hard way, both silent: `docker
 cp` lands files owned by the host user and the gateway cannot rewrite paths it
@@ -74,6 +83,43 @@ AlarmDemo provider, no journal profile, a database connection under a different
 name, and another project's 116,000 rows already in `alarm_events`. 3.0.0 was
 verified onto a container built from nothing minutes earlier, which is the only
 gateway that can prove what 3.0.0 changed.
+
+**Assert which version is running before believing an upgrade test.**
+`import-project.js` will not overwrite an existing project without
+`--overwrite`, and when it declines, the *old* project stays deployed and keeps
+answering correctly — so the test passes, and it passes for the wrong reason. A
+stale project answering correctly is indistinguishable from new logic failing,
+and it is worse than an ordinary false pass because the evidence looks like
+success. The demo already stamps its version in three places for exactly this:
+
+```bash
+curl -s "http://localhost:8188/system/webdev/AlarmDemo/admin?cmd=version"
+```
+
+Read that first, confirm it is the version under test, and only then believe
+anything downstream of it. Both this project and Launchpad lost time to this in
+the same week, in each case by noticing the stale version late and by accident.
+
+**The upgrade path is a second test, and a blank gateway cannot run it.** A
+gateway upgrading in place from 2.0.0 keeps its `alarm-demo-settings.json`, so
+it arrives at 3.0.1 pointing at a PostgreSQL connection — and a blank container
+has no such connection to point at. Build one: a `postgres:16` container on the
+rig's network (`POSTGRES_HOST_AUTH_METHOD=trust`, so the rig holds no password
+at all), a PostgreSQL connection on the gateway pointing at it, and the demo's
+setting moved onto it with `?cmd=db&name=…`. Then check three things:
+
+1. the Database row reads MISSING and **names the engine**;
+2. **Create it** makes a *second* connection under a free name and says so,
+   rather than touching the first;
+3. the first is **byte-identical afterwards** — `md5sum` its `config.json` and
+   `resource.json` either side, do not eyeball it.
+
+Seed that PostgreSQL database with a 2.0.0-shaped `alarm_events` and a few
+hundred rows before testing, or the run proves less than it looks: empty tables
+return zeros too, and the failure being reproduced is *populated* tables
+returning zeros. With 400 rows present, `?cmd=analytics` came back `ok:true`
+with every KPI at 0 and an empty Pareto. That is the whole defect in one line —
+it does not fail, it succeeds and says nothing.
 
 ## Theming
 

@@ -107,7 +107,36 @@ if [[ -n "$VERSION" ]]; then
 else
   OUT="$DIST/Alarm_Demo.zip"
 fi
-( cd "$HERE/project" && zip -qr "$OUT" . )
+#
+# ...and nothing that is not a project resource. This is not hypothetical
+# either: running `python3 -m py_compile` over a script module as a syntax
+# check leaves __pycache__/*.pyc beside it, .gitignore hides those from `git
+# status`, and `zip -r .` swept two Python 3.14 bytecode files into a Jython
+# project export. A green package that shipped junk looks exactly like a green
+# package.
+( cd "$HERE/project" && zip -qr "$OUT" . -x '*__pycache__*' '*.pyc' )
+
+# Verify the ARTEFACT, not the intent. Every project resource is committed, so
+# anything in the zip that git does not track is something that should not be
+# there - a stray .pyc, an editor backup, a scratch note. A release refuses; a
+# dev build says so and carries on.
+EXTRA=$(comm -23 \
+  <(unzip -Z1 "$OUT" | grep -v '/$' | LC_ALL=C sort) \
+  <(cd "$HERE/project" && git ls-files . | LC_ALL=C sort))
+if [[ -n "$EXTRA" ]]; then
+  echo "package.sh: the zip contains files git does not track:" >&2
+  echo "$EXTRA" | sed 's/^/    /' >&2
+  if [[ -n "$VERSION" ]]; then
+    # Delete it. A refused release that leaves a zip in dist/ has produced
+    # exactly the artefact it just refused to produce, sitting under the right
+    # name, ready to be uploaded by anyone who did not read the error.
+    rm -f "$OUT"
+    echo "package.sh: refusing to publish a release containing them" >&2
+    echo "package.sh: $(basename "$OUT") deleted" >&2
+    exit 1
+  fi
+  echo "package.sh: (dev build - continuing)" >&2
+fi
 
 echo
 echo "package: $OUT"

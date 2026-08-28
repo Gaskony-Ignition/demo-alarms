@@ -22,11 +22,15 @@ The Setup screen calls exactly these, one row per item. So does
     curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=check"
     curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=setup"
 
-THE ONE THING IT CANNOT DO is create the database connection. That needs
-credentials, and a credential has no business travelling inside a project
-export - so the connection is made once in Config -> Databases -> Connections
-and this demo is only told its NAME (AlarmDemo.config, written from the Setup
-screen). Every other item below is created here.
+SINCE 3.0.0 THERE IS NOTHING IT CANNOT DO. The database connection was the
+last exception, and it could not have been otherwise: it needed a host, a user
+and a password, and a credential has no business travelling inside a project
+export - so it was made by hand in Config -> Databases -> Connections and the
+demo was only told its NAME. SQLite removed the question, so the button now
+makes the connection too. The name is still a setting (AlarmDemo.config),
+because WHICH connection a given gateway should use is not something an export
+can know - and because a name a human chose may be a connection other projects
+on that gateway read from, which is why nothing here ever alters one.
 
 Every check is independent and none of them stops at the first failure:
 "the connection is fine but the tables are missing" and "the connection is
@@ -162,11 +166,23 @@ def _upsert(typeId, name, config, description):
 # button. A database server they have to install first is not a step in that
 # story, it is the end of it.
 #
-# SQLite is the only engine that makes the story true, and on a stock gateway
-# it is the only one that can. A blank Ignition 8.3.8 registers exactly three
-# JDBC drivers - MySQL, Oracle Database and SQLite - and PostgreSQL is not one
-# of them; it arrives with a module somebody has to install. Verified on a
-# container built from nothing on 28/08/2026.
+# SQLite is what makes the story true, because it needs no server and no
+# credential - not because nothing else would connect. An earlier version of
+# this comment said a blank 8.3.8 has no PostgreSQL driver, and that is wrong:
+# it ships PostgreSQL, MariaDB and MSSQL as JDBC driver MODULES, and a working
+# PostgreSQL connection can be made on a gateway built from nothing. What is
+# true is narrower and stranger. The three `database-driver` CONFIG RESOURCES a
+# blank gateway carries are MySQL, Oracle Database and SQLite - and MySQL and
+# Oracle are the two that do NOT work, because user-lib/jdbc is empty and their
+# jars are not redistributable. The gateway's own Create Database Connection
+# form disables exactly those two, under a "Drivers with Missing Files" banner,
+# while offering the three modules that have no resource at all.
+#
+# So the resource list is a list of definitions, not of capability, and it is
+# wrong in both directions. AlarmDemo.config.drivers() reads it, which is fine
+# for the one question this file asks it - is SQLite there - and no basis for
+# any broader claim. All verified on a container built from nothing,
+# 28/08/2026.
 #
 # So there is no host, no port, no user and no password to ask for, and the
 # whole credential apparatus this file used to carry - encrypt(), then
@@ -307,15 +323,49 @@ def createDatabase(name=None):
 # have a fix like everything else.
 
 
+def _driverOf(name):
+    """The JDBC driver a connection is configured with, or None if there is no
+    such connection or its config cannot be read."""
+    res = _resource("database-connection", name)
+    if res is None:
+        return None
+    from java.lang import Throwable as JThrowable
+    try:
+        return _config(res).get("driver")
+    except (JThrowable, Exception):
+        return None
+
+
 def _database():
     name = DB()
     try:
         system.db.runScalarQuery("SELECT 1", name)
-        return True, u"connection '%s' answered" % name
     except:
         have = AlarmDemo.config.connections()
         return False, (u"connection '%s' did not answer. This gateway has: %s"
                        % (name, u", ".join(have) if have else u"(none)"))
+
+    # Answering is not the same as being usable, and the gap between them is
+    # invisible on every other screen. A gateway upgraded in place from 2.0.0
+    # still points at the PostgreSQL connection 2.0.0 told it to make by hand.
+    # `SELECT 1` succeeds against it, so this row would go green - and every
+    # analytic would return nothing, because 3.0.0 changed the SQL underneath
+    # to SQLite's dialect: strftime() for the date arithmetic, epoch millis
+    # held as TEXT in eventtime, no split_part and no generate_series. Those
+    # queries do not fail on PostgreSQL, they come back empty. Green
+    # connection, empty charts, and nothing on screen joining the two.
+    #
+    # The Setup row shows this on one ellipsised line, so the diagnosis has to
+    # be complete in the first clause - "answered, but it is a PostgreSQL
+    # connection" truncates to "answered, but it is a PostgreSQL c...", which
+    # reads as a complaint about nothing. What the button does about it is the
+    # button's business, and _databaseFix says so when it runs.
+    driver = _driverOf(name)
+    if driver is not None and driver != DB_DRIVER:
+        return False, (u"'%s' is a %s connection, not %s - this demo's queries "
+                       u"return nothing against it rather than failing"
+                       % (name, driver, DB_DRIVER))
+    return True, u"connection '%s' answered" % name
 
 
 def _databaseFix():
@@ -329,8 +379,37 @@ def _databaseFix():
     nine things and left the ninth to a human.
 
     SQLite removes the question, so the button can answer it.
+
+    It never repairs a connection that already exists. The demo's connection
+    NAME is a setting a human may have pointed at a connection other projects
+    read from, so rewriting it is not this project's call - and a repair path
+    has no business being more invasive than the create path it repairs, which
+    refuses to overwrite at all. When the configured connection is the wrong
+    engine, the fix is a new SQLite connection under a free name and a change
+    to this demo's own setting; the other connection is not touched.
     """
-    return createDatabase(DB())
+    name = DB()
+    driver = _driverOf(name)
+    if driver is None or driver == DB_DRIVER:
+        # Absent (make it) or already SQLite (createDatabase says so, and
+        # refuses) - either way the existing path is the right one.
+        return createDatabase(name)
+
+    for candidate in [AlarmDemo.config.DEFAULT_DB,
+                      AlarmDemo.config.DEFAULT_DB + u"_SQLite"]:
+        if candidate == name:
+            continue
+        if _resource("database-connection", candidate) is not None:
+            continue
+        made = createDatabase(candidate)
+        return (u"'%s' is a %s connection and was left untouched; %s"
+                % (name, driver, made))
+
+    raise ValueError(
+        u"'%s' is a %s connection, which this demo will not alter, but the "
+        u"names it would use instead are both taken on this gateway. Make a "
+        u"SQLite connection under a free name and set it on this page."
+        % (name, driver))
 
 
 def _tagProviderCheck():

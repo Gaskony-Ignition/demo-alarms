@@ -83,9 +83,9 @@ the same button. It used to be PostgreSQL, and the Setup screen used to ask for
 a host, a port, a database, a user and a password — one honest form, and the
 wrong answer to the question this demo exists to answer. A database server
 somebody has to install first is not a step in "open a laptop and show a
-customer", it is the end of it. On a stock gateway it is not even possible: a
-blank Ignition 8.3.8 registers three JDBC drivers — MySQL, Oracle and SQLite —
-and PostgreSQL is not one of them.
+customer", it is the end of it — and neither is a password somebody has to
+invent, store and type into a form on a laptop in front of a customer. SQLite
+needs neither.
 
 So there is nothing to type. If the gateway already carries a connection the
 demo should use instead, name it and press *Use this one*: the demo remembers
