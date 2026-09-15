@@ -1,0 +1,19 @@
+{
+  "scope": "G",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "handleTimerEvent.py"
+  ],
+  "attributes": {
+    "lastModification": {
+      "actor": "external",
+      "timestamp": "2026-09-10T01:50:33Z"
+    },
+    "enabled": true,
+    "sharedThread": true,
+    "delay": 1000,
+    "fixedDelay": true
+  }
+}

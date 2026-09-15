@@ -1,0 +1,44 @@
+# A BLANK Ignition gateway, for proving the claim this demo actually makes.
+#
+#   docker compose -f tools/fresh-gateway.yml up -d
+#   ...  http://localhost:8188   admin / password
+#   docker compose -f tools/fresh-gateway.yml down -v
+#
+# The whole install story is "a salesperson installs Ignition from scratch,
+# imports one zip, presses one button". That is only true if it is true on a
+# gateway with NOTHING on it -- no database server anywhere near it, no
+# connection, no tag provider, no journal profile, no third-party JDBC driver
+# beyond what Ignition itself ships. A gateway that has been used for anything
+# else cannot prove it, because whatever is already there might be the reason
+# it works.
+#
+# So: its own volume (NOT the shared modules_ignition-data), no extra_hosts, no
+# database container alongside it, and `down -v` throws the volume away so the
+# next run starts from nothing again.
+services:
+  ignition:
+    image: inductiveautomation/ignition:8.3.8
+    container_name: alarm-demo-fresh
+    ports:
+      - "8188:8088"
+    environment:
+      - ACCEPT_IGNITION_EULA=Y
+      - GATEWAY_ADMIN_USERNAME=admin
+      - GATEWAY_ADMIN_PASSWORD=password
+      - IGNITION_EDITION=standard
+      - MALLOC_ARENA_MAX=2
+    command: >
+      -m 1024
+      --
+      -Dignition.python3.autodownload=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/StatusPing"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+    mem_limit: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "2"

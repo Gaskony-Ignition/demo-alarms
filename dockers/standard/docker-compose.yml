@@ -1,0 +1,50 @@
+# A throwaway STANDARD Ignition gateway for this demo, and nothing else.
+#
+# The other half of the pair. The demo's SQL analytics only exist here - Edge
+# has no database module - and this is also the only gateway where
+# ?cmd=parity can run, because parity compares the SQL implementation against
+# the journal one over the same journal. A change to either implementation is
+# not tested until it has been run here.
+#
+# Commission it as the standard platform: tools/commission.js <url> admin
+# password Ignition. A fresh standard gateway also raises an "Enable Quick
+# Start" modal whose scrim swallows every headless click - tools/
+# dismiss-quickstart.js clears it once.
+#
+name: alarmdemo-standard
+
+services:
+  standard:
+    image: inductiveautomation/ignition:8.3.8
+    container_name: alarmdemo-standard
+    ports:
+      - "8488:8088"
+      - "8489:8043"
+    volumes:
+      - standard-data:/usr/local/bin/ignition/data
+    environment:
+      - ACCEPT_IGNITION_EULA=Y
+      - GATEWAY_ADMIN_USERNAME=admin
+      - GATEWAY_ADMIN_PASSWORD=password
+      # glibc hands a process up to 8 x cores malloc arenas and Ignition
+      # spreads ~220 threads across all of them, so RSS runs far above the
+      # heap. Capping arenas is where most of the saving is.
+      - MALLOC_ARENA_MAX=2
+    command: >
+      -n alarmdemo-standard
+      -m 1024
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/StatusPing"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    mem_limit: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    restart: unless-stopped
+
+volumes:
+  standard-data:

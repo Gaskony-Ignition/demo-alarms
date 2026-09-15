@@ -1,0 +1,236 @@
+{
+  "custom": {
+    "run": false,
+    "fault": false,
+    "amps": 0
+  },
+  "params": {
+    "title": "Pump",
+    "path": ""
+  },
+  "props": {
+    "defaultSize": {
+      "width": 150,
+      "height": 68
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "gap": "2px",
+        "classes": "ad-equip"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Row"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "gap": "8px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Dot"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "classes": "ad-dot"
+              }
+            },
+            "children": [],
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.custom.fault} = true, \"ad-dot ad-dot-fault\", if({view.custom.run} = true, \"ad-dot ad-dot-run\", \"ad-dot ad-dot-stop\"))"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "10px"
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Name"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "classes": "ad-equip-name"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "property",
+                  "config": {
+                    "path": "view.params.title"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "15px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Reading"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "baseline",
+          "style": {
+            "gap": "6px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "State"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "classes": "ad-equip-state"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.custom.fault} = true, \"FAULT\", if({view.custom.run} = true, \"RUNNING\", \"STOPPED\"))"
+                  }
+                }
+              },
+              "props.style.color": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.custom.fault} = true, \"var(--crit)\", if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\"))"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Amps"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "fontSize": "11px",
+                "textAlign": "right",
+                "whiteSpace": "nowrap",
+                "classes": "ad-faint"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "numberFormat({view.custom.amps}, \"0.0\") + \" A\""
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "52px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "16px"
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "params.title": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "custom.run": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/Run",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    },
+    "custom.fault": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/Fault",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    },
+    "custom.amps": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/Amps",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    }
+  }
+}

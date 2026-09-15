@@ -1,0 +1,1025 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1400,
+      "height": 620
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "row",
+      "style": {
+        "gap": "12px",
+        "classes": "ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Area_Intake"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "12px",
+            "gap": "9px",
+            "classes": "ad-card"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Head"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Title"
+                },
+                "props": {
+                  "text": "Intake",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Count"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "2px 9px",
+                    "fontSize": "11px",
+                    "classes": "ad-chip"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.areas.Intake.total} > 0, toStr({session.custom.live.areas.Intake.total}) + \" ACTIVE\", \"OK\")"
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-\" + if({session.custom.live.areas.Intake.total} > 0, lower({session.custom.live.areas.Intake.worst}), \"ok\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "24px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Row1"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "9px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "WetWell"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Tank",
+                  "params": {
+                    "title": "Wet Well",
+                    "path": "Intake/WetWell/Level",
+                    "warnLow": 22,
+                    "critLow": 14,
+                    "warnHigh": 88,
+                    "critHigh": 95,
+                    "chem": false
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "108px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Pumps"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "8px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.view",
+                    "meta": {
+                      "name": "P1"
+                    },
+                    "props": {
+                      "path": "AlarmDemo/Widgets/Pump",
+                      "params": {
+                        "title": "Raw Pump 1",
+                        "path": "Intake/RawWaterPump01"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.display.view",
+                    "meta": {
+                      "name": "P2"
+                    },
+                    "props": {
+                      "path": "AlarmDemo/Widgets/Pump",
+                      "params": {
+                        "title": "Raw Pump 2",
+                        "path": "Intake/RawWaterPump02"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Stats"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px",
+                "classes": "ad-stats"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Turb"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Raw Turbidity",
+                    "path": "Intake/RawTurbidity",
+                    "unit": "NTU",
+                    "fmt": "0.0",
+                    "warn": 35,
+                    "crit": 50,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Flow"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Raw Flow",
+                    "path": "Intake/RawWaterFlow",
+                    "unit": "L/s",
+                    "fmt": "0",
+                    "warn": 1000000000.0,
+                    "crit": 1000000000.0,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "70px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "24%"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Area_Filtration"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "12px",
+            "gap": "9px",
+            "classes": "ad-card"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Head"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Title"
+                },
+                "props": {
+                  "text": "Filtration",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Count"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "2px 9px",
+                    "fontSize": "11px",
+                    "classes": "ad-chip"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.areas.Filtration.total} > 0, toStr({session.custom.live.areas.Filtration.total}) + \" ACTIVE\", \"OK\")"
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-\" + if({session.custom.live.areas.Filtration.total} > 0, lower({session.custom.live.areas.Filtration.worst}), \"ok\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "24px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Filters"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "FA"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Meter",
+                  "params": {
+                    "title": "Filter A",
+                    "path": "Filtration/FilterA",
+                    "unit": "kPa",
+                    "max": 100,
+                    "warn": 60,
+                    "crit": 80
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "FB"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Meter",
+                  "params": {
+                    "title": "Filter B",
+                    "path": "Filtration/FilterB",
+                    "unit": "kPa",
+                    "max": 100,
+                    "warn": 60,
+                    "crit": 80
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "FC"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Meter",
+                  "params": {
+                    "title": "Filter C",
+                    "path": "Filtration/FilterC",
+                    "unit": "kPa",
+                    "max": 100,
+                    "warn": 60,
+                    "crit": 80
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Stats"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px",
+                "classes": "ad-stats"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Comb"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Combined Turbidity",
+                    "path": "Filtration/CombinedTurbidity",
+                    "unit": "NTU",
+                    "fmt": "0.000",
+                    "warn": 0.5,
+                    "crit": 1.0,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "FFlow"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Filtered Flow",
+                    "path": "Filtration/FilteredFlow",
+                    "unit": "L/s",
+                    "fmt": "0",
+                    "warn": 1000000000.0,
+                    "crit": 1000000000.0,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "70px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "26%"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Area_Chemical"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "12px",
+            "gap": "9px",
+            "classes": "ad-card"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Head"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Title"
+                },
+                "props": {
+                  "text": "Chemical",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Count"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "2px 9px",
+                    "fontSize": "11px",
+                    "classes": "ad-chip"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.areas.Chemical.total} > 0, toStr({session.custom.live.areas.Chemical.total}) + \" ACTIVE\", \"OK\")"
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-\" + if({session.custom.live.areas.Chemical.total} > 0, lower({session.custom.live.areas.Chemical.worst}), \"ok\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "24px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Tanks"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Chlorine"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Tank",
+                  "params": {
+                    "title": "Chlorine",
+                    "path": "Chemical/Chlorine/TankLevel",
+                    "warnLow": 25,
+                    "critLow": 10,
+                    "warnHigh": 101,
+                    "critHigh": 102,
+                    "chem": true
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Fluoride"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Tank",
+                  "params": {
+                    "title": "Fluoride",
+                    "path": "Chemical/Fluoride/TankLevel",
+                    "warnLow": 25,
+                    "critLow": 10,
+                    "warnHigh": 101,
+                    "critHigh": 102,
+                    "chem": true
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Coagulant"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Tank",
+                  "params": {
+                    "title": "Coagulant",
+                    "path": "Chemical/Coagulant/TankLevel",
+                    "warnLow": 25,
+                    "critLow": 10,
+                    "warnHigh": 101,
+                    "critHigh": 102,
+                    "chem": true
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Stats"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px",
+                "classes": "ad-stats"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Res"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Chlorine Residual",
+                    "path": "Chemical/ChlorineResidual",
+                    "unit": "mg/L",
+                    "fmt": "0.00",
+                    "warn": 0.5,
+                    "crit": 0.2,
+                    "invert": true
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "pH"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "pH",
+                    "path": "Chemical/pH",
+                    "unit": "",
+                    "fmt": "0.00",
+                    "warn": 1000000000.0,
+                    "crit": 1000000000.0,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "70px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "24%"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Area_Distribution"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "12px",
+            "gap": "9px",
+            "classes": "ad-card"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Head"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Title"
+                },
+                "props": {
+                  "text": "Distribution",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Count"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "2px 9px",
+                    "fontSize": "11px",
+                    "classes": "ad-chip"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.live.areas.Distribution.total} > 0, toStr({session.custom.live.areas.Distribution.total}) + \" ACTIVE\", \"OK\")"
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-\" + if({session.custom.live.areas.Distribution.total} > 0, lower({session.custom.live.areas.Distribution.worst}), \"ok\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "24px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Row1"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "9px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Clearwater"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Tank",
+                  "params": {
+                    "title": "Clearwater Tank",
+                    "path": "Distribution/ClearwaterTank/Level",
+                    "warnLow": 32,
+                    "critLow": 17,
+                    "warnHigh": 93,
+                    "critHigh": 97,
+                    "chem": false
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "118px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Pumps"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "7px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.view",
+                    "meta": {
+                      "name": "H1"
+                    },
+                    "props": {
+                      "path": "AlarmDemo/Widgets/Pump",
+                      "params": {
+                        "title": "High Lift 1",
+                        "path": "Distribution/HighLiftPump01"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.display.view",
+                    "meta": {
+                      "name": "H2"
+                    },
+                    "props": {
+                      "path": "AlarmDemo/Widgets/Pump",
+                      "params": {
+                        "title": "High Lift 2",
+                        "path": "Distribution/HighLiftPump02"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.display.view",
+                    "meta": {
+                      "name": "H3"
+                    },
+                    "props": {
+                      "path": "AlarmDemo/Widgets/Pump",
+                      "params": {
+                        "title": "High Lift 3",
+                        "path": "Distribution/HighLiftPump03"
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Stats"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px",
+                "classes": "ad-stats"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "Press"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Network Pressure",
+                    "path": "Distribution/NetworkPressure",
+                    "unit": "kPa",
+                    "fmt": "0",
+                    "warn": 300,
+                    "crit": 250,
+                    "invert": true
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.display.view",
+                "meta": {
+                  "name": "NFlow"
+                },
+                "props": {
+                  "path": "AlarmDemo/Widgets/Stat",
+                  "params": {
+                    "title": "Network Flow",
+                    "path": "Distribution/NetworkFlow",
+                    "unit": "L/s",
+                    "fmt": "0",
+                    "warn": 1000000000.0,
+                    "crit": 1000000000.0,
+                    "invert": false
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "70px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1,
+          "basis": "26%"
+        }
+      }
+    ]
+  }
+}

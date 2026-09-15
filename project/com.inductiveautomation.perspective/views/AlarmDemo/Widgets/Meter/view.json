@@ -1,0 +1,264 @@
+{
+  "custom": {
+    "value": 0,
+    "sub": 0,
+    "bw": false
+  },
+  "params": {
+    "title": "Filter",
+    "path": "",
+    "unit": "kPa",
+    "max": 100,
+    "warn": 60,
+    "crit": 80
+  },
+  "props": {
+    "defaultSize": {
+      "width": 230,
+      "height": 70
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "gap": "4px",
+        "classes": "ad-equip"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Head"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "baseline",
+          "style": {
+            "gap": "6px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Name"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "classes": "ad-equip-name"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "property",
+                  "config": {
+                    "path": "view.params.title"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Val"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "textAlign": "right",
+                "color": "var(--ink-2)",
+                "classes": "ad-equip-state"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "numberFormat({view.custom.value}, \"0.0\") + \" \" + {view.params.unit}"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "70px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "15px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Bar"
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "classes": "ad-meter"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Fill"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "classes": "ad-meter-fill"
+              }
+            },
+            "children": [],
+            "propConfig": {
+              "position.basis": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "toStr(max(0, min(100, 100 * {view.custom.value} / {view.params.max}))) + \"%\""
+                  }
+                }
+              },
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.custom.value} >= {view.params.crit}, \"ad-meter-fill-crit\", if({view.custom.value} >= {view.params.warn}, \"ad-meter-fill-warn\", \"ad-meter-fill\"))"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "0px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "8px"
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Sub"
+        },
+        "props": {
+          "text": "",
+          "style": {
+            "fontSize": "10.5px",
+            "classes": "ad-faint"
+          }
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "\"turbidity \" + numberFormat({view.custom.sub}, \"0.000\") + \" NTU\" + if({view.custom.bw} = true, \"  -  BACKWASHING\", \"\")"
+              }
+            }
+          },
+          "props.style.color": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "if({view.custom.bw} = true, \"var(--low)\", if({view.custom.sub} >= 0.30, \"var(--high)\", \"var(--ink-3)\"))"
+              }
+            }
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "13px"
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "params.title": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.unit": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.max": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.warn": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.crit": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "custom.value": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/DiffPressure",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    },
+    "custom.sub": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/Turbidity",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    },
+    "custom.bw": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}/BackwashActive",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    }
+  }
+}

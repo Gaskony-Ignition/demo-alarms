@@ -1,0 +1,237 @@
+{
+  "custom": {
+    "level": 0
+  },
+  "params": {
+    "title": "Tank",
+    "path": "",
+    "warnLow": 25,
+    "critLow": 10,
+    "warnHigh": 90,
+    "critHigh": 96,
+    "chem": false
+  },
+  "props": {
+    "defaultSize": {
+      "width": 150,
+      "height": 210
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "padding": "8px",
+        "gap": "5px",
+        "classes": "ad-equip"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Title"
+        },
+        "props": {
+          "text": "",
+          "style": {
+            "classes": "ad-equip-name"
+          }
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.title"
+              }
+            }
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "15px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Shell"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "minHeight": "90px",
+            "classes": "ad-tank-shell"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Spacer"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Fill"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "ad-tank-fill"
+              }
+            },
+            "children": [],
+            "propConfig": {
+              "position.basis": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "toStr(max(0, min(100, {view.custom.level}))) + \"%\""
+                  }
+                }
+              },
+              "props.style.classes": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "\"ad-tank-fill\" + if({view.params.chem} = true, \" ad-tank-fill-chem\", \"\") + if({view.custom.level} <= {view.params.critLow}      || {view.custom.level} >= {view.params.critHigh},      \" ad-tank-fill-crit\",      if({view.custom.level} <= {view.params.warnLow}         || {view.custom.level} >= {view.params.warnHigh},         \" ad-tank-fill-warn\", \"\"))"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "0px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Readout"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "baseline",
+          "style": {
+            "gap": "3px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Value"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "classes": "ad-tank-value"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "numberFormat({view.custom.level}, \"0.0\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Unit"
+            },
+            "props": {
+              "text": "%",
+              "style": {
+                "classes": "ad-kpi-unit"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "22px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "20px"
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "params.title": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.warnLow": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.critLow": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.warnHigh": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.critHigh": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.chem": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "custom.level": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    }
+  }
+}
