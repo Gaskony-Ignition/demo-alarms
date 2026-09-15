@@ -42,6 +42,25 @@
 # The working tree stays "(dev)" / VERSION = "dev" on purpose: a gateway running
 # a working copy should say so rather than claim to be a release.
 set -euo pipefail
+# Repo gate (REPO-STANDARD.md). Blocking; bypass deliberately with --skip-readme-check.
+if [[ " $* " != *" --skip-readme-check "* ]]; then
+    _repo=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
+    _gate=""; _d="$_repo"
+    while [ "$_d" != / ]; do
+        [ -x "$_d/modules/readme-gate.sh" ] && { _gate="$_d/modules/readme-gate.sh"; break; }
+        _d=$(dirname "$_d")
+    done
+    if [ -n "$_gate" ]; then
+        "$_gate" "$_repo" || { echo "repo gate failed: fix the README/tree or pass --skip-readme-check" >&2; exit 1; }
+    else
+        echo "readme-gate.sh not found above $_repo; gate skipped" >&2
+    fi
+fi
+# Strip --skip-readme-check (already consumed by the gate above) so this
+# script's own argument parsing -- which rejects unrecognised args -- never
+# sees it.
+_pkgargs=(); for _a in "$@"; do [[ "$_a" == "--skip-readme-check" ]] || _pkgargs+=("$_a"); done
+set -- "${_pkgargs[@]}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
