@@ -1,0 +1,1920 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1600,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "overflowY": "auto",
+        "gap": "12px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "padding": "0 20px",
+            "height": "100%",
+            "gap": "14px",
+            "classes": "ad-header"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "TitleRow"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Site"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "classes": "ad-title ad-title-site"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "{session.custom.siteInfo.label} + \"\u00a0\u00a0-\u00a0\u00a0\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "classes": "ad-title"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "page.props.title"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "26px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Sub"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "classes": "ad-subtitle ad-title-site"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.siteInfo.subtitle"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "SiteSwitch"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Water"
+                },
+                "props": {
+                  "text": "Water Treatment",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Water\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Water'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "140px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Manufacturing"
+                },
+                "props": {
+                  "text": "Manufacturing",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Manufacturing\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Manufacturing'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "130px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Scenario"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ScenarioLabel"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "5px 12px",
+                    "classes": "ad-scenario-banner"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"SCENARIO:  \" + upper({session.custom.scenario})"
+                      }
+                    }
+                  },
+                  "props.style.display": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.scenario} = \"None\", \"none\", \"flex\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "7px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Critical"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-critical"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Critical}) + \"  CRITICAL\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-critical\" + if({session.custom.live.counts.Critical} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-high"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.High}) + \"  HIGH\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-high\" + if({session.custom.live.counts.High} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Medium"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-medium"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Medium}) + \"  MEDIUM\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-low"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Low}) + \"  LOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "64px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "0 12px 12px 12px",
+            "gap": "12px",
+            "classes": "ad-body"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "ScenarioCard"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "gap": "8px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "Scenarios",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "S"
+                },
+                "props": {
+                  "text": "Scenarios bias the simulation. Every alarm you see still goes through the normal Ignition alarm pipeline - evaluation, deadband, delay, priority and journal.",
+                  "style": {
+                    "fontSize": "11px",
+                    "classes": "ad-faint ad-card-sub"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "List"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "minHeight": "256px",
+                    "gap": "3px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_None"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Normal operation",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"None\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('None')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Plant runs healthy. Alarms clear and the rate settles.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "\"flex\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_Storm"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Storm / high raw turbidity",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"Storm\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('Storm')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Catchment runoff. Raw turbidity spikes, filters load up, pH drops - a cascade across three areas in about a minute.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Water\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_ChlorineFailure"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Chlorine dose pump failure",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"ChlorineFailure\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('ChlorineFailure')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Residual decays to a Critical compliance breach. The alarm your customer actually cares about.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Water\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_PumpFailure"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Pump trips",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"PumpFailure\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('PumpFailure')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "An intake pump and a high lift pump trip together. Watch the standby pick up and network pressure hold.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Water\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_FilterBlinding"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Filter B blinding",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"FilterBlinding\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('FilterBlinding')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Head loss climbs, then turbidity breaks through - High then Critical, in the right order.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Water\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_Chattering"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Chattering nuisance alarm",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"Chattering\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('Chattering')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "High Lift Pump 3 flaps. Use it to demonstrate finding and shelving a bad actor.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Water\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_LineJam"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Case packer jam - line stops",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"LineJam\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('LineJam')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "The jam blocks everything upstream, the line stops, and OEE starts falling. Downtime you can watch accumulate.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Manufacturing\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_ChillerFailure"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Chiller failure",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"ChillerFailure\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('ChillerFailure')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Chilled water climbs, batch temperature follows it up through High and on to a Critical food-safety limit.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Manufacturing\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_AirLoss"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Instrument air loss",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"AirLoss\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('AirLoss')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Receiver drains, pneumatics fail, the whole line stops - one utility fault taking out four areas.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Manufacturing\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_CO2Loss"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Low CO2",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"CO2Loss\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('CO2Loss')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Carbonation drifts and fill rejects climb. A quality alarm rather than a breakdown.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Manufacturing\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_BatchOverTemp"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "Batch over temperature",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"BatchOverTemp\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('BatchOverTemp')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "Straight to the Critical quarantine alarm.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.site} = \"Manufacturing\", \"flex\", \"none\")"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "S_CommsLoss"
+                    },
+                    "props": {
+                      "direction": "column"
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "Row"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "gap": "14px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Btn"
+                            },
+                            "props": {
+                              "text": "PLC comms loss",
+                              "style": {
+                                "classes": "ad-btn"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({session.custom.scenario} = \"CommsLoss\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.demo.setScenario('CommsLoss')"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "300px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Desc"
+                            },
+                            "props": {
+                              "text": "The Diagnostic-priority case, so the priority scale is not just theory.",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "alignSelf": "center",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          }
+                        ],
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "propConfig": {
+                      "props.style.display": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "\"flex\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "34px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "ActionsCard"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "gap": "8px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "Actions",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Actions"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center",
+                  "style": {
+                    "gap": "10px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.input.button",
+                    "meta": {
+                      "name": "AckAll"
+                    },
+                    "props": {
+                      "text": "Acknowledge all",
+                      "style": {
+                        "classes": "ad-btn ad-btn-primary"
+                      }
+                    },
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tAlarmDemo.demo.ackAll()"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "170px"
+                    }
+                  },
+                  {
+                    "type": "ia.input.button",
+                    "meta": {
+                      "name": "Reset"
+                    },
+                    "props": {
+                      "text": "Reset plant",
+                      "style": {
+                        "classes": "ad-btn"
+                      }
+                    },
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tAlarmDemo.demo.reset()"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "150px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Sp"
+                    },
+                    "props": {
+                      "direction": "row"
+                    },
+                    "children": [],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "42px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "100px"
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Build"
+            },
+            "props": {
+              "text": "ACME Alarm Demo  (dev build)",
+              "style": {
+                "fontSize": "10.5px",
+                "letterSpacing": "0.06em",
+                "textAlign": "right",
+                "classes": "ad-faint"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "14px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  }
+}

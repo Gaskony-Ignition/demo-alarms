@@ -1,0 +1,3896 @@
+{
+  "custom": {
+    "rosters": [],
+    "duty": {
+      "onDuty": 0,
+      "total": 7
+    },
+    "tick": 0,
+    "eligible0": [],
+    "pick0": "",
+    "eligible1": [],
+    "pick1": "",
+    "eligible2": [],
+    "pick2": ""
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1600,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "gap": "12px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "padding": "0 20px",
+            "height": "100%",
+            "gap": "14px",
+            "classes": "ad-header"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "TitleRow"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Site"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "classes": "ad-title ad-title-site"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "{session.custom.siteInfo.label} + \"\u00a0\u00a0-\u00a0\u00a0\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "classes": "ad-title"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "page.props.title"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "26px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Sub"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "classes": "ad-subtitle ad-title-site"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.siteInfo.subtitle"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "SiteSwitch"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Water"
+                },
+                "props": {
+                  "text": "Water Treatment",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Water\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Water'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "140px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Manufacturing"
+                },
+                "props": {
+                  "text": "Manufacturing",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Manufacturing\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Manufacturing'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "130px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Scenario"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ScenarioLabel"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "5px 12px",
+                    "classes": "ad-scenario-banner"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"SCENARIO:  \" + upper({session.custom.scenario})"
+                      }
+                    }
+                  },
+                  "props.style.display": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.scenario} = \"None\", \"none\", \"flex\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "7px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Critical"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-critical"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Critical}) + \"  CRITICAL\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-critical\" + if({session.custom.live.counts.Critical} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-high"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.High}) + \"  HIGH\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-high\" + if({session.custom.live.counts.High} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Medium"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-medium"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Medium}) + \"  MEDIUM\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-low"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Low}) + \"  LOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "64px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "0 12px 12px 12px",
+            "gap": "12px",
+            "classes": "ad-body"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "TopBar"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "L"
+                },
+                "props": {
+                  "text": "ON CALL",
+                  "style": {
+                    "alignSelf": "center",
+                    "classes": "ad-kpi-label"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "62px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Duty"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 10px",
+                    "alignSelf": "center",
+                    "classes": "ad-chip ad-chip-ok"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({view.custom.duty.onDuty}) + \" OF \" + toStr({view.custom.duty.total}) + \" ON DUTY NOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Clock"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "fontSize": "11.5px",
+                    "alignSelf": "center",
+                    "classes": "ad-faint"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "dateFormat(now(10000), \"EEE dd/MM  HH:mm\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "150px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Sp"
+                },
+                "props": {
+                  "direction": "row"
+                },
+                "children": [],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "EscBtn"
+                },
+                "props": {
+                  "text": "Escalation rules",
+                  "style": {
+                    "classes": "ad-btn ad-btn-sm"
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tsystem.perspective.openPopup(\n\t    'escalation',\n\t    'AlarmDemo/Popups/Escalation',\n\t    title='Escalation matrix',\n\t    modal=False, draggable=True, resizable=False,\n\t    position={'width': 780, 'height': 400})"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "152px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "40px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Rosters"
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "12px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "R0"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "6px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Head"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "props": {
+                          "text": "Operations",
+                          "style": {
+                            "classes": "ad-card-head"
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Count"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "padding": "2px 9px",
+                            "fontSize": "11px",
+                            "classes": "ad-chip"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.rosters[0].onDuty}) + \" ON DUTY  /  \" + toStr({view.custom.rosters[0].count})"
+                              }
+                            }
+                          },
+                          "props.style.classes": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].onDuty} > 0, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "24px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Blurb"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "fontSize": "11.5px",
+                        "classes": "ad-faint"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "view.custom.rosters[0].blurb"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Members"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M0"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[0].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[0].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[0].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[0].members[0].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Operations', self.view.custom.rosters[0].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].count} > 0, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M1"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[1].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[1].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[1].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[0].members[1].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Operations', self.view.custom.rosters[0].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].count} > 1, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M2"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[2].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[2].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[2].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[0].members[2].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Operations', self.view.custom.rosters[0].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].count} > 2, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M3"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[3].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[3].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[3].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[0].members[3].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Operations', self.view.custom.rosters[0].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].count} > 3, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M4"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[4].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[4].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[0].members[4].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[0].members[4].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Operations', self.view.custom.rosters[0].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[0].count} > 4, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Add"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "6px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.dropdown",
+                        "meta": {
+                          "name": "Pick"
+                        },
+                        "props": {
+                          "placeholder": "add someone to this roster",
+                          "style": {
+                            "classes": "ad-btn"
+                          }
+                        },
+                        "propConfig": {
+                          "props.options": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.eligible0"
+                              }
+                            }
+                          },
+                          "props.value": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pick0",
+                                "bidirectional": true
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "Add"
+                        },
+                        "props": {
+                          "text": "+",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary ad-btn-x"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tif self.view.custom.pick0:\n\t    AlarmDemo.roster.addMember('Operations', self.view.custom.pick0)\n\t    self.view.custom.pick0 = ''\n\t    self.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "30px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "32px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0%"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "R1"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "6px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Head"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "props": {
+                          "text": "Maintenance",
+                          "style": {
+                            "classes": "ad-card-head"
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Count"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "padding": "2px 9px",
+                            "fontSize": "11px",
+                            "classes": "ad-chip"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.rosters[1].onDuty}) + \" ON DUTY  /  \" + toStr({view.custom.rosters[1].count})"
+                              }
+                            }
+                          },
+                          "props.style.classes": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].onDuty} > 0, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "24px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Blurb"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "fontSize": "11.5px",
+                        "classes": "ad-faint"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "view.custom.rosters[1].blurb"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Members"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M0"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[0].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[0].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[0].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[1].members[0].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Maintenance', self.view.custom.rosters[1].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].count} > 0, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M1"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[1].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[1].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[1].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[1].members[1].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Maintenance', self.view.custom.rosters[1].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].count} > 1, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M2"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[2].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[2].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[2].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[1].members[2].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Maintenance', self.view.custom.rosters[1].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].count} > 2, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M3"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[3].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[3].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[3].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[1].members[3].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Maintenance', self.view.custom.rosters[1].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].count} > 3, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M4"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[4].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[4].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[1].members[4].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[1].members[4].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Maintenance', self.view.custom.rosters[1].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[1].count} > 4, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Add"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "6px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.dropdown",
+                        "meta": {
+                          "name": "Pick"
+                        },
+                        "props": {
+                          "placeholder": "add someone to this roster",
+                          "style": {
+                            "classes": "ad-btn"
+                          }
+                        },
+                        "propConfig": {
+                          "props.options": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.eligible1"
+                              }
+                            }
+                          },
+                          "props.value": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pick1",
+                                "bidirectional": true
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "Add"
+                        },
+                        "props": {
+                          "text": "+",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary ad-btn-x"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tif self.view.custom.pick1:\n\t    AlarmDemo.roster.addMember('Maintenance', self.view.custom.pick1)\n\t    self.view.custom.pick1 = ''\n\t    self.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "30px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "32px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0%"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "R2"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "padding": "12px",
+                    "gap": "6px",
+                    "classes": "ad-card"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Head"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "props": {
+                          "text": "Management",
+                          "style": {
+                            "classes": "ad-card-head"
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Count"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "padding": "2px 9px",
+                            "fontSize": "11px",
+                            "classes": "ad-chip"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "toStr({view.custom.rosters[2].onDuty}) + \" ON DUTY  /  \" + toStr({view.custom.rosters[2].count})"
+                              }
+                            }
+                          },
+                          "props.style.classes": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].onDuty} > 0, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "auto"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "24px"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Blurb"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "fontSize": "11.5px",
+                        "classes": "ad-faint"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "view.custom.rosters[2].blurb"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "16px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Members"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "3px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M0"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[0].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[0].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[0].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[2].members[0].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Management', self.view.custom.rosters[2].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].count} > 0, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M1"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[1].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[1].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[1].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[2].members[1].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Management', self.view.custom.rosters[2].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].count} > 1, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M2"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[2].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[2].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[2].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[2].members[2].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Management', self.view.custom.rosters[2].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].count} > 2, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M3"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[3].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[3].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[3].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[2].members[3].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Management', self.view.custom.rosters[2].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].count} > 3, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "M4"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "overflow": "hidden",
+                            "gap": "8px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Name"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "12.5px",
+                                "color": "var(--ink)",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[4].name"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Sched"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "fontSize": "11px",
+                                "overflow": "hidden",
+                                "whiteSpace": "nowrap",
+                                "classes": "ad-muted"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[4].schedule"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "112px"
+                            }
+                          },
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Duty"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "padding": "2px 8px",
+                                "fontSize": "10px",
+                                "textAlign": "center",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "property",
+                                  "config": {
+                                    "path": "view.custom.rosters[2].members[4].duty"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.rosters[2].members[4].onDuty} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-zero\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "76px"
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Rm"
+                            },
+                            "props": {
+                              "text": "x",
+                              "style": {
+                                "classes": "ad-btn ad-btn-x"
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t    'Management', self.view.custom.rosters[2].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "26px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.rosters[2].count} > 4, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "26px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Add"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "6px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.dropdown",
+                        "meta": {
+                          "name": "Pick"
+                        },
+                        "props": {
+                          "placeholder": "add someone to this roster",
+                          "style": {
+                            "classes": "ad-btn"
+                          }
+                        },
+                        "propConfig": {
+                          "props.options": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.eligible2"
+                              }
+                            }
+                          },
+                          "props.value": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.pick2",
+                                "bidirectional": true
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "Add"
+                        },
+                        "props": {
+                          "text": "+",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary ad-btn-x"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tif self.view.custom.pick2:\n\t    AlarmDemo.roster.addMember('Management', self.view.custom.pick2)\n\t    self.view.custom.pick2 = ''\n\t    self.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "30px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "32px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1,
+                  "basis": "0%"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "236px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "RoutingCard"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "gap": "8px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "Who is getting the live alarms",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "S"
+                },
+                "props": {
+                  "text": "Priority picks the roster, the roster's Ignition schedules pick the people. Change someone's shift on the People & Shifts screen and this follows them.",
+                  "style": {
+                    "fontSize": "11px",
+                    "classes": "ad-faint ad-card-sub"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              },
+              {
+                "type": "ia.display.table",
+                "meta": {
+                  "name": "Routing"
+                },
+                "props": {
+                  "style": {
+                    "classes": "ad-table ad-table-plain"
+                  },
+                  "pager": {
+                    "bottom": false,
+                    "top": false
+                  },
+                  "columns": [
+                    {
+                      "field": "Alarm",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "Alarm"
+                      }
+                    },
+                    {
+                      "field": "Priority",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "Priority"
+                      },
+                      "width": 112,
+                      "strictWidth": true,
+                      "render": "view",
+                      "viewPath": "AlarmDemo/Widgets/PriorityCell"
+                    },
+                    {
+                      "field": "Roster",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "Roster"
+                      },
+                      "width": 116,
+                      "strictWidth": true
+                    },
+                    {
+                      "field": "On call now",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "On call now"
+                      }
+                    },
+                    {
+                      "field": "When",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "When"
+                      },
+                      "width": 112,
+                      "strictWidth": true
+                    },
+                    {
+                      "field": "Escalates",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "If unacknowledged"
+                      },
+                      "width": 200,
+                      "strictWidth": true
+                    },
+                    {
+                      "field": "Status",
+                      "visible": true,
+                      "editable": false,
+                      "header": {
+                        "title": "Status"
+                      },
+                      "width": 118,
+                      "strictWidth": true
+                    }
+                  ]
+                },
+                "propConfig": {
+                  "props.data": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "{session.custom.site} + toStr({view.custom.tick}) + toStr(now(4000))"
+                      },
+                      "transforms": [
+                        {
+                          "type": "script",
+                          "code": "\treturn AlarmDemo.roster.routing(self.session.custom.site)"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "custom.rosters": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.roster.rosterCards()"
+          }
+        ]
+      }
+    },
+    "custom.duty": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.roster.dutySummary()"
+          }
+        ]
+      }
+    },
+    "custom.eligible0": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.roster.eligible('Operations')"
+          }
+        ]
+      }
+    },
+    "custom.eligible1": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.roster.eligible('Maintenance')"
+          }
+        ]
+      }
+    },
+    "custom.eligible2": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.roster.eligible('Management')"
+          }
+        ]
+      }
+    }
+  }
+}

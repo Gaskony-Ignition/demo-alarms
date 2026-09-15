@@ -1,0 +1,511 @@
+# Alarm Demo — working notes
+
+Source for the **ACME Alarm Demo**, an Ignition 8.3 alarming demonstration
+shipped as a standalone importable project. This file covers building and
+working on it; nothing here is needed to *use* the demo.
+
+There are two user-facing documents and neither is this one:
+
+- [`README.md`](../README.md) — the repository front page. What it is, the
+  screenshots, and the install.
+- [`REFERENCE.md`](REFERENCE.md) — every screen, the headless endpoint, the
+  requirements and the release notes.
+
+> This folder is *not* part of the Toolbox suite that shares this repository.
+> It has no `toolbox-styles` parent, no `tb_` table prefixes and no shared
+> infrastructure, deliberately: it has to import onto a customer's gateway as
+> one self-contained project.
+
+---
+
+## Build
+
+```bash
+./deploy.sh                       # generate, ship and project-scan
+./package.sh                      # dist/Alarm_Demo.zip           (dev)
+./package.sh --release 3.0.1      # dist/Alarm_Demo-3.0.1.zip     (stamped)
+
+# a gateway with NOTHING on it, for proving the claim the demo makes
+docker compose -f tools/fresh-gateway.yml up -d      # http://localhost:8188
+node ../../launchpad/tools/preflight.js --gateway fresh   # optional, see below
+./tools/deploy-fresh.sh                              # dev loop, ships project/
+
+# prove the zip on a gateway that has never seen it
+node tools/import-project.js --gateway fresh \
+     --zip dist/Alarm_Demo-3.0.1.zip --name AlarmDemo [--overwrite]
+
+node tools/layout-check.js --gateway fresh        # no hairline overflows
+
+docker compose -f tools/fresh-gateway.yml down -v    # and it is blank again
+```
+
+**The one command above that is not in this repo** is `preflight.js`, which
+lives in the sibling `launchpad/` repo and is not vendored here because it
+depends on that repo's toolkit library. All it does is dismiss the **Enable
+Quick Start** modal a never-logged-into gateway shows over its whole web UI —
+the modal intercepts every click, so the import and scan tools time out looking
+for "Platform" with nothing in the logs to say why. Without the sibling repo,
+log into the new gateway once in a browser and choose *start from scratch*; the
+rest of the loop needs nothing outside this repo.
+
+**`tools/fresh-gateway.yml` is the acceptance rig, and it matters more than it
+looks.** The demo's whole claim is "install Ignition, import one zip, press one
+button" — which is only true on a gateway with nothing on it. A gateway that
+has been used for anything else cannot prove it, because whatever is already
+there might be the reason it works. Its own volume, no database container
+beside it, and `down -v` throws it away.
+
+It also catches the opposite mistake, which is the one that actually happened.
+3.0.0 shipped claiming a blank Ignition has no PostgreSQL driver — read off
+`system.config`'s `database-driver` resources, which list MySQL, Oracle and
+SQLite. That list is definitions, not capability: MySQL and Oracle are the two
+that *do not* work (`user-lib/jdbc` is empty, their jars are not
+redistributable), while PostgreSQL, MariaDB and MSSQL ship as JDBC driver
+**modules**, work out of the box, and appear in no resource list at all. The
+rig disproved the claim as easily as it proved the other one — a PostgreSQL
+connection was created on a gateway built from nothing and came up VALID. **An
+API that lists things is not the same as an API that lists what works**, and a
+blank gateway is the place to find out which one you are holding.
+
+`deploy-fresh.sh` carries two things learned the hard way, both silent: `docker
+cp` lands files owned by the host user and the gateway cannot rewrite paths it
+does not own, and the `chown` that fixes it has to be `docker exec -u root`
+because `exec` otherwise runs as the unprivileged `ignition` user and fails
+with "Operation not permitted" — which looks like the copy worked, because it
+did.
+
+Target gateway is `ignition-maker` on the docker server, toolkit alias
+`testbed`. Everything else about it lives in the toolkit's credentials file.
+
+**`deploy.sh` ships project resources and runs one project scan, and that is
+the whole deploy.** The tag provider, the tags, the alarm journal profile, the
+schedules and the rosters are all created by the project itself
+(`AlarmDemo.setup`), which is what makes the demo a standalone import — a
+second, file-based definition of each of them in the repo would be two sources
+for one thing.
+
+**Every release must be proved by importing the zip**, not by looking at the
+dev gateway. `tools/import-project.js` drives Config → Platform → Projects →
+Import Project headlessly, so that is one command rather than an intention.
+2.0.0 was verified that way onto `ignition-module-testing`: a gateway with no
+AlarmDemo provider, no journal profile, a database connection under a different
+name, and another project's 116,000 rows already in `alarm_events`. 3.0.0 was
+verified onto a container built from nothing minutes earlier, which is the only
+gateway that can prove what 3.0.0 changed.
+
+**Assert which version is running before believing an upgrade test.**
+`import-project.js` will not overwrite an existing project without
+`--overwrite`, and when it declines, the *old* project stays deployed and keeps
+answering correctly — so the test passes, and it passes for the wrong reason. A
+stale project answering correctly is indistinguishable from new logic failing,
+and it is worse than an ordinary false pass because the evidence looks like
+success. The demo already stamps its version in three places for exactly this:
+
+```bash
+curl -s "http://localhost:8188/system/webdev/AlarmDemo/admin?cmd=version"
+```
+
+Read that first, confirm it is the version under test, and only then believe
+anything downstream of it.
+
+**The upgrade path is a second test, and a blank gateway cannot run it.** A
+gateway upgrading in place from 2.0.0 keeps its `alarm-demo-settings.json`, so
+it arrives at 3.0.1 pointing at a PostgreSQL connection — and a blank container
+has no such connection to point at. Build one: a `postgres:16` container on the
+rig's network (`POSTGRES_HOST_AUTH_METHOD=trust`, so the rig holds no password
+at all), a PostgreSQL connection on the gateway pointing at it, and the demo's
+setting moved onto it with `?cmd=db&name=…`. Then check three things:
+
+1. the Database row reads MISSING and **names the engine**;
+2. **Create it** makes a *second* connection under a free name and says so,
+   rather than touching the first;
+3. the first is **byte-identical afterwards** — `md5sum` its `config.json` and
+   `resource.json` either side, do not eyeball it.
+
+Seed that PostgreSQL database with a 2.0.0-shaped `alarm_events` and a few
+hundred rows before testing, or the run proves less than it looks: empty tables
+return zeros too, and the failure being reproduced is *populated* tables
+returning zeros. With 400 rows present, `?cmd=analytics` came back `ok:true`
+with every KPI at 0 and an empty Pareto. That is the whole defect in one line —
+it does not fail, it succeeds and says nothing.
+
+**`tools/layout-check.js` is the gate for a bug this project keeps making.**
+Perspective writes a flex position as a fixed pixel height and the box is
+**border-box**, so padding *and borders* come out of the content area. One pixel
+wrong and Chromium draws a full scrollbar down the side of a decorative
+container that has nothing to scroll to. Nothing on the server can see it: the
+JSON is right, the props are right, and only the rendered box model disagrees —
+which is why all three of these were found by a human noticing a scrollbar in a
+screenshot.
+
+| Where | Was | Is | The pixel went to |
+| ----- | --- | -- | ----------------- |
+| brand row | 22 | 24 | a 17px brand and a 20px glyph needing 23px of line box |
+| alarm count | 30 | 36 | a 26px number needing a 35px line box |
+| theme picker | 56 | 57 | `border-top: 1px` |
+
+The check measures instead. It walks every element on all nine pages, in both
+sidebar states, and fails on anything overflowing by **1 to 4 pixels** on an
+axis whose `overflow` is `auto` or `scroll`. The threshold is the whole idea:
+real scrollers overflow by a lot — a table of thirty rows — and this project
+deliberately lets tables scroll rather than paginate, so a large overflow is
+never a finding. A hairline one always is.
+
+## Theming
+
+The project stylesheet defines no surface colour of its own: every page, card,
+border, text and accent colour resolves to one of Ignition's own Perspective
+theme variables. Read the comment block at the top of
+`project/com.inductiveautomation.perspective/stylesheet/stylesheet.css` before
+changing anything there — it is the whole mapping, and the reason there is no
+light/dark branching anywhere in the file.
+
+Two things that are not obvious:
+
+- **The priority scale is deliberately NOT `--error` / `--warning` / `--info`.**
+  A custom theme is free to define `--error` as a near-black danger *wash* —
+  `industrial-dark` in the `ignition-themes` repo does — which would make
+  Critical invisible. The scale is the demo's own six colours, mixed toward the
+  theme's ink for its text form and the theme's card for its washes, so it
+  adapts to a light theme without being redefined.
+
+- **amCharts does not understand `var()`.** Chart colour props are parsed by
+  amCharts rather than handed to CSS, so `var(--crit)` reaches it as an
+  unrecognised string and it falls back to black — verified 8.3.8, 27/08/2026:
+  a donut of five black slices and a trend line drawn in black on a dark card.
+  Chart-internal colours are therefore the literals in `build_views.py`'s
+  `CHART_*` constants. What follows the theme instead is the chart's CHROME,
+  through CSS: `ad-xy-chart` paints every rect the chart draws with
+  `var(--card)` and `ad-chart` paints its SVG text with `var(--ink)`. CSS beats
+  an SVG presentation attribute on every gateway version, which is why the
+  background prop can stay a literal without a light theme showing a dark slab.
+
+**Two overrides in this stylesheet pull opposite ways, and the difference is
+specificity, not taste.** `html` is 0-0-1; `:root` is 0-1-0; both match the
+same element. The project stylesheet loads AFTER the theme's, so at equal
+specificity it wins on order.
+
+| declaration | selector | why |
+| --- | --- | --- |
+| `--containerBorder` | `:root` | must **outrank** the theme — the theme's value is the broken one |
+| `color-scheme` | `html` | must **lose** to the theme — the theme's value is the right one |
+
+Which themes have an opinion about `color-scheme` depends on the **gateway**,
+not only on the theme — measured on two of them:
+
+| | vanilla gateway | Theme Installer run |
+| --- | --- | --- |
+| ten custom packs | declare their own | declare their own |
+| `dark-cool` / `dark-warm` / `light-cool` / `light-warm` | **declare none** | declare their own |
+| base `light` / `dark` (in the jar) | declare none | declare none |
+
+The Installer is what writes a `gaskony-additions.css` into each stock variant.
+On `:root` this line replaced every theme's correct answer with "either",
+which puts light scrollbars and light form controls on a dark page for any
+viewer whose OS prefers light — the same class of fault as the auto-dark-mode
+incident, and equally invisible in a screenshot.
+
+On a **vanilla** gateway a residual remains: `dark-cool`, this project's own
+default, declares nothing there, so `light dark` applies to it. Small here —
+this project styles its own scrollbars and text inputs from theme variables,
+Perspective's other controls are React rather than native, and the reason the
+declaration exists at all (keeping Chrome's auto-dark-mode off) works either
+way — but real, and not fixable in CSS: **Perspective puts the theme's name
+nowhere in the DOM**, no class and no data attribute on `html` or `body`, so
+there is nothing for a selector to match on. Running the Theme Installer
+resolves it. (This whole pairing, and the correction to it, came from the
+session working on `ignition-themes`, 27–28/08/2026.)
+
+`tools/theme-check.js` asserts both, on every theme a gateway has:
+
+```bash
+node tools/theme-check.js --gateway http://host:8088
+```
+
+It makes **three independent assertions**, and the order matters:
+
+1. `color-scheme` computes to something sane.
+2. `--containerBorder` works as a `border` shorthand **on a throwaway element
+   of the check's own** — asked by doing exactly what `.ia_inputField` does,
+   rather than by parsing the variable's text and hoping the heuristic agrees
+   with the CSS parser. This is the load-bearing one: it cannot be defeated by
+   a wrong exclusion list, or by a page where every control happens to be
+   project-styled, because there is no page in it. It also names the fault
+   (`NOT A SHORTHAND (#d3dbd8)`) rather than its symptom.
+3. Stock controls on screen actually have a drawn border — the same contract,
+   observed where it matters.
+
+(2) is belt to (3)'s braces, and the idea came from the session working on
+`ignition-themes`: hardening (3)'s exclusion list fixes the symptom, whereas
+asserting the variable removes the whole class of false green.
+
+There are two ways to test your own CSS while believing you are testing the
+theme's, and (3) avoids both:
+
+* **Never pin a width.** It asserts a border is *drawn*. `1px` would fail on a
+  project class that deliberately sets 2px and report a broken theme when
+  nothing is broken.
+* **Never assert on a control this project gives a border to.** Such a control
+  cannot fail however broken the theme is, so a green run can sit over a broken
+  page. `BORDERED_BY_PROJECT` in the script is that exclusion list, explicit so
+  it is reviewable — a prefix match would be a rule that quietly widens. A
+  screen where *everything* is project-styled reports FAIL, not pass: nothing
+  was asserted.
+
+  **That list will go stale, and it is designed not to matter.** A stale
+  exclusion list is only dangerous while the exclusion is the one thing
+  standing between you and a false green. Because assertion (2) is
+  independent, a rotted list costs a *probe* — coverage narrows, and the check
+  still fails when the fault is real. What it cannot do is go silently green,
+  which is the failure that actually hurt. The mitigation is the design, not
+  remembering to update the list.
+
+Measured here rather than assumed: of the two dropdowns on Analytics, the "All
+areas" selector carries `ad-btn` and sets its own border, so it stayed green
+through the entire negative test and is now excluded. The control that actually
+exercises the contract is the **sidebar's theme picker**, which carries only
+`ad-theme-select` (font-size) — and which is on every page, so the navigation
+to Analytics is for breadth rather than because it is load-bearing.
+
+Every guard has been made to fire, because a check that has never failed is
+not a check:
+
+| test | result |
+| --- | --- |
+| remove the `--containerBorder` line | 10 custom themes FAIL, 6 stock pass — both (2) and (3) fire, and (2) names the bare colour |
+| point the control selector at a class that exists nowhere | all 16 FAIL with `NOTHING ASSERTABLE ON SCREEN`, while `border-var: ok` — which is what proves (2) and (3) are independent rather than one implying the other |
+
+**A stock variable this project restates, and why.** Ignition's own
+`.ia_inputField` does `border: var(--containerBorder)` - it expects the
+SHORTHAND, which is what the six stock themes give it
+(`1px solid var(--border)`). All ten of Nigel's custom themes define it as a
+bare COLOUR, so under any of them that declaration is invalid, the browser
+drops it, and every stock text field and dropdown renders with no border at
+all - on `finance-ledger` a white box on a white card, findable only by its
+chevron. The stylesheet restates the stock shorthand on `:root`, which is a
+no-op on a stock theme and repairs the custom ones; verified by computed
+style (`1px solid rgb(211, 219, 216)` on finance-ledger), not by eye, because
+on that theme the border colour is close enough to the card that a screenshot
+cannot settle it. Found by the session working on `ignition-themes`,
+27/08/2026 - the real fix is in that repo's `mapping.py`, and this is here so
+the demo does not depend on which version of the pack a gateway has.
+
+The default theme is `dark-cool` (`session-props/props.json`), the stock theme
+whose neutrals are closest to the palette the demo was originally drawn in.
+
+## The version
+
+`AlarmDemo.alarms.VERSION` is the single source, and it says `"dev"` in the
+repository. `build_views.py` reads that line out of the file rather than
+keeping a copy, so the screens cannot drift from the scripts.
+
+`./package.sh --release X.Y.Z` stamps it, plus the project title
+(`ACME Alarm Demo X.Y.Z`), the end of the project description (`· vX.Y.Z` — the
+Config → Projects grid shows only that column) and the zip's own filename, then
+puts the working tree back to `dev` on exit. A gateway running a working copy
+says `(dev build)` on screen; a gateway running a release says which one.
+
+## Everything is generated
+
+| Generator | Owns |
+| --------- | ---- |
+| `build_views.py` | all 21 Perspective views |
+| `tags/build_tags.py` | the 122-tag / 76-alarm tree, the Designer tag export, and `AlarmDemo.tagdata` — the same tree embedded in the project, which is how the tags travel inside the export |
+| `stamp_resources.py` | every `resource.json` under `project/` |
+
+Edit the generator, never the JSON. `stamp_resources.py` deliberately omits
+`lastModificationSignature` and stamps a fresh timestamp: a stale signature
+makes the gateway skip the resource during a scan, silently, which is
+indistinguishable from the scan not running.
+
+## Gateway state, and what the project can create for itself
+
+Anything not a project resource cannot travel in a project export, so
+`AlarmDemo.setup` creates all of it from the project: the tag provider and the
+alarm journal profile through `system.config.create`, the tags through
+`system.tag.configure` from the copy `AlarmDemo.tagdata` carries, and then the
+journal tables, shift schedules, users, on-call rosters and history. Every item
+is checked and fixed independently; the Setup screen is one row per entry in
+`AlarmDemo.setup.ITEMS`, and `?cmd=check` / `?cmd=fix` are the same calls.
+
+The database CONNECTION is created here too — a SQLite connection at
+`jdbc:sqlite:${data}/alarm-demo.db`, from a button with no boxes beside it.
+Only the connection's NAME is remembered, in `AlarmDemo.config`'s settings file
+beside the gateway's data directory — same pattern as Order Intake's
+`Orders.Config`, deliberately.
+
+The demo needs no credential, so there is no `system.secrets` call here.
+Elsewhere that call is a trap worth carrying forward: `createEmbeddedSecretConfig()`
+alone writes the plaintext verbatim into a file that reads as though it were
+encrypted — only `createEmbeddedSecretConfig(encrypt(x))` is correct.
+
+**Creating the RESOURCE and having a live CONNECTION are different moments.**
+The resource registers straight away; the pool then has to start and open the
+file, and until it does a query against the name fails - so returning as soon
+as `create()` came back had the page saying "created" on one line and "did not
+answer" on the next, about the same connection, in the same second.
+`createDatabase()` waits for it to answer (bounded, then says so rather than
+pretending). Worth generalising: the pre-`system.config` route of writing the
+resource files and calling `getConfigurationManager().requestScan()` is
+asynchronous too, and anything that reads back the new resource acts on
+pre-scan state unless it waits for `getScanInformation()` to change - which is
+how Launchpad's setup got a bug where the second project's tags looked like
+they needed a human to press Scan File System (thanks to the session working on
+that repo for the trade).
+
+Two more `system.config` traps found the same day: **`delete()` needs a
+`signature`** exactly as `replace()` does (the error says "missing required
+argument", which is at least honest), and `getResourceTypes()` returns
+`(moduleId, typeId)` tuples — `('ignition', 'roster-config')` is registered by
+the **Alarm Notification module**, so its absence is how you detect a gateway
+without that module from a script.
+
+**Nothing is manual.** The `AlarmDemo` tag provider and the alarm journal
+profile are gateway config resources, so they cannot travel in a project
+export; `system.config` creates both from the project, live, with no scan and
+no restart. Every item on the Setup screen has a button.
+
+`AlarmDemo.setup.check()` reports what is missing without changing anything.
+
+## What the backend is, and is not
+
+Ten Jython modules, one WebDev endpoint, one timer script. Each module has a
+single job and says so in its docstring:
+
+| Module | Job |
+| ------ | --- |
+| `alarms` | everything the views read - live roll-ups, KPIs, journal analytics |
+| `sim` / `simmfg` | the two plant models, driven by the 1 s `PlantSim` timer |
+| `demo` | scenario selection, reset, acknowledge-all |
+| `roster` | people, schedules and on-call rosters, all read back out of Ignition |
+| `backfill` | synthetic journal history |
+| `setup` | stand the whole thing up on a fresh gateway, and `check()` it |
+| `tagdata` | the 122 tags as a string literal, GENERATED by `tags/build_tags.py` |
+| `config` | the one setting that belongs to the gateway - which connection to use |
+| `ui` | formatting and lookups the views share |
+
+The last two are the ones that make the demo self-contained, and they are worth
+reading together. `tagdata` is why there is no second file to import: a project
+export carries project resources and nothing else, so the tags travel as a
+string inside one. `config` is the deliberate exception in the other direction -
+the connection NAME is written *outside* the project, beside the gateway's data
+directory, so importing a new version never overwrites what a gateway is
+pointed at.
+
+**`AlarmDemo.alarms` owns the constants.** `DB`, `TABLE` and `PROVIDER` are
+defined there and read from there by the others, rather than copied into each
+module; getting one of them wrong produces a blank screen and no error.
+
+**Every view helper returns a shape, never raises.** `_safe()` wraps each one
+and hands back a zeroed default on failure, because an exception inside a
+binding renders the whole screen as red error boxes - a worse outcome than a
+screen of zeros, and a much harder one to diagnose.
+
+**There are no named queries.** There were five, duplicating the analytics SQL
+that `alarms` already runs; nothing called them, and they filtered by area but
+not by SITE - so anything that did call them would have shown both plants at
+once, which is the one bug this project keeps having to fix. The script
+versions are site-scoped, zero-filled where a gap and a zero mean different
+things, and shaped for the binding that consumes them.
+
+## SQLite
+
+The demo runs on SQLite so that a gateway needs no database server. Four things
+about that are worth knowing before touching a query.
+
+**`eventtime` is TEXT holding epoch milliseconds.** SQLite has no date type,
+and this is what Ignition's own journal writer stores — read straight off a
+table Ignition created and filled: `typeof(eventtime)` is `'text'` and the
+value is `'1787875575442'`. So every comparison CASTs the column to INTEGER and
+binds a number (`AlarmDemo.alarms._millis`), rather than binding a Date and
+hoping the driver and SQLite's type affinity agree. They might: 13-digit
+strings happen to sort the way the numbers do, until the year 2286. That is not
+a thing to rely on without saying so.
+
+The backfill has to write the same representation, and does — `unicode(long(
+system.date.toMillis(...)))`. Backfilled rows that do not compare against
+journalled ones would be worse than none: the charts would simply be missing
+half their history with nothing to say why.
+
+**The schema is read off Ignition, not invented.** See the reference doc.
+
+**Three PostgreSQL constructs had no SQLite equivalent**, and each was replaced
+by something that is arguably better rather than by a workaround:
+
+| Was | Now |
+| --- | --- |
+| `split_part(split_part(source,'/tag:',2),'/',1) = ?` | `source LIKE 'prov:AlarmDemo:/tag:<area>/%'` — the prefix is what the source path is *for*, and it is a shape an index can use |
+| `generate_series(...) LEFT JOIN` to zero-fill empty buckets | the buckets are built in Jython, which is less SQL for the same result, and hands the chart a real Date rather than a string |
+| `percentile_cont(0.5) WITHIN GROUP` | count, then fetch the middle row by `OFFSET`. For an even count that is the lower of the two middle values where `percentile_cont` interpolated; on a figure rounded to one decimal of a minute over thousands of acknowledgements, nobody can read the difference |
+
+**`strftime` buckets in UTC unless told otherwise.** The date-bucket helper
+passes `'localtime'` as well as `'unixepoch'`, so a day starts where the
+gateway's day starts — which is what `date_trunc` did, and what anyone reading
+a daily chart means by a day.
+
+## Responsive
+
+The sidebar collapses to a 62px icon rail. Collapsing is **two** things —
+`system.perspective.alterDock` for the layout and a session prop for the
+contents — because the dock is absolutely positioned and the page's centre
+column is inset separately, so CSS alone leaves a gutter beside the rail.
+
+There is deliberately **no phone breakpoint**. An auto-collapsing dock was
+tried and removed (Nigel, 05/08/2026: "the mobile sized version is pretty much
+useless as nothing fits"): the mimic and the wide alarm tables do not fit a
+phone whatever the sidebar does, and a breakpoint that reflows the chrome
+around unusable content only makes it look like it should work. `show:
+"visible"` + `handle: "hide"` leaves the rail's own ☰ as the single control —
+note that `autoBreakpoint` is consulted ONLY when `show` is the literal
+`"auto"`, so it is inert here whatever number it carries.
+
+**Height is the constraint, not width.** A 1366x768 laptop gives a browser about
+620-640px of viewport once its own chrome is taken out, which is well short of
+the 950 a desktop window has. Three things make that work:
+
+- the Overview mimic has a `minHeight` floor and the page scrolls once below it.
+  Without the floor the mimic kept shrinking, the equipment widgets inside it did
+  not, and six of them grew scrollbars of their own;
+- lists that genuinely cannot fit - the Pareto, the people list, the scenario
+  list - scroll themselves. One scrollbar on a list is what a reader expects;
+- fixed-width columns, the header's site name and its subtitle are shed by media
+  query rather than allowed to overflow, and stat values step down a size so the
+  unit beside them never loses a character.
+
+Verified free of spurious scrollbars at 1920x1080, 1700x950, 1536x760, 1440x780,
+1366x640 and 1280x620 — at a ONE pixel threshold, which is where they actually
+live. The only scrollbars that survive are the three lists above. Desktop and
+laptop; not a phone app.
+
+## Layout
+
+```text
+build_views.py              generates project/.../views/
+tags/build_tags.py          generates tags/build/ and AlarmDemo.tagdata
+stamp_resources.py          restamps every project/**/resource.json
+project/                    the Ignition project, as an export tree
+tools/import-project.js     drives a gateway's Import Project, headlessly
+docs/                       these notes, REFERENCE.md, and the screenshots
+dist/                       the built project zip
+```
+
+Re-shoot the screenshots with the `verify-view` tool after a visual change, at
+1600x950, with a scenario running — an idle plant photographs as an alarm demo
+with no alarms in it:
+
+```bash
+curl "$GATEWAY/system/webdev/AlarmDemo/admin?cmd=scenario&name=Storm"
+node .../verify-view/tool/shot.js AlarmDemo "" docs/images/overview.png \
+     --w 1600 --h 950 --wait 9000            # --nav Analytics, --nav Notifications
+curl "$GATEWAY/system/webdev/AlarmDemo/admin?cmd=reset"
+```
+
+Quantise them to 256 colours before committing (Pillow's `im.quantize()`); on
+this palette it is visually lossless and thirds the file size.
+
+`setup-fresh.png` is shot on a gateway that has NOT been set up - the point of
+the picture is the red rows and the Create buttons, and an all-green board
+shows neither. `themes.png` is two Overview shots of the same gateway in
+different themes, montaged side by side (`magick montage a.png b.png -tile 2x1
+-geometry +6+6`); it needs a gateway with custom themes installed, which the
+dev testbed does not have and `ignition-module-testing` does.

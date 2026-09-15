@@ -1,0 +1,961 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1600,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "gap": "12px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "padding": "0 20px",
+            "height": "100%",
+            "gap": "14px",
+            "classes": "ad-header"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "TitleRow"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Site"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "classes": "ad-title ad-title-site"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "{session.custom.siteInfo.label} + \"\u00a0\u00a0-\u00a0\u00a0\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "classes": "ad-title"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "page.props.title"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "26px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Sub"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "classes": "ad-subtitle ad-title-site"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.siteInfo.subtitle"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "SiteSwitch"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Water"
+                },
+                "props": {
+                  "text": "Water Treatment",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Water\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Water'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "140px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Manufacturing"
+                },
+                "props": {
+                  "text": "Manufacturing",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Manufacturing\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Manufacturing'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "130px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Scenario"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ScenarioLabel"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "5px 12px",
+                    "classes": "ad-scenario-banner"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"SCENARIO:  \" + upper({session.custom.scenario})"
+                      }
+                    }
+                  },
+                  "props.style.display": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.scenario} = \"None\", \"none\", \"flex\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "7px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Critical"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-critical"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Critical}) + \"  CRITICAL\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-critical\" + if({session.custom.live.counts.Critical} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-high"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.High}) + \"  HIGH\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-high\" + if({session.custom.live.counts.High} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Medium"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-medium"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Medium}) + \"  MEDIUM\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-low"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Low}) + \"  LOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "64px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "0 12px 12px 12px",
+            "gap": "12px",
+            "classes": "ad-body"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Controls"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "L"
+                },
+                "props": {
+                  "text": "WINDOW",
+                  "style": {
+                    "alignSelf": "center",
+                    "classes": "ad-kpi-label"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "64px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "J8"
+                },
+                "props": {
+                  "text": "8 hours",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 8, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 8"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "J24"
+                },
+                "props": {
+                  "text": "24 hours",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 24, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 24"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "J168"
+                },
+                "props": {
+                  "text": "7 days",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 168, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 168"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "J720"
+                },
+                "props": {
+                  "text": "30 days",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} = 720, \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.rangeHours = 720"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "86px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Sp"
+                },
+                "props": {
+                  "direction": "row"
+                },
+                "children": [],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "JournalColour"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center",
+                  "style": {
+                    "gap": "8px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "L"
+                    },
+                    "props": {
+                      "text": "PRIORITY COLOUR",
+                      "style": {
+                        "alignSelf": "center",
+                        "classes": "ad-kpi-label"
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "116px"
+                    }
+                  },
+                  {
+                    "type": "ia.input.button",
+                    "meta": {
+                      "name": "M_rows"
+                    },
+                    "props": {
+                      "text": "Whole row",
+                      "style": {
+                        "classes": "ad-btn ad-btn-sm"
+                      }
+                    },
+                    "propConfig": {
+                      "props.style.classes": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.alarmColour} = \"rows\", \"ad-btn ad-btn-sm ad-btn-active\", \"ad-btn ad-btn-sm\")"
+                          }
+                        }
+                      }
+                    },
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tself.session.custom.alarmColour = 'rows'"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "122px"
+                    }
+                  },
+                  {
+                    "type": "ia.input.button",
+                    "meta": {
+                      "name": "M_cells"
+                    },
+                    "props": {
+                      "text": "Priority only",
+                      "style": {
+                        "classes": "ad-btn ad-btn-sm"
+                      }
+                    },
+                    "propConfig": {
+                      "props.style.classes": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "if({session.custom.alarmColour} = \"cells\", \"ad-btn ad-btn-sm ad-btn-active\", \"ad-btn ad-btn-sm\")"
+                          }
+                        }
+                      }
+                    },
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tself.session.custom.alarmColour = 'cells'"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "122px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "380px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "40px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Card"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.alarmjournaltable",
+                "meta": {
+                  "name": "Table"
+                },
+                "props": {
+                  "name": "AlarmDemo",
+                  "refreshRate": 15000,
+                  "columns": {
+                    "eventTime": {
+                      "enabled": true,
+                      "order": 0,
+                      "width": 170,
+                      "strictWidth": true,
+                      "sort": "descending"
+                    },
+                    "displayPath": {
+                      "enabled": true,
+                      "order": 1,
+                      "width": 340,
+                      "sort": "none"
+                    },
+                    "priority": {
+                      "enabled": true,
+                      "order": 2,
+                      "width": 120,
+                      "strictWidth": true,
+                      "sort": "none"
+                    },
+                    "eventState": {
+                      "enabled": true,
+                      "order": 3,
+                      "width": 150,
+                      "strictWidth": true,
+                      "sort": "none"
+                    },
+                    "name": {
+                      "enabled": true,
+                      "order": 4,
+                      "width": 220,
+                      "sort": "none"
+                    },
+                    "eventId": {
+                      "enabled": false,
+                      "order": 5
+                    },
+                    "source": {
+                      "enabled": false,
+                      "order": 6
+                    }
+                  },
+                  "pager": {
+                    "enabled": false
+                  },
+                  "style": {
+                    "classes": "ad-table"
+                  }
+                },
+                "propConfig": {
+                  "props.name": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "1"
+                      },
+                      "transforms": [
+                        {
+                          "type": "script",
+                          "code": "\treturn AlarmDemo.edition.journalName()"
+                        }
+                      ]
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-table ad-colour-\" + {session.custom.alarmColour}"
+                      }
+                    }
+                  },
+                  "props.dateFormat": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"DD/MM/YYYY HH:mm:ss\""
+                      }
+                    }
+                  },
+                  "props.filter.conditions.source": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "{session.custom.site} + \"|\" + {session.custom.area}"
+                      },
+                      "transforms": [
+                        {
+                          "type": "script",
+                          "code": "\treturn AlarmDemo.alarms.sourceFilter(\n\t    self.session.custom.site,\n\t    self.session.custom.area or '')"
+                        }
+                      ]
+                    }
+                  },
+                  "props.dateRange.realtime.interval": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} >= 168, {session.custom.rangeHours} / 24, {session.custom.rangeHours})"
+                      }
+                    }
+                  },
+                  "props.dateRange.realtime.unit": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.rangeHours} >= 168, \"days\", \"hours\")"
+                      }
+                    }
+                  },
+                  "props.rowStyles": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "{session.custom.alarmColour}"
+                      },
+                      "transforms": [
+                        {
+                          "type": "script",
+                          "code": "\treturn AlarmDemo.alarms.journalRowStyles(value)"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  }
+}

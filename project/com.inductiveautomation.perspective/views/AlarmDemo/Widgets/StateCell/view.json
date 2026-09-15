@@ -1,0 +1,69 @@
+{
+  "custom": {},
+  "params": {
+    "value": ""
+  },
+  "props": {
+    "defaultSize": {
+      "width": 110,
+      "height": 28
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "row",
+      "justify": "left",
+      "alignItems": "center",
+      "style": {
+        "height": "100%"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Chip"
+        },
+        "props": {
+          "text": "",
+          "style": {
+            "padding": "2px 10px"
+          }
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.value"
+              }
+            }
+          },
+          "props.style.classes": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "if({view.params.value} = \"Cleared\", \"ad-chip ad-state-cleared\", \"ad-chip ad-state-active\")"
+              }
+            }
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "auto"
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "params.value": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  }
+}

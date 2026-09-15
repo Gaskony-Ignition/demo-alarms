@@ -1,0 +1,3147 @@
+{
+  "custom": {
+    "tick": 0,
+    "busy": "",
+    "dbName": "",
+    "state": {}
+  },
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 1600,
+      "height": 900
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "height": "100%",
+        "overflowY": "auto",
+        "gap": "12px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Header"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "center",
+          "style": {
+            "padding": "0 20px",
+            "height": "100%",
+            "gap": "14px",
+            "classes": "ad-header"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Titles"
+            },
+            "props": {
+              "direction": "column"
+            },
+            "children": [
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "TitleRow"
+                },
+                "props": {
+                  "direction": "row",
+                  "alignItems": "center"
+                },
+                "children": [
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Site"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "classes": "ad-title ad-title-site"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "expr",
+                          "config": {
+                            "expression": "{session.custom.siteInfo.label} + \"\u00a0\u00a0-\u00a0\u00a0\""
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "auto"
+                    }
+                  },
+                  {
+                    "type": "ia.display.label",
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "props": {
+                      "text": "",
+                      "style": {
+                        "whiteSpace": "nowrap",
+                        "overflow": "hidden",
+                        "textOverflow": "ellipsis",
+                        "classes": "ad-title"
+                      }
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "type": "property",
+                          "config": {
+                            "path": "page.props.title"
+                          }
+                        }
+                      }
+                    },
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "26px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Sub"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "whiteSpace": "nowrap",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "classes": "ad-subtitle ad-title-site"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "property",
+                      "config": {
+                        "path": "session.custom.siteInfo.subtitle"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "SiteSwitch"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "6px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Water"
+                },
+                "props": {
+                  "text": "Water Treatment",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Water\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Water'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "140px"
+                }
+              },
+              {
+                "type": "ia.input.button",
+                "meta": {
+                  "name": "B_Manufacturing"
+                },
+                "props": {
+                  "text": "Manufacturing",
+                  "style": {
+                    "classes": "ad-btn"
+                  }
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.site} = \"Manufacturing\", \"ad-btn ad-btn-active\", \"ad-btn\")"
+                      }
+                    }
+                  }
+                },
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tself.session.custom.site = 'Manufacturing'"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "130px"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Scenario"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center"
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "ScenarioLabel"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "5px 12px",
+                    "classes": "ad-scenario-banner"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"SCENARIO:  \" + upper({session.custom.scenario})"
+                      }
+                    }
+                  },
+                  "props.style.display": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "if({session.custom.scenario} = \"None\", \"none\", \"flex\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "Chips"
+            },
+            "props": {
+              "direction": "row",
+              "alignItems": "center",
+              "style": {
+                "gap": "7px"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Critical"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-critical"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Critical}) + \"  CRITICAL\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-critical\" + if({session.custom.live.counts.Critical} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "High"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-high"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.High}) + \"  HIGH\""
+                      }
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "\"ad-chip ad-chip-high\" + if({session.custom.live.counts.High} > 0, \" ad-live\", \"\")"
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Medium"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-medium"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Medium}) + \"  MEDIUM\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "Low"
+                },
+                "props": {
+                  "text": "",
+                  "style": {
+                    "padding": "3px 11px",
+                    "classes": "ad-chip ad-chip-low"
+                  }
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "type": "expr",
+                      "config": {
+                        "expression": "toStr({session.custom.live.counts.Low}) + \"  LOW\""
+                      }
+                    }
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "auto"
+                }
+              }
+            ],
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "auto"
+            }
+          }
+        ],
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "64px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Body"
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "padding": "0 12px 12px 12px",
+            "gap": "12px",
+            "classes": "ad-body"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "DbCard"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "gap": "8px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "Database connection",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "S"
+                },
+                "props": {
+                  "text": "SQLite, in a file in the gateway's own data directory - press Create it and there is nothing to fill in, no server to install and no password to type. Or name a connection this gateway already has. Only the NAME is remembered, and it is kept outside the project, so importing a new version of the demo never overwrites what this gateway is pointed at.",
+                  "style": {
+                    "fontSize": "11px",
+                    "classes": "ad-faint ad-card-sub"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "DbCard"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "6px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "DbRow"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "10px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.text-field",
+                        "meta": {
+                          "name": "DbName"
+                        },
+                        "props": {
+                          "text": "",
+                          "placeholder": "database connection name",
+                          "style": {
+                            "classes": "ad-input"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.dbName",
+                                "bidirectional": true
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "240px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "SaveDb"
+                        },
+                        "props": {
+                          "text": "Use this one",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tAlarmDemo.config.save(self.view.custom.dbName)\n\tself.view.custom.busy = 'saved - re-checking'\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "130px"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Where"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "fontSize": "11.5px",
+                            "alignSelf": "center",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "whiteSpace": "nowrap",
+                            "classes": "ad-faint"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "\"from the \" + {view.custom.state.db.dbSource} + \"   -   settings are kept at \" + {view.custom.state.db.settingsPath}"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "38px"
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "propConfig": {
+              "props.style.display": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.custom.state.edition.hasDatabase}, \"flex\", \"none\")"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 1,
+              "basis": "122px"
+            }
+          },
+          {
+            "type": "ia.container.flex",
+            "meta": {
+              "name": "ItemsCard"
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "padding": "12px",
+                "gap": "8px",
+                "classes": "ad-card"
+              }
+            },
+            "children": [
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "T"
+                },
+                "props": {
+                  "text": "This gateway",
+                  "style": {
+                    "classes": "ad-card-head"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "16px"
+                }
+              },
+              {
+                "type": "ia.display.label",
+                "meta": {
+                  "name": "S"
+                },
+                "props": {
+                  "text": "Everything else the demo needs, created by the project on the gateway it was imported onto. Safe to press twice - each item is only created if it is missing.",
+                  "style": {
+                    "fontSize": "11px",
+                    "classes": "ad-faint ad-card-sub"
+                  }
+                },
+                "position": {
+                  "grow": 0,
+                  "shrink": 0,
+                  "basis": "15px"
+                }
+              },
+              {
+                "type": "ia.container.flex",
+                "meta": {
+                  "name": "Wrap"
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "8px"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "SetupActions"
+                    },
+                    "props": {
+                      "direction": "row",
+                      "alignItems": "center",
+                      "style": {
+                        "gap": "10px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "All"
+                        },
+                        "props": {
+                          "text": "Set up this gateway",
+                          "style": {
+                            "classes": "ad-btn ad-btn-primary"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tself.view.custom.busy = 'working - this takes about a minute'\n\tr = AlarmDemo.setup.run()\n\tdone = r.get('changed', [])\n\terrs = r.get('errors', [])\n\tif errs:\n\t\tself.view.custom.busy = 'finished with problems: ' + '; '.join(errs)\n\telif done:\n\t\tself.view.custom.busy = '; '.join(done)\n\telse:\n\t\tself.view.custom.busy = 'nothing to do - this gateway was already set up'\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "200px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "Recheck"
+                        },
+                        "props": {
+                          "text": "Re-check",
+                          "style": {
+                            "classes": "ad-btn"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tself.view.custom.busy = ''\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "110px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "ResetPeople"
+                        },
+                        "props": {
+                          "text": "Reset rosters and shifts",
+                          "style": {
+                            "classes": "ad-btn ad-btn-danger"
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix('rosters', True)\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "210px"
+                        }
+                      },
+                      {
+                        "type": "ia.input.button",
+                        "meta": {
+                          "name": "Rebuild"
+                        },
+                        "props": {
+                          "text": "Rebuild 30-day history",
+                          "style": {
+                            "classes": "ad-btn ad-btn-danger"
+                          }
+                        },
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if({view.custom.state.edition.hasDatabase}, \"flex\", \"none\")"
+                              }
+                            }
+                          }
+                        },
+                        "events": {
+                          "component": {
+                            "onActionPerformed": {
+                              "config": {
+                                "script": "\tself.view.custom.busy = 'rebuilding history...'\n\tn = AlarmDemo.backfill.run(days=30, perDay=85)\n\tself.view.custom.busy = 'history rebuilt: %d journal rows' % n\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                              },
+                              "scope": "G",
+                              "type": "script"
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "220px"
+                        }
+                      },
+                      {
+                        "type": "ia.display.label",
+                        "meta": {
+                          "name": "Busy"
+                        },
+                        "props": {
+                          "text": "",
+                          "style": {
+                            "fontSize": "12px",
+                            "alignSelf": "center",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "whiteSpace": "nowrap",
+                            "classes": "ad-muted"
+                          }
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "type": "property",
+                              "config": {
+                                "path": "view.custom.busy"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 1,
+                          "shrink": 1
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 0,
+                      "shrink": 0,
+                      "basis": "40px"
+                    }
+                  },
+                  {
+                    "type": "ia.container.flex",
+                    "meta": {
+                      "name": "Rows"
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R0"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[0].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[0].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[0].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[0].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[0].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[0].fixable} = true && {view.custom.state.items[0].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][0]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[0].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R1"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[1].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[1].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[1].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[1].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[1].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[1].fixable} = true && {view.custom.state.items[1].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][1]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[1].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R2"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[2].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[2].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[2].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[2].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[2].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[2].fixable} = true && {view.custom.state.items[2].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][2]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[2].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R3"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[3].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[3].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[3].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[3].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[3].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[3].fixable} = true && {view.custom.state.items[3].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][3]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[3].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R4"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[4].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[4].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[4].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[4].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[4].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[4].fixable} = true && {view.custom.state.items[4].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][4]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[4].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R5"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[5].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[5].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[5].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[5].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[5].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[5].fixable} = true && {view.custom.state.items[5].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][5]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[5].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R6"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[6].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[6].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[6].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[6].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[6].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[6].fixable} = true && {view.custom.state.items[6].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][6]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[6].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R7"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[7].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[7].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[7].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[7].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[7].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[7].fixable} = true && {view.custom.state.items[7].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][7]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[7].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R8"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[8].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[8].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[8].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[8].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[8].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[8].fixable} = true && {view.custom.state.items[8].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][8]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[8].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      },
+                      {
+                        "type": "ia.container.flex",
+                        "meta": {
+                          "name": "R9"
+                        },
+                        "props": {
+                          "direction": "row",
+                          "alignItems": "center",
+                          "style": {
+                            "padding": "0 4px",
+                            "gap": "12px"
+                          }
+                        },
+                        "children": [
+                          {
+                            "type": "ia.display.label",
+                            "meta": {
+                              "name": "Status"
+                            },
+                            "props": {
+                              "text": "",
+                              "style": {
+                                "textAlign": "center",
+                                "alignSelf": "center",
+                                "lineHeight": "22px",
+                                "classes": "ad-chip"
+                              }
+                            },
+                            "propConfig": {
+                              "props.text": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[9].ok} = true, \"READY\", \"MISSING\")"
+                                  }
+                                }
+                              },
+                              "props.style.classes": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[9].ok} = true, \"ad-chip ad-chip-ok\", \"ad-chip ad-chip-critical\")"
+                                  }
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          },
+                          {
+                            "type": "ia.container.flex",
+                            "meta": {
+                              "name": "Text"
+                            },
+                            "props": {
+                              "direction": "column",
+                              "style": {
+                                "gap": "1px"
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Title"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "13.5px",
+                                    "fontWeight": "600"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[9].title"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "17px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Detail"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "12px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-muted"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[9].detail"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "16px"
+                                }
+                              },
+                              {
+                                "type": "ia.display.label",
+                                "meta": {
+                                  "name": "Why"
+                                },
+                                "props": {
+                                  "text": "",
+                                  "style": {
+                                    "fontSize": "11px",
+                                    "whiteSpace": "nowrap",
+                                    "overflow": "hidden",
+                                    "textOverflow": "ellipsis",
+                                    "classes": "ad-faint"
+                                  }
+                                },
+                                "propConfig": {
+                                  "props.text": {
+                                    "binding": {
+                                      "type": "property",
+                                      "config": {
+                                        "path": "view.custom.state.items[9].why"
+                                      }
+                                    }
+                                  }
+                                },
+                                "position": {
+                                  "grow": 0,
+                                  "shrink": 0,
+                                  "basis": "15px"
+                                }
+                              }
+                            ],
+                            "position": {
+                              "grow": 1,
+                              "shrink": 1
+                            }
+                          },
+                          {
+                            "type": "ia.input.button",
+                            "meta": {
+                              "name": "Fix"
+                            },
+                            "props": {
+                              "text": "Create",
+                              "style": {
+                                "classes": "ad-btn ad-btn-sm"
+                              }
+                            },
+                            "propConfig": {
+                              "props.style.display": {
+                                "binding": {
+                                  "type": "expr",
+                                  "config": {
+                                    "expression": "if({view.custom.state.items[9].fixable} = true && {view.custom.state.items[9].ok} = false, \"flex\", \"none\")"
+                                  }
+                                }
+                              }
+                            },
+                            "events": {
+                              "component": {
+                                "onActionPerformed": {
+                                  "config": {
+                                    "script": "\titem = self.view.custom.state['items'][9]\n\tself.view.custom.busy = 'creating %s...' % item['title']\n\ttry:\n\t\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n\texcept Exception, e:\n\t\tself.view.custom.busy = 'failed: %s' % e\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                  },
+                                  "scope": "G",
+                                  "type": "script"
+                                }
+                              }
+                            },
+                            "position": {
+                              "grow": 0,
+                              "shrink": 0,
+                              "basis": "94px"
+                            }
+                          }
+                        ],
+                        "propConfig": {
+                          "props.style.display": {
+                            "binding": {
+                              "type": "expr",
+                              "config": {
+                                "expression": "if(isNull({view.custom.state.items[9].key}), \"none\", \"flex\")"
+                              }
+                            }
+                          }
+                        },
+                        "position": {
+                          "grow": 0,
+                          "shrink": 0,
+                          "basis": "54px"
+                        }
+                      }
+                    ],
+                    "position": {
+                      "grow": 1,
+                      "shrink": 1
+                    }
+                  }
+                ],
+                "position": {
+                  "grow": 1,
+                  "shrink": 1
+                }
+              }
+            ],
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Build"
+            },
+            "props": {
+              "text": "ACME Alarm Demo  (dev build)",
+              "style": {
+                "fontSize": "10.5px",
+                "letterSpacing": "0.06em",
+                "textAlign": "right",
+                "classes": "ad-faint"
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "14px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "custom.state": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{view.custom.tick}"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.setup.check()"
+          }
+        ]
+      }
+    },
+    "custom.dbName": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{view.custom.tick}"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.config.db()"
+          }
+        ]
+      }
+    }
+  }
+}

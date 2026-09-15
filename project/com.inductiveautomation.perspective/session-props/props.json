@@ -1,0 +1,196 @@
+{
+  "custom": {
+    "rangeHours": 24,
+    "area": "",
+    "scenario": "None",
+    "live": {
+      "total": 0,
+      "unacked": 0,
+      "shelved": 0,
+      "worst": "",
+      "counts": {
+        "Critical": 0,
+        "High": 0,
+        "Medium": 0,
+        "Low": 0,
+        "Diagnostic": 0
+      },
+      "areas": {
+        "Intake": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Filtration": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Chemical": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Distribution": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Plant": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Mixing": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Filling": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Packaging": {
+          "total": 0,
+          "worst": "OK"
+        },
+        "Utilities": {
+          "total": 0,
+          "worst": "OK"
+        }
+      },
+      "other": 0
+    },
+    "areaOptions": [],
+    "range": {
+      "start": null,
+      "end": null
+    },
+    "site": "Water",
+    "siteInfo": {
+      "label": "ACME Water Treatment Plant",
+      "subtitle": "Potable water production and distribution",
+      "areas": []
+    },
+    "alarmColour": "cells",
+    "statusArea": "",
+    "navOpen": true
+  },
+  "propConfig": {
+    "custom.rangeHours": {
+      "persistent": true
+    },
+    "custom.area": {
+      "persistent": true
+    },
+    "custom.scenario": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{session.custom.site} + toStr(now(2000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.demo.getScenario(self.custom.site)"
+          }
+        ]
+      }
+    },
+    "custom.live": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{session.custom.site} + toStr(now(2000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.liveStatus(self.custom.site)"
+          }
+        ]
+      }
+    },
+    "custom.areaOptions": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{session.custom.site} + toStr(now(300000))"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.areaOptions(self.custom.site)"
+          }
+        ]
+      }
+    },
+    "custom.range.end": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "now(30000)"
+        }
+      }
+    },
+    "custom.range.start": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "dateArithmetic(now(30000), -{session.custom.rangeHours}, \"hour\")"
+        }
+      }
+    },
+    "props.auth": {
+      "access": "PRIVATE",
+      "persistent": false
+    },
+    "props.device.identifier": {
+      "access": "SYSTEM",
+      "persistent": false
+    },
+    "props.gateway": {
+      "access": "SYSTEM",
+      "persistent": false
+    },
+    "props.host": {
+      "access": "SYSTEM",
+      "persistent": false
+    },
+    "props.id": {
+      "access": "SYSTEM",
+      "persistent": false
+    },
+    "props.lastActivity": {
+      "access": "SYSTEM",
+      "persistent": false
+    },
+    "custom.site": {
+      "persistent": true
+    },
+    "custom.siteInfo": {
+      "binding": {
+        "type": "expr",
+        "config": {
+          "expression": "{session.custom.site}"
+        },
+        "transforms": [
+          {
+            "type": "script",
+            "code": "\treturn AlarmDemo.alarms.siteInfo(value)"
+          }
+        ]
+      }
+    },
+    "custom.alarmColour": {
+      "persistent": true
+    },
+    "custom.statusArea": {
+      "persistent": true
+    }
+  },
+  "props": {
+    "theme": "dark-cool",
+    "locale": "en-AU",
+    "device": {},
+    "geolocation": {},
+    "offline": {},
+    "appBar": {
+      "togglePosition": "hidden"
+    }
+  }
+}

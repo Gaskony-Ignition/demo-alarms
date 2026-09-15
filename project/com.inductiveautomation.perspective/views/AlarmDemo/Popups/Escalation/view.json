@@ -1,0 +1,151 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "width": 780,
+      "height": 400
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "padding": "12px",
+        "height": "100%",
+        "gap": "8px",
+        "classes": "ad-page ad-root"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Sub"
+        },
+        "props": {
+          "text": "Which roster an alarm goes to, how quickly, and who it escalates to if nobody acknowledges it.",
+          "style": {
+            "fontSize": "11.5px",
+            "classes": "ad-faint"
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "18px"
+        }
+      },
+      {
+        "type": "ia.display.table",
+        "meta": {
+          "name": "Escalation"
+        },
+        "props": {
+          "style": {
+            "classes": "ad-table ad-table-plain"
+          },
+          "pager": {
+            "bottom": false,
+            "top": false
+          },
+          "columns": [
+            {
+              "field": "Priority",
+              "visible": true,
+              "editable": false,
+              "header": {
+                "title": "Priority"
+              },
+              "width": 108,
+              "strictWidth": true,
+              "render": "view",
+              "viewPath": "AlarmDemo/Widgets/PriorityCell"
+            },
+            {
+              "field": "Notifies",
+              "visible": true,
+              "editable": false,
+              "header": {
+                "title": "Notifies"
+              },
+              "width": 124,
+              "strictWidth": true
+            },
+            {
+              "field": "When",
+              "visible": true,
+              "editable": false,
+              "header": {
+                "title": "When"
+              },
+              "width": 118,
+              "strictWidth": true
+            },
+            {
+              "field": "Escalates to",
+              "visible": true,
+              "editable": false,
+              "header": {
+                "title": "Escalates to"
+              },
+              "width": 132,
+              "strictWidth": true
+            },
+            {
+              "field": "If unacknowledged",
+              "visible": true,
+              "editable": false,
+              "header": {
+                "title": "If unacknowledged"
+              }
+            }
+          ]
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "type": "expr",
+              "config": {
+                "expression": "toStr(now(60000))"
+              },
+              "transforms": [
+                {
+                  "type": "script",
+                  "code": "\treturn AlarmDemo.roster.escalationTable()"
+                }
+              ]
+            }
+          }
+        },
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      },
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Note"
+        },
+        "props": {
+          "text": "The rosters and the schedules are real gateway configuration. This matrix is the design an alarm notification pipeline would implement on top of them - a pipeline needs a working email or SMS profile before it can send anything, so it is not part of this self-contained demo.",
+          "style": {
+            "fontSize": "11px",
+            "lineHeight": "15px",
+            "classes": "ad-faint"
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "46px"
+        }
+      }
+    ]
+  }
+}

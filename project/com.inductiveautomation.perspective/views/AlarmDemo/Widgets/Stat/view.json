@@ -1,0 +1,187 @@
+{
+  "custom": {
+    "value": 0
+  },
+  "params": {
+    "title": "Value",
+    "path": "",
+    "unit": "",
+    "fmt": "0.00",
+    "warn": 1000000000.0,
+    "crit": 1000000000.0,
+    "invert": false
+  },
+  "props": {
+    "defaultSize": {
+      "width": 170,
+      "height": 74
+    }
+  },
+  "root": {
+    "type": "ia.container.flex",
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "gap": "2px",
+        "classes": "ad-equip"
+      }
+    },
+    "children": [
+      {
+        "type": "ia.display.label",
+        "meta": {
+          "name": "Label"
+        },
+        "props": {
+          "text": "",
+          "style": {
+            "classes": "ad-kpi-label"
+          }
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "type": "property",
+              "config": {
+                "path": "view.params.title"
+              }
+            }
+          }
+        },
+        "position": {
+          "grow": 0,
+          "shrink": 0,
+          "basis": "14px"
+        }
+      },
+      {
+        "type": "ia.container.flex",
+        "meta": {
+          "name": "Row"
+        },
+        "props": {
+          "direction": "row",
+          "alignItems": "end",
+          "style": {
+            "overflow": "hidden",
+            "gap": "4px"
+          }
+        },
+        "children": [
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Value"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "fontSize": "24px",
+                "classes": "ad-kpi-value"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "numberFormat({view.custom.value}, {view.params.fmt})"
+                  }
+                }
+              },
+              "props.style.color": {
+                "binding": {
+                  "type": "expr",
+                  "config": {
+                    "expression": "if({view.params.invert} = true,   if({view.custom.value} <= {view.params.crit}, \"var(--crit)\",   if({view.custom.value} <= {view.params.warn}, \"var(--med)\", \"var(--ink)\")),   if({view.custom.value} >= {view.params.crit}, \"var(--crit)\",   if({view.custom.value} >= {view.params.warn}, \"var(--med)\", \"var(--ink)\")))"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 1,
+              "shrink": 1
+            }
+          },
+          {
+            "type": "ia.display.label",
+            "meta": {
+              "name": "Unit"
+            },
+            "props": {
+              "text": "",
+              "style": {
+                "paddingBottom": "3px",
+                "classes": "ad-kpi-unit"
+              }
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "type": "property",
+                  "config": {
+                    "path": "view.params.unit"
+                  }
+                }
+              }
+            },
+            "position": {
+              "grow": 0,
+              "shrink": 0,
+              "basis": "46px"
+            }
+          }
+        ],
+        "position": {
+          "grow": 1,
+          "shrink": 1
+        }
+      }
+    ]
+  },
+  "propConfig": {
+    "params.title": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.path": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.unit": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.fmt": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.warn": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.crit": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.invert": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "custom.value": {
+      "binding": {
+        "type": "tag",
+        "config": {
+          "tagPath": "[AlarmDemo]{1}",
+          "mode": "indirect",
+          "references": {
+            "1": "{view.params.path}"
+          }
+        }
+      }
+    }
+  }
+}
