@@ -26,8 +26,8 @@ const path = require('path');
 
 function loadPlaywright() {
   const roots = [
-    '/home/nigel/ignition/water-suite/node_modules',
-    '/home/nigel/ignition/ignition-toolbox/node_modules',
+    '/home/nigel/Ignition-Work/water-suite/node_modules',
+    '/Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/verify-view/tool/node_modules',
     path.join(__dirname, '..', 'node_modules'),
   ];
   for (const r of roots) { try { return require(path.join(r, 'playwright')); } catch (e) {} }

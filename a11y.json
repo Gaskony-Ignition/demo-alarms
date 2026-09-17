@@ -1,0 +1,11 @@
+{
+  "gateway": "module-testing",
+  "projects": [
+    {
+      "name": "Demo-Alarms",
+      "pageConfig": "project/com.inductiveautomation.perspective/page-config/config.json"
+    }
+  ],
+  "theme": "dark-cool",
+  "exceptions": []
+}

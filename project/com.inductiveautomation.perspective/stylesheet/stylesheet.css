@@ -99,10 +99,21 @@ html { color-scheme: light dark; }
   --line:    var(--border);
 
   --ink:     var(--label);
-  --ink-2:   var(--label--disabled);
-  /* Ignition publishes no third text tier; this is the second one pulled
-     back toward the card until it recedes. */
-  --ink-3:   color-mix(in srgb, var(--label--disabled) 72%, var(--container));
+  /* Ignition publishes no third text tier, and on dark-cool there is not
+     even room for the SECOND one as shipped: bare --label--disabled reads
+     4.52:1 against --container (already near the AA floor) and only
+     3.45:1 against --containerNested (--card-2) - the equipment-card
+     background half this project's "muted" text actually sits on. The
+     previous --ink-3 pulled it a further 72% towards the card on top of
+     that (3.46:1 against the page - the demo's single biggest axe finding).
+     A muted tier has to move the OTHER way, towards --label, and
+     --card-2 is the surface that decides how far: it is the one both
+     tokens are measured against below. There is no longer room left for
+     --ink-3 to recede further than --ink-2 and still clear 4.5:1 there, so
+     the two are the same value rather than a fake third step that would
+     fail again the moment it looked distinct. */
+  --ink-2:   color-mix(in srgb, var(--label--disabled) 60%, var(--label) 40%);
+  --ink-3:   var(--ink-2);
 
   --accent:      var(--callToAction);
   --accent-soft: var(--callToActionHighlight);
@@ -167,7 +178,17 @@ html { color-scheme: light dark; }
   --diag-base: #8B98A9;
   --ok-base:   #35C46A;
 
-  --crit: color-mix(in srgb, var(--crit-base) 84%, var(--label));
+  /* --crit alone needed far more --label than the other four: on dark-cool
+     the other bases already clear 4.5:1 as text at 84%, but --crit-base is
+     a saturated pink-red whose LUMINANCE stays low almost however much
+     --label is mixed in, and the equipment cards' FAULT text sits directly
+     on --card-2 (#343A3F on this theme) with no wash to help it - at 84% it
+     measured 2.90:1 there, the worst single ratio found in the whole demo.
+     38% is the least desaturation that clears --card-2 with margin (measured
+     5.10:1) as well as its own chip wash and the Setup screen's danger
+     button. The other four keep 84% - they already pass and a customer
+     reading "the same red as Critical, always" loses nothing there. */
+  --crit: color-mix(in srgb, var(--crit-base) 38%, var(--label));
   --high: color-mix(in srgb, var(--high-base) 84%, var(--label));
   --med:  color-mix(in srgb, var(--med-base)  84%, var(--label));
   --low:  color-mix(in srgb, var(--low-base)  84%, var(--label));
@@ -198,6 +219,26 @@ html { color-scheme: light dark; }
    ------------------------------------------------------------------------ */
 
 .app-bar { display: none !important; }
+
+/* ---------- focus ring ---------------------------------------------------
+   On `ignition-themes` v1.17.0 the theme itself draws a measured 3:1+ ring
+   (`--a11y-focus-ring`), so that wins there. On a stock theme, which never
+   defines that variable, the fallback is the theme's own full-contrast
+   heading ink - guaranteed 3:1 by definition, since normal text needs 4.5:1
+   against the same surfaces. The Table grid is a second rule because it
+   turns its own outline off internally (verified 8.3.8): `!important` and
+   an inset offset are what beat that, the same fix `ignition-themes` needed
+   for the identical component. A missing ring here is this project's to
+   fix, not a platform exception - only the grid's ROW/COLUMN keyboard
+   navigation is that. */
+:focus-visible, .ia_dropdown.ia_dropdown--focused {
+  outline: 2px solid var(--a11y-focus-ring, var(--neutral-100));
+  outline-offset: 1px;
+}
+.ReactVirtualized__Grid:focus-visible {
+  outline: 2px solid var(--a11y-focus-ring, var(--neutral-100)) !important;
+  outline-offset: -2px;
+}
 
 /* ---------- scrollbars --------------------------------------------------
    Some scrolling is legitimate - a journal with thousands of rows has to
@@ -315,7 +356,7 @@ html { color-scheme: light dark; }
 
 .psc-ad-kpi-label {
   color: var(--ink-3);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -366,9 +407,15 @@ html { color-scheme: light dark; }
 }
 
 /* A live Critical or High alarm should be impossible to miss on a wall
-   screen, so those two chips breathe. Nothing else animates. */
-.psc-ad-chip-critical.psc-ad-live { animation: ad-pulse 1.6s ease-in-out infinite; }
-.psc-ad-chip-high.psc-ad-live     { animation: ad-pulse 2.4s ease-in-out infinite; }
+   screen, so those two chips breathe. Nothing else animates. Both periods
+   are well under the 3-flashes-a-second seizure limit (2.3.3); the
+   reduced-motion query below is for anyone the flashing itself bothers, not
+   for that limit. */
+@media (prefers-reduced-motion: no-preference) {
+  .psc-ad-chip-critical.psc-ad-live { animation: ad-pulse 1.6s ease-in-out infinite; }
+  .psc-ad-chip-high.psc-ad-live     { animation: ad-pulse 2.4s ease-in-out infinite; }
+  .psc-ad-dot-fault                 { animation: ad-pulse 1.2s ease-in-out infinite; }
+}
 
 @keyframes ad-pulse {
   0%, 100% { opacity: 1; }
@@ -402,16 +449,19 @@ html { color-scheme: light dark; }
 .psc-ad-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   flex: 0 0 10px;
 }
 
-.psc-ad-dot-run   { background: var(--ok);   box-shadow: 0 0 8px color-mix(in srgb, var(--ok-base) 75%, transparent); }
-.psc-ad-dot-stop  { background: color-mix(in srgb, var(--diag-base) 35%, var(--card)); }
+/* Colour is never the only signal (1.4.1): each state is also its own
+   shape, not only its own fill - a circle running, a square stopped, an
+   upward triangle jammed, a diamond faulted. Reads in a colour-blind
+   simulation and in greyscale print alike, not only by hue. */
+.psc-ad-dot-run   { border-radius: 50%; background: var(--ok);   box-shadow: 0 0 8px color-mix(in srgb, var(--ok-base) 75%, transparent); }
+.psc-ad-dot-stop  { border-radius: 2px; background: color-mix(in srgb, var(--diag-base) 35%, var(--card)); }
 /* a jam stops the line but is not a fault - amber, and it does not pulse */
-.psc-ad-dot-jam   { background: var(--med); box-shadow: 0 0 8px color-mix(in srgb, var(--med-base) 70%, transparent); }
+.psc-ad-dot-jam   { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: var(--med); box-shadow: 0 0 8px color-mix(in srgb, var(--med-base) 70%, transparent); }
 
-.psc-ad-dot-fault { background: var(--crit); box-shadow: 0 0 9px color-mix(in srgb, var(--crit-base) 85%, transparent); animation: ad-pulse 1.2s ease-in-out infinite; }
+.psc-ad-dot-fault { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); background: var(--crit); box-shadow: 0 0 9px color-mix(in srgb, var(--crit-base) 85%, transparent); }
 
 /* ---------- tanks ------------------------------------------------------- */
 
@@ -522,7 +572,7 @@ html { color-scheme: light dark; }
 
 .psc-ad-table .ia_table__head__header__cell {
   color: var(--ink-2);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -596,11 +646,18 @@ html { color-scheme: light dark; }
    row shifts by one, moving the colour onto the Display Path column.
    ------------------------------------------------------------------------ */
 
+/* Percentages are each tuned so the priority TEXT (--crit/--high/--med/
+   --low/--diag) clears 4.5:1 against its own cell background - measured
+   per colour, because the same percentage does not land the same ratio
+   twice (a saturated base like --crit-base loses luminance far faster than
+   --med-base does as it is mixed towards the card). --high measured 4.00:1
+   and --diag 4.49:1 at their previous percentages - both fixed here;
+   --crit and --med already cleared 4.5:1 and are unchanged. */
 .psc-ad-colour-cells .psc-ad-alm-critical   .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--crit-base) 30%, var(--card)); color: var(--crit); font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-high       .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--high-base) 28%, var(--card)); color: var(--high); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-high       .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--high-base) 18%, var(--card)); color: var(--high); font-weight: 650; }
 .psc-ad-colour-cells .psc-ad-alm-medium     .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--med-base) 24%, var(--card)); color: var(--med); font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-low        .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--low-base) 22%, var(--card)); color: var(--low); font-weight: 650; }
-.psc-ad-colour-cells .psc-ad-alm-diagnostic .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--diag-base) 18%, var(--card)); color: var(--diag); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-low        .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--low-base) 18%, var(--card)); color: var(--low); font-weight: 650; }
+.psc-ad-colour-cells .psc-ad-alm-diagnostic .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--diag-base) 13%, var(--card)); color: var(--diag); font-weight: 650; }
 
 .psc-ad-alm-cleared .ia_table__cell { color: var(--ink-3) !important; font-style: italic; }
 .psc-ad-colour-cells .psc-ad-alm-cleared .ia_table__cell[data-column-id="priority"] { background: color-mix(in srgb, var(--diag-base) 14%, var(--card)); color: var(--ink-3); }
@@ -661,6 +718,15 @@ html { color-scheme: light dark; }
   border-radius: 6px;
 }
 
+/* The alarm table's own filter input turns its outline off internally
+   (measured `outline-style: none`, same class of gap as the dropdown
+   search box and the ReactVirtualized grid) - `!important` is what beats
+   that, as it does for the grid above. */
+.psc-ad-table .ia_alarmTableComponent__toolbar__activeFilterInput:focus-visible {
+  outline: 2px solid var(--a11y-focus-ring, var(--neutral-100)) !important;
+  outline-offset: 1px;
+}
+
 /* ---------- buttons ----------------------------------------------------- */
 
 .psc-ad-btn {
@@ -694,6 +760,12 @@ html { color-scheme: light dark; }
 }
 
 .psc-ad-input:focus-within { border-color: var(--accent); }
+
+/* Ignition's own dropdown placeholder hard-codes --label--disabled as text -
+   4.5:1 on --container but only 3.45:1 on the darker dropdown chrome
+   (--card-2-ish); this project already overrides the search box below, so
+   overriding the placeholder too is the same kind of fix, not a new one. */
+.ia_dropdown__placeholder { color: var(--ink-2); }
 
 /* The masked-text-box rule that used to live here is gone with the form it
    masked. The Setup screen asked for a database host, user and password

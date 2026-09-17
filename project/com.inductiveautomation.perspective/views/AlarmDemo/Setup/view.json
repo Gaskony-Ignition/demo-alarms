@@ -15,7 +15,8 @@
   "root": {
     "type": "ia.container.flex",
     "meta": {
-      "name": "root"
+      "name": "root",
+      "tabIndex": 0
     },
     "props": {
       "direction": "column",
@@ -3094,7 +3095,7 @@
             "props": {
               "text": "ACME Alarm Demo  (dev build)",
               "style": {
-                "fontSize": "10.5px",
+                "fontSize": "11px",
                 "letterSpacing": "0.06em",
                 "textAlign": "right",
                 "classes": "ad-faint"

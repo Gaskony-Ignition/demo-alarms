@@ -55,6 +55,9 @@ place rather than going red. There are two zips — see
 Alarm Status and Journal use **Ignition's own stock components**, because the
 point is to demonstrate what Ignition does.
 
+The screens meet **WCAG 2.1 AA**, except for limits in Perspective itself: no
+page language setting, and the Table and chart components' own internals.
+
 ## How to use it
 
 ### Install

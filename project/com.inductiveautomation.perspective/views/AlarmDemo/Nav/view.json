@@ -36,7 +36,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Row"
+              "name": "Row",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -67,7 +68,10 @@
               {
                 "type": "ia.display.label",
                 "meta": {
-                  "name": "Toggle"
+                  "name": "Toggle",
+                  "tooltip": {
+                    "text": "Collapse or expand the navigation"
+                  }
                 },
                 "props": {
                   "text": "\u2630",
@@ -97,6 +101,13 @@
                   },
                   "scope": "G",
                   "type": "script"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tis_open = not self.session.custom.navOpen\n\t\tself.session.custom.navOpen = is_open\n\t\tsystem.perspective.alterDock('nav', {'size': 230 if is_open else 62})"
+                  }
                 }
               }
             }
@@ -109,7 +120,7 @@
             "props": {
               "text": "",
               "style": {
-                "fontSize": "10.5px",
+                "fontSize": "11px",
                 "classes": "ad-subtitle ad-nav-text"
               }
             },
@@ -152,7 +163,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Overview"
+              "name": "N_Overview",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -222,6 +234,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/')"
+                  }
                 }
               }
             }
@@ -229,7 +248,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_AlarmStatus"
+              "name": "N_AlarmStatus",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -299,6 +319,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/status')"
+                  }
                 }
               }
             }
@@ -306,7 +333,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Journal"
+              "name": "N_Journal",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -376,6 +404,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/journal')"
+                  }
                 }
               }
             }
@@ -383,7 +418,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_AlarmMetrics"
+              "name": "N_AlarmMetrics",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -453,6 +489,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/metrics')"
+                  }
                 }
               }
             }
@@ -460,7 +503,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Analytics"
+              "name": "N_Analytics",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -530,6 +574,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/analytics')"
+                  }
                 }
               }
             }
@@ -537,7 +588,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Notifications"
+              "name": "N_Notifications",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -607,6 +659,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/notifications')"
+                  }
                 }
               }
             }
@@ -614,7 +673,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_People&Shifts"
+              "name": "N_People&Shifts",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -684,6 +744,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/people')"
+                  }
                 }
               }
             }
@@ -691,7 +758,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_DemoControl"
+              "name": "N_DemoControl",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -761,6 +829,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/demo')"
+                  }
                 }
               }
             }
@@ -768,7 +843,8 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Setup"
+              "name": "N_Setup",
+              "tabIndex": 0
             },
             "props": {
               "direction": "row",
@@ -838,6 +914,13 @@
                   },
                   "scope": "C",
                   "type": "nav"
+                },
+                "onKeyDown": {
+                  "type": "script",
+                  "scope": "G",
+                  "config": {
+                    "script": "\tif event.key in ('Enter', ' '):\n\t\tsystem.perspective.navigate('/setup')"
+                  }
                 }
               }
             }
