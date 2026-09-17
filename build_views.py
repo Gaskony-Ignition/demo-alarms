@@ -210,6 +210,42 @@ def on_action(code, scope="G"):
     return {"component": {"onActionPerformed": script_action(code, scope=scope)}}
 
 
+def keyboard_click(component, script):
+    """Make a clickable CONTAINER reachable by Tab and fired by Enter/Space.
+
+    An `onClick` on a Flex/Label/Icon renders as a plain `div` - Tab never
+    lands on it (verified 8.3.8, WCAG 2.1.1). `meta.tabIndex: 0` puts the
+    component in the tab order and the theme's own focus ring draws round it;
+    `onKeyDown` replays `script` on Enter or Space. Mutates `component` in
+    place and returns it, so it drops in beside `events = on_click(...)`.
+
+    `script` is an onClick BODY - every line already starts with one tab, the
+    same shape `script_action()` builds - because this wraps it a second time
+    inside the `if event.key in (...):` line, and a line that started at zero
+    would land one tab short of that block.
+
+    The key script runs on the gateway, so it can't cancel the key's own
+    default action - Space still scrolls a scrollable parent.
+    """
+    component.setdefault("meta", {})["tabIndex"] = 0
+    dom = component.setdefault("events", {}).setdefault("dom", {})
+    body = "\n".join("\t" + line for line in script.splitlines())
+    dom["onKeyDown"] = {"type": "script", "scope": "G", "config": {
+        "script": "\tif event.key in ('Enter', ' '):\n" + body}}
+    return component
+
+
+def keyboard_nav(component, page):
+    """Keyboard equivalent for a `dom.onClick` of TYPE "nav" (see `on_nav`).
+
+    A nav action has no key filter, so an `onKeyDown` that replayed it would
+    fire on every keystroke rather than just Enter/Space. Call
+    `system.perspective.navigate` directly in the key handler instead - the
+    onClick itself stays a plain nav action.
+    """
+    return keyboard_click(component, "\tsystem.perspective.navigate('%s')" % page)
+
+
 def view(root, params=None, custom=None, propconfig=None, size=(1600, 900)):
     v = {
         "custom": custom or {},
@@ -498,7 +534,7 @@ def w_meter():
                      }),
             ], classes="ad-meter", position=fixed("8px")),
             label("Sub", classes="ad-faint", position=fixed("13px"),
-                  style={"fontSize": "10.5px"},
+                  style={"fontSize": "11px"},
                   binds={"props.text": expr_bind(
                       "\"turbidity \" + numberFormat({view.custom.sub}, \"0.000\") "
                       "+ \" NTU\" + if({view.custom.bw} = true, \"  -  BACKWASHING\", \"\")"),
@@ -984,7 +1020,6 @@ def theme_picker():
 def v_nav():
     items = []
     for text, target, _external, icon in NAV_ITEMS:
-        events = on_nav(target)
         binds = {"props.style.classes": expr_bind(
             "if({page.props.path} = \"%s\", "
             "\"ad-nav-item ad-nav-item-active\", \"ad-nav-item\")" % target)}
@@ -999,11 +1034,16 @@ def v_nav():
             label("Text", text, classes="ad-nav-text", position=grow(1),
                   style={"textAlign": "left"}),
         ]
-        items.append(flex("N_" + text.replace(" ", ""), row,
+        item = flex("N_" + text.replace(" ", ""), row,
             gap=11, align="center",
             classes="ad-nav-item",
             position=fixed("38px"),
-            binds=binds) | {"events": events})
+            binds=binds)
+        item["events"] = on_nav(target)
+        # Tab reaches the row; Enter/Space navigate directly (keyboard_nav) -
+        # a nav action has no key filter to piggyback an onKeyDown on.
+        keyboard_nav(item, target)
+        items.append(item)
 
     root = flex("root", [
         flex("Brand", [
@@ -1022,7 +1062,7 @@ def v_nav():
             # for Chromium to draw a scrollbar down the side of the row.
             ], gap=8, align="center", position=fixed("24px")),
             label("Sub", classes="ad-subtitle ad-nav-text",
-                  style={"fontSize": "10.5px"}, position=fixed("28px"),
+                  style={"fontSize": "11px"}, position=fixed("28px"),
                   binds={"props.text": expr_bind(
                       "if({session.custom.site} = \"Manufacturing\", "
                       "\"Manufacturing\", \"Water Treatment Plant\")")}),
@@ -1076,7 +1116,15 @@ def v_nav():
 
     # The whole brand row toggles, not just the glyph: an 18px hit target is a
     # miss on a touch screen.
-    root["children"][0]["children"][0]["events"] = on_click(NAV_TOGGLE)
+    brand_row = root["children"][0]["children"][0]
+    brand_row["events"] = on_click(NAV_TOGGLE)
+    # on_click() already built this exact indented body for the onClick
+    # action; reuse it rather than re-deriving it, so the two can never drift.
+    keyboard_click(brand_row, brand_row["events"]["dom"]["onClick"]["config"]["script"])
+    # The toggle glyph is icon-only (a character, not a word) - give it a
+    # name a screen reader or a mouse hover can both read.
+    brand_row["children"][1]["meta"]["tooltip"] = {
+        "text": "Collapse or expand the navigation"}
 
     write("AlarmDemo/Nav", view(root, size=(NAV_OPEN, 900)))
 
@@ -1787,6 +1835,9 @@ def v_analytics():
     pareto = flex("ParetoRows", rows, direction="column", gap=3,
                   position=grow(1), style={"overflowY": "auto",
                                            "minHeight": "0px"})
+    # A scrollable region with no focusable content of its own needs to be a
+    # tab stop before Page Down/arrow keys can reach it.
+    pareto["meta"]["tabIndex"] = 0
 
     # --- alarm rate: a real time series, where a chart genuinely beats a list.
     axis_look = AXIS_LOOK
@@ -2295,7 +2346,7 @@ def duty_chip(name, on_path, text_path, width="76px"):
     """ON DUTY / off, green when on duty and quiet when not."""
     return label(name, position=fixed(width),
                  classes="ad-chip",
-                 style={"padding": "2px 8px", "fontSize": "10px",
+                 style={"padding": "2px 8px", "fontSize": "11px",
                         "textAlign": "center"},
                  binds={
                      "props.text": prop_bind(text_path),
@@ -2655,7 +2706,7 @@ def v_people():
             # ON NOW / - rather than colour alone, so the live schedule is
             # readable without relying on the brightness difference
             label("Live", position=fixed("70px"), classes="ad-chip",
-                  style={"padding": "1px 8px", "fontSize": "10px",
+                  style={"padding": "1px 8px", "fontSize": "11px",
                          "textAlign": "center"},
                   binds={
                       "props.text": expr_bind(
@@ -2672,14 +2723,18 @@ def v_people():
         flex("Marks", [
             label("H%d" % h, "%02d" % h, classes="ad-faint",
                   position={"grow": 1, "shrink": 1, "basis": "0%"},
-                  style={"fontSize": "10px"})
+                  style={"fontSize": "11px"})
             for h in range(0, 24, 3)
         ] + [
             label("H24", "24", classes="ad-faint", position=fixed("14px"),
-                  style={"fontSize": "10px", "textAlign": "right"}),
+                  style={"fontSize": "11px", "textAlign": "right"}),
         ], position=grow(1)),
         flex("PadR", [], position=fixed("82px")),
-    ], gap=12, align="center", position=fixed("14px"))
+    # 15, not 14: raising the hour labels off the 11px text floor (Stage 4)
+    # needs one more pixel of line box, or Chromium answers the shortfall
+    # with a scrollbar down this decorative row - see the brand row/alarm
+    # count/theme picker comments elsewhere in this file for the same bug.
+    ], gap=12, align="center", position=fixed("15px"))
 
     # the live marker: a spacer whose width is the time of day, then a 2px rule
     now_row = flex("NowRow", [
@@ -2691,7 +2746,7 @@ def v_people():
             flex("Line", [], classes="ad-nowline",
                  position=fixed("2px")),
             label("Time", classes="ad-faint", position=grow(1, "0%"),
-                  style={"fontSize": "10px", "paddingLeft": "5px",
+                  style={"fontSize": "11px", "paddingLeft": "5px",
                          "whiteSpace": "nowrap", "overflow": "hidden"},
                   binds={"props.text": expr_bind(
                       "dateFormat(%s, \"HH:mm\")" % NOW)}),
@@ -2708,7 +2763,7 @@ def v_people():
                           [track_row(n, h, s, a) for n, h, s, a in TRACKS],
                           direction="column", gap=4, position=grow(1),
                           style={"minHeight": "%dpx" % (
-                              16 + 14 + 4 * 22 + 5 * 4)})
+                              16 + 15 + 4 * 22 + 5 * 4)})
 
     def people_card(sub):
         # A card that will not scroll either. Giving the LIST a floor only
@@ -2755,7 +2810,7 @@ def v_people():
             # guessing partly because of it.
             label("Build", BUILD_TEXT,
                   classes="ad-faint", position=fixed("14px"),
-                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                  style={"fontSize": "11px", "letterSpacing": "0.06em",
                          "textAlign": "right"}),
         ], direction="column", gap=12, classes="ad-body",
             style={"padding": "0 12px 12px 12px"}, position=grow(1)),
@@ -2763,6 +2818,10 @@ def v_people():
         classes="ad-page ad-root",
         style={"height": "100%", "overflowY": "auto"})
     root["children"][0]["position"] = fixed("64px")
+    # The page itself scrolls once the people list or the shift legend grows
+    # past the window - a scrollable region with no other focusable content
+    # of its own needs to be a tab stop before Page Down/arrow keys reach it.
+    root["meta"]["tabIndex"] = 0
 
     custom = {
         "people": [dict(BLANK_PERSON) for _ in range(PEOPLE_SLOTS)],
@@ -3007,7 +3066,7 @@ def v_setup():
                  "each item is only created if it is missing."),
             label("Build", BUILD_TEXT,
                   classes="ad-faint", position=fixed("14px"),
-                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                  style={"fontSize": "11px", "letterSpacing": "0.06em",
                          "textAlign": "right"}),
         ], direction="column", gap=12, classes="ad-body",
             style={"padding": "0 12px 12px 12px"}, position=grow(1)),
@@ -3015,6 +3074,10 @@ def v_setup():
         classes="ad-page ad-root",
         style={"height": "100%", "overflowY": "auto"})
     root["children"][0]["position"] = fixed("64px")
+    # The checklist grows past the window on a fresh gateway with everything
+    # still to do - a scrollable region with no other focusable content of
+    # its own needs to be a tab stop before Page Down/arrow keys reach it.
+    root["meta"]["tabIndex"] = 0
 
     write("AlarmDemo/Setup", view(
         root,
@@ -3152,7 +3215,7 @@ def v_democontrol():
             # guessing partly because of it.
             label("Build", BUILD_TEXT,
                   classes="ad-faint", position=fixed("14px"),
-                  style={"fontSize": "10.5px", "letterSpacing": "0.06em",
+                  style={"fontSize": "11px", "letterSpacing": "0.06em",
                          "textAlign": "right"}),
         ], direction="column", gap=12, classes="ad-body",
             style={"padding": "0 12px 12px 12px"}, position=grow(1)),
@@ -3160,6 +3223,10 @@ def v_democontrol():
         classes="ad-page ad-root",
         style={"height": "100%", "overflowY": "auto"})
     root["children"][0]["position"] = fixed("64px")
+    # The scenario list grows past the window at a laptop's height - a
+    # scrollable region with no other focusable content of its own needs to
+    # be a tab stop before Page Down/arrow keys reach it.
+    root["meta"]["tabIndex"] = 0
     write("AlarmDemo/DemoControl", view(root))
 
 

@@ -1489,7 +1489,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "ParetoRows"
+                      "name": "ParetoRows",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "column",

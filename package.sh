@@ -56,10 +56,30 @@ if [[ " $* " != *" --skip-readme-check "* ]]; then
         echo "readme-gate.sh not found above $_repo; gate skipped" >&2
     fi
 fi
-# Strip --skip-readme-check (already consumed by the gate above) so this
-# script's own argument parsing -- which rejects unrecognised args -- never
+# Accessibility gate (WCAG 2.1 AA). Blocking; bypass deliberately with
+# --skip-a11y-check. Checks the gateway a11y.json points at, which has to
+# already be running the build under test - deploy before packaging, not
+# the other way round.
+if [[ " $* " != *" --skip-a11y-check "* ]]; then
+    _repo=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
+    _a11ygate=""; _d="$_repo"
+    while [ "$_d" != / ]; do
+        [ -x "$_d/modules/a11y-gate.sh" ] && { _a11ygate="$_d/modules/a11y-gate.sh"; break; }
+        _d=$(dirname "$_d")
+    done
+    if [ -n "$_a11ygate" ]; then
+        "$_a11ygate" "$_repo" || { echo "a11y gate failed: fix the finding(s) above or record a reasoned exception in a11y.json, or pass --skip-a11y-check" >&2; exit 1; }
+    else
+        echo "a11y-gate.sh not found above $_repo; gate skipped" >&2
+    fi
+fi
+# Strip --skip-readme-check/--skip-a11y-check (already consumed by the gates
+# above) so this script's own argument parsing -- which rejects unrecognised
+# args -- never
 # sees it.
-_pkgargs=(); for _a in "$@"; do [[ "$_a" == "--skip-readme-check" ]] || _pkgargs+=("$_a"); done
+_pkgargs=(); for _a in "$@"; do
+    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" ]] || _pkgargs+=("$_a")
+done
 set -- "${_pkgargs[@]}"
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
