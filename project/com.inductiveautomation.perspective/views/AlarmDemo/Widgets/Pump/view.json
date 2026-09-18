@@ -175,7 +175,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "52px"
+              "basis": "auto"
             }
           }
         ],

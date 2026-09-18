@@ -138,8 +138,8 @@
                 },
                 "position": {
                   "grow": 0,
-                  "shrink": 0,
-                  "basis": "108px"
+                  "shrink": 1,
+                  "basis": "112px"
                 }
               },
               {
@@ -191,7 +191,8 @@
                 ],
                 "position": {
                   "grow": 1,
-                  "shrink": 1
+                  "shrink": 0,
+                  "basis": "118px"
                 }
               }
             ],
@@ -507,7 +508,7 @@
         "position": {
           "grow": 1,
           "shrink": 1,
-          "basis": "26%"
+          "basis": "23%"
         }
       },
       {
@@ -749,7 +750,7 @@
         "position": {
           "grow": 1,
           "shrink": 1,
-          "basis": "24%"
+          "basis": "27%"
         }
       },
       {
@@ -859,7 +860,7 @@
                 "props": {
                   "path": "AlarmDemo/Widgets/Tank",
                   "params": {
-                    "title": "Clearwater Tank",
+                    "title": "Clearwater",
                     "path": "Distribution/ClearwaterTank/Level",
                     "warnLow": 32,
                     "critLow": 17,
@@ -870,8 +871,8 @@
                 },
                 "position": {
                   "grow": 0,
-                  "shrink": 0,
-                  "basis": "118px"
+                  "shrink": 1,
+                  "basis": "112px"
                 }
               },
               {
@@ -940,7 +941,8 @@
                 ],
                 "position": {
                   "grow": 1,
-                  "shrink": 1
+                  "shrink": 0,
+                  "basis": "118px"
                 }
               }
             ],

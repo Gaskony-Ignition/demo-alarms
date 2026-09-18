@@ -330,7 +330,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "276px"
             }
           },
           {
@@ -560,10 +560,13 @@
               "name": "Intro"
             },
             "props": {
-              "text": "Live alarm metrics aggregated per process area for the selected site, and how the load and the response to it have moved over the last 30 days. Everything here follows the site switch.",
+              "text": "Alarm metrics per process area for the selected site, and how load and response have moved over the last 30 days.",
               "style": {
                 "fontSize": "12px",
-                "classes": "ad-faint"
+                "whiteSpace": "nowrap",
+                "overflow": "hidden",
+                "textOverflow": "ellipsis",
+                "classes": "ad-faint ad-ellipsis"
               }
             },
             "position": {

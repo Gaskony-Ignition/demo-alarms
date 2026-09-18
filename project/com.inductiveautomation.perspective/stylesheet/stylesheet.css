@@ -1003,6 +1003,18 @@ html { color-scheme: light dark; }
   text-overflow: ellipsis;
 }
 
+/* A label's text sits in a <span> that is a flex item of the label, and a flex
+   item will not shrink below its text - so text-overflow on the label never
+   fires and the line is cut at the card edge mid-word. The ellipsis has to be
+   on the span. */
+.psc-ad-equip-name > span,
+.psc-ad-ellipsis > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 
 /* On a laptop the header's fixed furniture - site switch, scenario banner and
    the four priority chips - leaves the title about 230px of the 330 it wants.

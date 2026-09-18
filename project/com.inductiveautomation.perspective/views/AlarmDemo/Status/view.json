@@ -251,7 +251,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "276px"
             }
           },
           {
@@ -699,6 +699,40 @@
                 "props": {
                   "pager": {
                     "enabled": false
+                  },
+                  "columns": {
+                    "active": {
+                      "activeTime": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 150,
+                        "strictWidth": false
+                      },
+                      "displayPath": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 360,
+                        "strictWidth": false
+                      },
+                      "priority": {
+                        "enabled": true,
+                        "sort": "descending",
+                        "width": 110,
+                        "strictWidth": false
+                      },
+                      "state": {
+                        "enabled": true,
+                        "sort": "descending",
+                        "width": 170,
+                        "strictWidth": false
+                      },
+                      "source": {
+                        "enabled": false
+                      },
+                      "name": {
+                        "enabled": false
+                      }
+                    }
                   },
                   "style": {
                     "classes": "ad-table"

@@ -262,7 +262,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "276px"
             }
           },
           {
@@ -774,7 +774,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -789,7 +789,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -834,7 +837,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -930,7 +933,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -945,7 +948,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -990,7 +996,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -1086,7 +1092,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -1101,7 +1107,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -1146,7 +1155,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -1242,7 +1251,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -1257,7 +1266,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -1302,7 +1314,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -1398,7 +1410,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -1413,7 +1425,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -1458,7 +1473,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -1777,7 +1792,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -1792,7 +1807,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -1837,7 +1855,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -1933,7 +1951,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -1948,7 +1966,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -1993,7 +2014,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -2089,7 +2110,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -2104,7 +2125,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -2149,7 +2173,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -2245,7 +2269,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -2260,7 +2284,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -2305,7 +2332,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -2401,7 +2428,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -2416,7 +2443,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -2461,7 +2491,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -2780,7 +2810,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -2795,7 +2825,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -2840,7 +2873,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -2936,7 +2969,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -2951,7 +2984,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -2996,7 +3032,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -3092,7 +3128,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -3107,7 +3143,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -3152,7 +3191,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -3248,7 +3287,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -3263,7 +3302,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -3308,7 +3350,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -3404,7 +3446,7 @@
                           "alignItems": "center",
                           "style": {
                             "overflow": "hidden",
-                            "gap": "8px"
+                            "gap": "6px"
                           }
                         },
                         "children": [
@@ -3419,7 +3461,10 @@
                                 "fontSize": "12.5px",
                                 "color": "var(--ink)",
                                 "overflow": "hidden",
-                                "whiteSpace": "nowrap"
+                                "whiteSpace": "nowrap",
+                                "textOverflow": "ellipsis",
+                                "minWidth": "0",
+                                "classes": "ad-ellipsis"
                               }
                             },
                             "propConfig": {
@@ -3464,7 +3509,7 @@
                             "position": {
                               "grow": 0,
                               "shrink": 0,
-                              "basis": "112px"
+                              "basis": "auto"
                             }
                           },
                           {
@@ -3722,7 +3767,9 @@
                       "editable": false,
                       "header": {
                         "title": "Alarm"
-                      }
+                      },
+                      "width": 260,
+                      "strictWidth": false
                     },
                     {
                       "field": "Priority",
@@ -3731,7 +3778,7 @@
                       "header": {
                         "title": "Priority"
                       },
-                      "width": 112,
+                      "width": 96,
                       "strictWidth": true,
                       "render": "view",
                       "viewPath": "AlarmDemo/Widgets/PriorityCell"
@@ -3752,7 +3799,9 @@
                       "editable": false,
                       "header": {
                         "title": "On call now"
-                      }
+                      },
+                      "width": 150,
+                      "strictWidth": false
                     },
                     {
                       "field": "When",
@@ -3761,7 +3810,7 @@
                       "header": {
                         "title": "When"
                       },
-                      "width": 112,
+                      "width": 100,
                       "strictWidth": true
                     },
                     {
@@ -3771,7 +3820,7 @@
                       "header": {
                         "title": "If unacknowledged"
                       },
-                      "width": 200,
+                      "width": 180,
                       "strictWidth": true
                     },
                     {
@@ -3781,7 +3830,7 @@
                       "header": {
                         "title": "Status"
                       },
-                      "width": 118,
+                      "width": 104,
                       "strictWidth": true
                     }
                   ]
