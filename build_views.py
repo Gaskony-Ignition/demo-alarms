@@ -419,7 +419,7 @@ def w_pump():
                               "if({view.custom.fault} = true, \"var(--crit)\", "
                               "if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\"))"),
                       }),
-                label("Amps", classes="ad-faint", position=fixed("52px"),
+                label("Amps", classes="ad-faint", position=fixed("auto"),
                       style={"fontSize": "11px", "textAlign": "right",
                              "whiteSpace": "nowrap"},
                       binds={"props.text": expr_bind(
@@ -476,7 +476,7 @@ def w_stat():
                               "  if({view.custom.value} >= {view.params.crit}, \"var(--crit)\", "
                               "  if({view.custom.value} >= {view.params.warn}, \"var(--med)\", \"var(--ink)\")))"),
                       }),
-                label("Unit", classes="ad-kpi-unit", position=fixed("46px"),
+                label("Unit", classes="ad-kpi-unit", position=fixed("auto"),
                       style={"paddingBottom": "3px"},
                       binds={"props.text": prop_bind("view.params.unit")}),
             ], gap=4, align="end", position=grow(1),
@@ -607,7 +607,7 @@ def w_machine():
                               "if({view.custom.jam} = true, \"var(--med)\", "
                               "if({view.custom.run} = true, \"var(--ok)\", \"var(--ink-3)\")))"),
                       }),
-                label("Amps", classes="ad-faint", position=fixed("52px"),
+                label("Amps", classes="ad-faint", position=fixed("auto"),
                       style={"fontSize": "11px", "textAlign": "right",
                              "whiteSpace": "nowrap"},
                       binds={"props.text": expr_bind(
@@ -762,14 +762,14 @@ def w_statecell():
 
 
 def col(field, title=None, width=None, justify=None, fmt=None, render=None,
-        view_path=None):
+        view_path=None, strict=True):
     """One table column. Numeric columns get a fixed narrow width so the text
     column keeps the space and stops wrapping onto two lines."""
     c = {"field": field, "visible": True, "editable": False,
          "header": {"title": title if title is not None else field}}
     if width:
         c["width"] = width
-        c["strictWidth"] = True
+        c["strictWidth"] = strict
     if justify:
         c["justify"] = justify
         c["header"]["justify"] = justify
@@ -863,7 +863,10 @@ def site_switch(name="SiteSwitch"):
                 "\"ad-btn\")" % key)})
         for key, lbl, width in (("Water", "Water Treatment", 140),
                                 ("Manufacturing", "Manufacturing", 130))
-    ], gap=6, align="center", position=fixed("auto"))
+    # An explicit width, not auto. Chromium 112 (the browser in an Exor panel)
+    # sized the auto container short of its two fixed-width buttons, so the
+    # switch scrolled and "Manufacturing" was cut off.
+    ], gap=6, align="center", position=fixed("276px"))
 
 
 def header():
@@ -1162,6 +1165,13 @@ def area_card(title, path_hint, children, basis):
                 position={"grow": 1, "shrink": 1, "basis": basis})
 
 
+# Below laptop width the pump column was squeezed until "RUNNING" ran into its
+# current reading. A tank still reads as a tank at 80px; a clipped label does
+# not read at all - so the tank shrinks and the pumps do not.
+TANK_BESIDE_PUMPS = {"grow": 0, "shrink": 1, "basis": "112px"}
+PUMPS_BESIDE_TANK = {"grow": 1, "shrink": 0, "basis": "118px"}
+
+
 def v_site_water():
     """ACME Water Treatment Plant mimic - just the area cards. The header and
     the alarm strip live in the Overview shell, shared with the other site."""
@@ -1170,7 +1180,7 @@ def v_site_water():
             embed("WetWell", "AlarmDemo/Widgets/Tank",
                   {"title": "Wet Well", "path": "Intake/WetWell/Level",
                    "warnLow": 22, "critLow": 14, "warnHigh": 88, "critHigh": 95,
-                   "chem": False}, position=fixed("108px")),
+                   "chem": False}, position=TANK_BESIDE_PUMPS),
             flex("Pumps", [
                 embed("P1", "AlarmDemo/Widgets/Pump",
                       {"title": "Raw Pump 1", "path": "Intake/RawWaterPump01"},
@@ -1178,7 +1188,7 @@ def v_site_water():
                 embed("P2", "AlarmDemo/Widgets/Pump",
                       {"title": "Raw Pump 2", "path": "Intake/RawWaterPump02"},
                       position=grow(1)),
-            ], direction="column", gap=8, position=grow(1)),
+            ], direction="column", gap=8, position=PUMPS_BESIDE_TANK),
         ], gap=9, position=grow(1)),
         flex("Stats", [
             embed("Turb", "AlarmDemo/Widgets/Stat",
@@ -1210,7 +1220,7 @@ def v_site_water():
                    "unit": "L/s", "fmt": "0", "warn": 1e9, "crit": 1e9,
                    "invert": False}, position=grow(1)),
         ], gap=8, classes="ad-stats", position=fixed("70px", shrink=1)),
-    ], "26%")
+    ], "23%")
 
     chemical = area_card("Chemical", "Chemical", [
         flex("Tanks", [
@@ -1231,22 +1241,22 @@ def v_site_water():
                    "fmt": "0.00", "warn": 1e9, "crit": 1e9, "invert": False},
                   position=grow(1)),
         ], gap=8, classes="ad-stats", position=fixed("70px", shrink=1)),
-    ], "24%")
+    ], "27%")
 
     distribution = area_card("Distribution", "Distribution", [
         flex("Row1", [
             embed("Clearwater", "AlarmDemo/Widgets/Tank",
-                  {"title": "Clearwater Tank",
+                  {"title": "Clearwater",
                    "path": "Distribution/ClearwaterTank/Level",
                    "warnLow": 32, "critLow": 17, "warnHigh": 93, "critHigh": 97,
-                   "chem": False}, position=fixed("118px")),
+                   "chem": False}, position=TANK_BESIDE_PUMPS),
             flex("Pumps", [
                 embed("H%d" % n, "AlarmDemo/Widgets/Pump",
                       {"title": "High Lift %d" % n,
                        "path": "Distribution/HighLiftPump%02d" % n},
                       position=grow(1))
                 for n in (1, 2, 3)
-            ], direction="column", gap=7, position=grow(1)),
+            ], direction="column", gap=7, position=PUMPS_BESIDE_TANK),
         ], gap=9, position=grow(1)),
         flex("Stats", [
             embed("Press", "AlarmDemo/Widgets/Stat",
@@ -1273,7 +1283,7 @@ def v_site_mfg():
             embed("Syrup", "AlarmDemo/Widgets/Tank",
                   {"title": "Syrup Tank", "path": "Mixing/SyrupTank/Level",
                    "warnLow": 25, "critLow": 10, "warnHigh": 101,
-                   "critHigh": 102, "chem": True}, position=fixed("104px")),
+                   "critHigh": 102, "chem": True}, position=TANK_BESIDE_PUMPS),
             flex("Mixers", [
                 embed("M1", "AlarmDemo/Widgets/Machine",
                       {"title": "Mixer 1", "path": "Mixing/Mixer01"},
@@ -1281,7 +1291,7 @@ def v_site_mfg():
                 embed("M2", "AlarmDemo/Widgets/Machine",
                       {"title": "Mixer 2", "path": "Mixing/Mixer02"},
                       position=grow(1)),
-            ], direction="column", gap=8, position=grow(1)),
+            ], direction="column", gap=8, position=PUMPS_BESIDE_TANK),
         ], gap=9, position=grow(1)),
         flex("Stats", [
             embed("BT", "AlarmDemo/Widgets/Stat",
@@ -1500,6 +1510,22 @@ def v_status():
 
     table = C("ia.display.alarmstatustable", "Table", {
         "pager": {"enabled": False},
+        # Source and Name are off: Source is the raw prov: path and Name is the
+        # last segment of Display Path, and between them they took a third of
+        # the width - at panel width every column was cut off. Keyed by tab,
+        # and key order is column order; sorts are the component's own.
+        "columns": {"active": {
+            "activeTime":  {"enabled": True, "sort": "none", "width": 150,
+                            "strictWidth": False},
+            "displayPath": {"enabled": True, "sort": "none", "width": 360,
+                            "strictWidth": False},
+            "priority":    {"enabled": True, "sort": "descending", "width": 110,
+                            "strictWidth": False},
+            "state":       {"enabled": True, "sort": "descending", "width": 170,
+                            "strictWidth": False},
+            "source":      {"enabled": False},
+            "name":        {"enabled": False},
+        }},
         "style": {"classes": "ad-table"},
     }, position=grow(1),
         binds={
@@ -2219,12 +2245,11 @@ def v_metrics():
         header(),
         flex("Body", [
             label("Intro",
-                  "Live alarm metrics aggregated per process area for the "
-                  "selected site, and how the load and the response to it have "
-                  "moved over the last 30 days. Everything here follows the "
-                  "site switch.",
-                  classes="ad-faint", position=fixed("18px"),
-                  style={"fontSize": "12px"}),
+                  "Alarm metrics per process area for the selected site, and "
+                  "how load and response have moved over the last 30 days.",
+                  classes="ad-faint ad-ellipsis", position=fixed("18px"),
+                  style={"fontSize": "12px", "whiteSpace": "nowrap",
+                         "overflow": "hidden", "textOverflow": "ellipsis"}),
             flex("Cards", cards, gap=12, position=fixed("268px")),
             # basis 0% on both, so the split is exactly even. Left to the
             # default the longer subtitle widens its own card, and two date
@@ -2418,11 +2443,14 @@ def v_notifications():
         for m in range(SLOTS):
             base = "view.custom.rosters[%d].members[%d]" % (i, m)
             rows.append(flex("M%d" % m, [
-                label("Name", position=grow(1),
+                label("Name", position=grow(1), classes="ad-ellipsis",
                       style={"fontSize": "12.5px", "color": "var(--ink)",
-                             "overflow": "hidden", "whiteSpace": "nowrap"},
+                             "overflow": "hidden", "whiteSpace": "nowrap",
+                             "textOverflow": "ellipsis", "minWidth": "0"},
                       binds={"props.text": prop_bind(base + ".name")}),
-                label("Sched", position=fixed("112px"),
+                # Sized by its text: a 112px box round "Day Shift" left the
+                # name beside it too little room at panel width.
+                label("Sched", position=fixed("auto"),
                       classes="ad-muted",
                       style={"fontSize": "11px", "overflow": "hidden",
                              "whiteSpace": "nowrap"},
@@ -2436,7 +2464,7 @@ def v_notifications():
                         "    '%s', self.view.custom.rosters[%d].members[%d].username)\n"
                         "self.view.custom.tick = self.view.custom.tick + 1"
                         % (rname, i, m))),
-            ], gap=8, align="center", position=fixed("26px"),
+            ], gap=6, align="center", position=fixed("26px"),
                 style={"overflow": "hidden"},
                 binds={"props.style.display": expr_bind(
                     "if({view.custom.rosters[%d].count} > %d, \"flex\", \"none\")"
@@ -2494,16 +2522,18 @@ def v_notifications():
     routing_tbl = C("ia.display.table", "Routing", {
         "style": {"classes": "ad-table ad-table-plain"},
         "pager": {"bottom": False, "top": False},
-        # Only the narrow columns get a width; Alarm and "On call now" share
-        # what is left, so the table reflows instead of overflowing.
+        # The narrow columns are sized to what they hold; Alarm and "On call
+        # now" share what is left, so the table reflows instead of overflowing.
+        # Alarm is weighted heavier: an alarm path is long, and at panel width
+        # an even split cut it off at "Tank l".
         "columns": [
-            col("Alarm", "Alarm"),
-            priority_col(width=112),
+            col("Alarm", "Alarm", width=260, strict=False),
+            priority_col(width=96),
             col("Roster", "Roster", width=116),
-            col("On call now", "On call now"),
-            col("When", "When", width=112),
-            col("Escalates", "If unacknowledged", width=200),
-            col("Status", "Status", width=118),
+            col("On call now", "On call now", width=150, strict=False),
+            col("When", "When", width=100),
+            col("Escalates", "If unacknowledged", width=180),
+            col("Status", "Status", width=104),
         ],
     }, position=grow(1),
         binds={"props.data": expr_bind(
@@ -2893,15 +2923,18 @@ def setup_row(i):
             # change height when it goes from missing to ready - a list that
             # reflows under the button you are about to press is how you press
             # the wrong one.
-            label("Detail", classes="ad-muted", position=fixed("16px"),
+            label("Detail", classes="ad-muted ad-ellipsis", position=fixed("16px"),
                   style={"fontSize": "12px", "whiteSpace": "nowrap",
                          "overflow": "hidden", "textOverflow": "ellipsis"},
                   binds={"props.text": prop_bind("%s.detail" % item)}),
-            label("Why", classes="ad-faint", position=fixed("15px"),
+            label("Why", classes="ad-faint ad-ellipsis", position=fixed("15px"),
                   style={"fontSize": "11px", "whiteSpace": "nowrap",
                          "overflow": "hidden", "textOverflow": "ellipsis"},
                   binds={"props.text": prop_bind("%s.why" % item)}),
-        ], direction="column", gap=1, position=grow(1)),
+        # minWidth 0: a flex item's floor is its min-content width, which for a
+        # nowrap line is the whole sentence - so the column grew past the card
+        # and the card clipped it before the ellipsis could.
+        ], direction="column", gap=1, position=grow(1), style={"minWidth": "0"}),
         C("ia.input.button", "Fix", {
             "text": "Create",
             "style": {"classes": "ad-btn ad-btn-sm"},

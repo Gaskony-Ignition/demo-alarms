@@ -131,7 +131,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "46px"
+              "basis": "auto"
             }
           }
         ],

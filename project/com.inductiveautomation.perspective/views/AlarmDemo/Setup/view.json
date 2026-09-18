@@ -256,7 +256,7 @@
             "position": {
               "grow": 0,
               "shrink": 0,
-              "basis": "auto"
+              "basis": "276px"
             }
           },
           {
@@ -979,6 +979,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -1023,7 +1024,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1054,7 +1055,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1194,6 +1195,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -1238,7 +1240,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1269,7 +1271,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1409,6 +1411,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -1453,7 +1456,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1484,7 +1487,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1624,6 +1627,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -1668,7 +1672,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1699,7 +1703,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1839,6 +1843,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -1883,7 +1888,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -1914,7 +1919,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2054,6 +2059,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -2098,7 +2104,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2129,7 +2135,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2269,6 +2275,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -2313,7 +2320,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2344,7 +2351,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2484,6 +2491,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -2528,7 +2536,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2559,7 +2567,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2699,6 +2707,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -2743,7 +2752,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2774,7 +2783,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2914,6 +2923,7 @@
                             "props": {
                               "direction": "column",
                               "style": {
+                                "minWidth": "0",
                                 "gap": "1px"
                               }
                             },
@@ -2958,7 +2968,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-muted"
+                                    "classes": "ad-muted ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
@@ -2989,7 +2999,7 @@
                                     "whiteSpace": "nowrap",
                                     "overflow": "hidden",
                                     "textOverflow": "ellipsis",
-                                    "classes": "ad-faint"
+                                    "classes": "ad-faint ad-ellipsis"
                                   }
                                 },
                                 "propConfig": {
