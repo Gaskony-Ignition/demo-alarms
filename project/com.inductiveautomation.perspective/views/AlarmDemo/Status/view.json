@@ -748,7 +748,7 @@
                       "transforms": [
                         {
                           "type": "script",
-                          "code": "\treturn AlarmDemo.alarms.sourceFilter(\n\t    self.session.custom.site,\n\t    self.session.custom.statusArea or '')"
+                          "code": "\treturn AlarmDemo.alarms.sourceFilter(\n\t\tself.session.custom.site,\n\t\tself.session.custom.statusArea or '')"
                         }
                       ]
                     }
