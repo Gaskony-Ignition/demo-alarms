@@ -2944,7 +2944,7 @@ def setup_row(i):
                 "self.view.custom.busy = 'creating %%s...' %% item['title']\n"
                 "try:\n"
                 "\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n"
-                "except Exception, e:\n"
+                "except Exception as e:\n"
                 "\tself.view.custom.busy = 'failed: %%s' %% e\n"
                 "self.view.custom.tick = self.view.custom.tick + 1" % i),
             binds={"props.style.display": expr_bind(
@@ -3034,7 +3034,7 @@ def v_setup():
                 # throwing.
                 "try:\n"
                 "\tself.view.custom.busy = AlarmDemo.setup.fix('rosters', True)\n"
-                "except Exception, e:\n"
+                "except Exception as e:\n"
                 "\tself.view.custom.busy = 'failed: %s' % e\n"
                 "self.view.custom.tick = self.view.custom.tick + 1")),
         # Absent, not disabled, on a gateway with no database: the backfill
