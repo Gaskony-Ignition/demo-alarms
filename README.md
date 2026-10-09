@@ -3,6 +3,8 @@
 A self-contained Ignition 8.3 demonstration of **creating, visualising, routing
 and analysing alarms**.
 
+> **Not an Inductive Automation product, and not supported by Inductive Automation.** Personal work, largely built with AI tools and tested for one purpose on one gateway. Take the ideas; fork and review it before it goes near production. [NOTICE.md](NOTICE.md) says more.
+
 ## Why this exists
 
 Two simulated plants, 76 alarms, real on-call rosters and shift schedules, and
