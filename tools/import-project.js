@@ -31,12 +31,11 @@ const fs = require('fs');
 const path = require('path');
 
 function loadPlaywright() {
-  const bases = ['/Home-Claude/ignition-claude-toolkit', '/claude/ignition-claude-toolkit'];
-  const candidates = [null];
-  for (const b of bases) {
-    candidates.push(path.join(b, 'plugins/ignition/skills/verify-view/tool/node_modules/playwright'));
-    candidates.push(path.join(b, 'plugins/ignition/skills/scan/tool/node_modules/playwright'));
-  }
+  const b = process.env.IGNITION_TOOLKIT;
+  if (!b) throw new Error('IGNITION_TOOLKIT is not set: point it at the ignition-claude-toolkit checkout');
+  const candidates = [null,
+    path.join(b, 'plugins/ignition/skills/verify-view/tool/node_modules/playwright'),
+    path.join(b, 'plugins/ignition/skills/scan/tool/node_modules/playwright')];
   for (const c of candidates) {
     try { return c ? require(c) : require('playwright'); } catch (e) { /* next */ }
   }
@@ -48,7 +47,7 @@ const arg = (n) => { const i = process.argv.indexOf('--' + n); return i > -1 ? p
 const has = (n) => process.argv.indexOf('--' + n) > -1;
 
 const CREDS = arg('creds') || process.env.IGNITION_SCAN_CREDS
-  || '/Home-Claude/secrets/ignition-gateways.env';
+  || process.env.IGNITION_GATEWAYS_ENV;
 const NAME = arg('gateway');
 const ZIP = path.resolve(arg('zip') || '');
 const PROJECT = arg('name') || 'AlarmDemo';
@@ -56,7 +55,7 @@ const OVERWRITE = has('overwrite');
 const STEP = parseInt(process.env.TIMEOUT_MS || '20000', 10);
 
 let url = arg('url'), user, pass;
-if (fs.existsSync(CREDS) && NAME) {
+if (CREDS && fs.existsSync(CREDS) && NAME) {
   const kv = {};
   for (const line of fs.readFileSync(CREDS, 'utf8').split('\n')) {
     const i = line.indexOf('=');

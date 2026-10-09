@@ -20,19 +20,12 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SSH_HOST=docker-server
-CONTAINER=ignition-maker
+CONTAINER="${CONTAINER:?set CONTAINER to the dev gateway container name}"
 GW=testbed
-# The Ignition toolkit plugin. Its checkout is /Home-Claude/ignition-claude-toolkit;
-# some shells see it through the /claude alias instead, so try both rather than
-# hard-coding whichever one happened to work last.
-PLUGIN=""
-for base in /Home-Claude/ignition-claude-toolkit /claude/ignition-claude-toolkit; do
-  if [[ -f "$base/plugins/ignition/skills/scan/tool/scan.js" ]]; then
-    PLUGIN="$base/plugins/ignition/skills"
-    break
-  fi
-done
-[[ -n "$PLUGIN" ]] || { echo "cannot find the ignition toolkit plugin" >&2; exit 1; }
+# The Ignition toolkit plugin.
+TOOLKIT="${IGNITION_TOOLKIT:?set IGNITION_TOOLKIT to the ignition-claude-toolkit checkout}"
+PLUGIN="$TOOLKIT/plugins/ignition/skills"
+[[ -f "$PLUGIN/scan/tool/scan.js" ]] || { echo "cannot find the ignition toolkit plugin under $TOOLKIT" >&2; exit 1; }
 
 [[ $# -eq 0 ]] || { echo "usage: ./deploy.sh" >&2; exit 2; }
 

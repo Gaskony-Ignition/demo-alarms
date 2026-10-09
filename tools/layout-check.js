@@ -25,9 +25,10 @@ const fs = require('fs');
 const path = require('path');
 
 function loadPlaywright() {
+  const tk = process.env.IGNITION_TOOLKIT;
+  if (!tk) throw new Error('IGNITION_TOOLKIT is not set: point it at the ignition-claude-toolkit checkout');
   const roots = [
-    '/home/nigel/Ignition-Work/water-suite/node_modules',
-    '/Home-Claude/ignition-claude-toolkit/plugins/ignition/skills/verify-view/tool/node_modules',
+    path.join(tk, 'plugins/ignition/skills/verify-view/tool/node_modules'),
     path.join(__dirname, '..', 'node_modules'),
   ];
   for (const r of roots) { try { return require(path.join(r, 'playwright')); } catch (e) {} }
@@ -41,13 +42,14 @@ const arg = (n, d) => {
 };
 
 const CREDS = arg('creds') || process.env.IGNITION_SCAN_CREDS
-  || '/Home-Claude/secrets/ignition-gateways.env';
+  || process.env.IGNITION_GATEWAYS_ENV;
 const NAME = arg('gateway', 'fresh');
 const PROJECT = arg('project', 'AlarmDemo');
 const THRESHOLD = parseInt(arg('threshold', '4'), 10);
 
 let url = arg('url');
 if (!url) {
+  if (!CREDS) throw new Error('set IGNITION_GATEWAYS_ENV (or IGNITION_SCAN_CREDS) to the gateway credentials file, or pass --url');
   const kv = {};
   for (const line of fs.readFileSync(CREDS, 'utf8').split('\n')) {
     const m = line.match(/^([^=]+)=(.*)$/);

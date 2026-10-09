@@ -55,9 +55,9 @@
 const path = require('path');
 
 function loadPlaywright() {
-  const bases = ['/Home-Claude/ignition-claude-toolkit', '/claude/ignition-claude-toolkit'];
-  const tries = [null];
-  for (const b of bases) tries.push(path.join(b, 'plugins/ignition/skills/verify-view/tool/node_modules/playwright'));
+  const b = process.env.IGNITION_TOOLKIT;
+  if (!b) throw new Error('IGNITION_TOOLKIT is not set: point it at the ignition-claude-toolkit checkout');
+  const tries = [null, path.join(b, 'plugins/ignition/skills/verify-view/tool/node_modules/playwright')];
   for (const t of tries) { try { return t ? require(t) : require('playwright'); } catch (e) {} }
   console.error('theme-check: playwright not found'); process.exit(2);
 }

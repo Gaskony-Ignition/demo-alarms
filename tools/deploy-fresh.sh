@@ -30,13 +30,9 @@ GW=fresh
 : "${IGNITION_SCAN_CREDS:?set IGNITION_SCAN_CREDS to a file with a fresh.* stanza}"
 export IGNITION_SCAN_CREDS
 
-PLUGIN=""
-for base in /Home-Claude/ignition-claude-toolkit /claude/ignition-claude-toolkit; do
-  if [[ -f "$base/plugins/ignition/skills/scan/tool/scan.js" ]]; then
-    PLUGIN="$base/plugins/ignition/skills"; break
-  fi
-done
-[[ -n "$PLUGIN" ]] || { echo "cannot find the ignition toolkit plugin" >&2; exit 1; }
+TOOLKIT="${IGNITION_TOOLKIT:?set IGNITION_TOOLKIT to the ignition-claude-toolkit checkout}"
+PLUGIN="$TOOLKIT/plugins/ignition/skills"
+[[ -f "$PLUGIN/scan/tool/scan.js" ]] || { echo "cannot find the ignition toolkit plugin under $TOOLKIT" >&2; exit 1; }
 
 echo "--> stamping resources"
 python3 "$HERE/stamp_resources.py" >/dev/null

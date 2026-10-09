@@ -74,7 +74,7 @@ because `exec` otherwise runs as the unprivileged `ignition` user and fails
 with "Operation not permitted" — which looks like the copy worked, because it
 did.
 
-Target gateway is `ignition-maker` on the docker server, toolkit alias
+Target gateway is the dev gateway on the docker server, toolkit alias
 `testbed`. Everything else about it lives in the toolkit's credentials file.
 
 **`deploy.sh` ships project resources and runs one project scan, and that is
@@ -87,7 +87,7 @@ for one thing.
 **Every release must be proved by importing the zip**, not by looking at the
 dev gateway. `tools/import-project.js` drives Config → Platform → Projects →
 Import Project headlessly, so that is one command rather than an intention.
-2.0.0 was verified that way onto `ignition-module-testing`: a gateway with no
+2.0.0 was verified that way onto a second dev gateway, one with no
 AlarmDemo provider, no journal profile, a database connection under a different
 name, and another project's 116,000 rows already in `alarm_events`. 3.0.0 was
 verified onto a container built from nothing minutes earlier, which is the only
@@ -278,7 +278,7 @@ not a check:
 **A stock variable this project restates, and why.** Ignition's own
 `.ia_inputField` does `border: var(--containerBorder)` - it expects the
 SHORTHAND, which is what the six stock themes give it
-(`1px solid var(--border)`). All ten of Nigel's custom themes define it as a
+(`1px solid var(--border)`). All ten custom themes define it as a
 bare COLOUR, so under any of them that declaration is invalid, the browser
 drops it, and every stock text field and dropdown renders with no border at
 all - on `finance-ledger` a white box on a white card, findable only by its
@@ -451,7 +451,7 @@ contents — because the dock is absolutely positioned and the page's centre
 column is inset separately, so CSS alone leaves a gutter beside the rail.
 
 There is deliberately **no phone breakpoint**. An auto-collapsing dock was
-tried and removed (Nigel, 05/08/2026: "the mobile sized version is pretty much
+tried and removed (05/08/2026: "the mobile sized version is pretty much
 useless as nothing fits"): the mimic and the wide alarm tables do not fit a
 phone whatever the sidebar does, and a breakpoint that reflows the chrome
 around unusable content only makes it look like it should work. `show:
@@ -508,4 +508,4 @@ the picture is the red rows and the Create buttons, and an all-green board
 shows neither. `themes.png` is two Overview shots of the same gateway in
 different themes, montaged side by side (`magick montage a.png b.png -tile 2x1
 -geometry +6+6`); it needs a gateway with custom themes installed, which the
-dev testbed does not have and `ignition-module-testing` does.
+dev testbed does not have and a second dev gateway does.
