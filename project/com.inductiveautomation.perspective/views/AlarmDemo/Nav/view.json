@@ -163,7 +163,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Overview",
+              "name": "NavOverview",
               "tabIndex": 0
             },
             "props": {
@@ -178,7 +178,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/dashboard",
@@ -248,7 +248,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_AlarmStatus",
+              "name": "NavAlarmStatus",
               "tabIndex": 0
             },
             "props": {
@@ -263,7 +263,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/notifications_active",
@@ -333,7 +333,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Journal",
+              "name": "NavJournal",
               "tabIndex": 0
             },
             "props": {
@@ -348,7 +348,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/history",
@@ -418,7 +418,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_AlarmMetrics",
+              "name": "NavAlarmMetrics",
               "tabIndex": 0
             },
             "props": {
@@ -433,7 +433,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/donut_large",
@@ -503,7 +503,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Analytics",
+              "name": "NavAnalytics",
               "tabIndex": 0
             },
             "props": {
@@ -518,7 +518,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/assessment",
@@ -588,7 +588,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Notifications",
+              "name": "NavNotifications",
               "tabIndex": 0
             },
             "props": {
@@ -603,7 +603,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/contact_phone",
@@ -673,7 +673,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_People&Shifts",
+              "name": "NavPeopleShifts",
               "tabIndex": 0
             },
             "props": {
@@ -688,7 +688,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/people",
@@ -758,7 +758,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_DemoControl",
+              "name": "NavDemoControl",
               "tabIndex": 0
             },
             "props": {
@@ -773,7 +773,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/tune",
@@ -843,7 +843,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "N_Setup",
+              "name": "NavSetup",
               "tabIndex": 0
             },
             "props": {
@@ -858,7 +858,7 @@
               {
                 "type": "ia.display.icon",
                 "meta": {
-                  "name": "Icon"
+                  "name": "Glyph"
                 },
                 "props": {
                   "path": "material/build",

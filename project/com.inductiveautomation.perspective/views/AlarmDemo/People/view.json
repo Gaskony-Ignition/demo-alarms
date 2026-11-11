@@ -266,7 +266,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Water"
+                  "name": "SiteWater"
                 },
                 "props": {
                   "text": "Water Treatment",
@@ -304,7 +304,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Manufacturing"
+                  "name": "SiteManufacturing"
                 },
                 "props": {
                   "text": "Manufacturing",
@@ -4257,7 +4257,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "T_DayShift"
+                      "name": "TrackDayShift"
                     },
                     "props": {
                       "direction": "row",
@@ -4439,7 +4439,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "T_AfternoonShift"
+                      "name": "TrackAfternoonShift"
                     },
                     "props": {
                       "direction": "row",
@@ -4621,7 +4621,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "T_NightShift"
+                      "name": "TrackNightShift"
                     },
                     "props": {
                       "direction": "row",
@@ -4817,7 +4817,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "T_Always"
+                      "name": "TrackAlways"
                     },
                     "props": {
                       "direction": "row",

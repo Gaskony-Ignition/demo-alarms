@@ -185,7 +185,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Water"
+                  "name": "SiteWater"
                 },
                 "props": {
                   "text": "Water Treatment",
@@ -223,7 +223,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Manufacturing"
+                  "name": "SiteManufacturing"
                 },
                 "props": {
                   "text": "Manufacturing",

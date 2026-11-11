@@ -14,7 +14,7 @@ TABLE = "alarm_events"
 SOURCE_PREFIX = "prov:%s:%%" % PROVIDER
 
 
-def DB():
+def db():
 	"""The database connection this demo reads and writes."""
 	# A function, not a constant: the Setup page can change it while the project is loaded.
 	return AlarmDemo.config.db()
@@ -374,7 +374,7 @@ def sqlParetoRows(hours=24, site="Water", area="", rows=10):
 			# Ties are ordered by name so the journal version, which sorts in Python, matches.
 			"GROUP BY 1 ORDER BY occurrences DESC, alarm_name ASC LIMIT %d"
 			% (TABLE, where, int(rows)),
-			args, DB(),
+			args, db(),
 		)
 		out = []
 		top = float(res[0]["occurrences"]) if len(res) else 0.0
@@ -408,7 +408,7 @@ def sqlRateByHour(hours=24, site="Water", area=""):
 			"SELECT %s AS bucket, COUNT(*) AS n FROM %s a "
 			"WHERE a.eventtype = 0 AND %s GROUP BY 1"
 			% (_bucket("a.eventtime", "hour"), TABLE, where),
-			args, DB(),
+			args, db(),
 		)
 		end = system.date.now()
 		first = system.date.addHours(end, -int(hours))
@@ -435,7 +435,7 @@ def sqlDailyLoad(days=30, site="Water", area=""):
 			"SELECT %s AS bucket, COUNT(*) AS n FROM %s a "
 			"WHERE a.eventtype = 0 AND %s GROUP BY 1"
 			% (_bucket("a.eventtime", "day"), TABLE, where),
-			args, DB(),
+			args, db(),
 		)
 		# Both bounds stop at the last COMPLETE day. Today is a few hours old
 		# and would plot as a cliff at the right-hand edge that reads like the
@@ -474,7 +474,7 @@ def sqlDailyAckTime(days=30, site="Water", area=""):
 			"GROUP BY 1 ORDER BY 1"
 			% (_bucket("a.eventtime", "day"), _ACK_MILLIS, TABLE, TABLE,
 			   where, _ACK_AFTER),
-			args + [_millis(system.date.midnight(system.date.now()))], DB(),
+			args + [_millis(system.date.midnight(system.date.now()))], db(),
 		)
 		# bucket is text from the GROUP BY; the chart wants a Date.
 		out = []
@@ -507,7 +507,7 @@ def sqlTopUnacked(hours=24, site="Water", area="", rows=10):
 			# Same name tiebreaker as sqlParetoRows.
 			"GROUP BY 1 ORDER BY 2 DESC, 1 ASC LIMIT %d"
 			% (TABLE, where, TABLE, int(rows)),
-			args, DB(),
+			args, db(),
 		)
 
 	return _safe(go, system.dataset.toDataSet(["Alarm", "Never acked"], []))
@@ -530,7 +530,7 @@ def sqlPriorityCounts(hours=24, site="Water", area=""):
 		rows = system.db.runPrepQuery(
 			"SELECT a.priority, COUNT(*) AS n FROM %s a "
 			"WHERE a.eventtype = 0 AND %s GROUP BY a.priority" % (TABLE, where),
-			args, DB(),
+			args, db(),
 		)
 		out = dict((p, 0) for p in PRIORITY_NAMES)
 		for r in rows:
@@ -562,19 +562,19 @@ def sqlKpis(hours=24, site="Water", area=""):
 
 		total = system.db.runPrepQuery(
 			"SELECT COUNT(*) AS n FROM %s a WHERE a.eventtype = 0 AND %s"
-			% (TABLE, where), args, DB())[0]["n"]
+			% (TABLE, where), args, db())[0]["n"]
 
 		top3 = system.db.runPrepQuery(
 			"SELECT COUNT(*) AS n FROM %s a WHERE a.eventtype = 0 AND %s "
 			"GROUP BY COALESCE(NULLIF(a.displaypath,''), a.source) "
-			"ORDER BY n DESC LIMIT 3" % (TABLE, where), args, DB())
+			"ORDER BY n DESC LIMIT 3" % (TABLE, where), args, db())
 		top_n = sum([r["n"] for r in top3])
 
 		flood = system.db.runPrepQuery(
 			"SELECT COUNT(*) AS n FROM (SELECT %s AS h, "
 			"COUNT(*) AS c FROM %s a WHERE a.eventtype = 0 AND %s "
 			"GROUP BY 1 HAVING COUNT(*) > 60) f"
-			% (_bucket("a.eventtime", "hour"), TABLE, where), args, DB())[0]["n"]
+			% (_bucket("a.eventtime", "hour"), TABLE, where), args, db())[0]["n"]
 
 		# No percentile_cont in SQLite: count, then OFFSET to the middle row (the lower one when even).
 		inner = ("SELECT %s AS ms "
@@ -583,12 +583,12 @@ def sqlKpis(hours=24, site="Water", area=""):
 				 "WHERE a.eventtype = 0 AND %s AND %s"
 				 % (_ACK_MILLIS, TABLE, TABLE, where, _ACK_AFTER))
 		acked = int(system.db.runPrepQuery(
-			"SELECT COUNT(*) AS n FROM (%s) d" % inner, args, DB())[0]["n"] or 0)
+			"SELECT COUNT(*) AS n FROM (%s) d" % inner, args, db())[0]["n"] or 0)
 		med = 0
 		if acked:
 			med = (system.db.runPrepQuery(
 				"SELECT ms FROM (%s) d ORDER BY ms LIMIT 1 OFFSET %d"
-				% (inner, (acked - 1) // 2), args, DB())[0]["ms"] or 0) / 1000.0
+				% (inner, (acked - 1) // 2), args, db())[0]["ms"] or 0) / 1000.0
 
 		return {
 			"total": total,

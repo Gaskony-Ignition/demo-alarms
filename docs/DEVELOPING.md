@@ -392,7 +392,7 @@ the connection NAME is written *outside* the project, beside the gateway's data
 directory, so importing a new version never overwrites what a gateway is
 pointed at.
 
-**`AlarmDemo.alarms` owns the constants.** `DB`, `TABLE` and `PROVIDER` are
+**`AlarmDemo.alarms` owns the constants.** `db()`, `TABLE` and `PROVIDER` are
 defined there and read from there by the others, rather than copied into each
 module; getting one of them wrong produces a blank screen and no error.
 

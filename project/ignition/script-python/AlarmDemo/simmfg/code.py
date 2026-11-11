@@ -4,7 +4,6 @@ Same contract as AlarmDemo.sim. The line is a chain (mixing to palletising):
 a fault or jam stops everything downstream, and OEE follows the downtime.
 """
 
-import math
 import random
 
 P = "[AlarmDemo]"
@@ -85,7 +84,6 @@ def tick():
 def _tick():
 	t = _read(PATHS)
 	w = {}
-	now = system.date.now()
 	scenario = t.get("Utilities/DemoScenario") or "None"
 
 	line_jam = scenario == "LineJam"
@@ -155,12 +153,10 @@ def _tick():
 		if (fault or jam) and down_index is None:
 			down_index = i
 
-	running_any = False
 	for i, (m, base, fault, jam) in enumerate(states):
 		blocked = (down_index is not None and i >= down_index) or not air_ok
 		run = not fault and not jam and not blocked
 		if run:
-			running_any = True
 			amps = base + _noise(1.1)
 			w[m + "/RunHours"] = round((t.get(m + "/RunHours") or 0.0) + DT_H, 2)
 		else:

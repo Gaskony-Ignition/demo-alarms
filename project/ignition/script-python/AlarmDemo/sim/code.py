@@ -34,7 +34,7 @@ def _clamp(v, lo, hi):
 	return max(lo, min(hi, v))
 
 
-def _demand_factor(now):
+def _demandFactor(now):
 	"""Diurnal water demand, 0.55 .. 1.35 of average, with morning and evening peaks."""
 	hour = system.date.getHour24(now) + system.date.getMinute(now) / 60.0
 	morning = math.exp(-((hour - 7.0) ** 2) / 4.0)
@@ -131,7 +131,7 @@ def _tick():
 	w = {}
 	now = system.date.now()
 	scenario = t.get("Plant/DemoScenario") or "None"
-	demand = _demand_factor(now)
+	demand = _demandFactor(now)
 
 	storm = scenario == "Storm"
 	dose_fail = scenario == "ChlorineFailure"

@@ -234,7 +234,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Water"
+                  "name": "SiteWater"
                 },
                 "props": {
                   "text": "Water Treatment",
@@ -272,7 +272,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Manufacturing"
+                  "name": "SiteManufacturing"
                 },
                 "props": {
                   "text": "Manufacturing",
@@ -2787,7 +2787,7 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "L_Critical"
+                              "name": "LegendCritical"
                             },
                             "props": {
                               "direction": "row",
@@ -2903,7 +2903,7 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "L_High"
+                              "name": "LegendHigh"
                             },
                             "props": {
                               "direction": "row",
@@ -3019,7 +3019,7 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "L_Medium"
+                              "name": "LegendMedium"
                             },
                             "props": {
                               "direction": "row",
@@ -3135,7 +3135,7 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "L_Low"
+                              "name": "LegendLow"
                             },
                             "props": {
                               "direction": "row",
@@ -3251,7 +3251,7 @@
                           {
                             "type": "ia.container.flex",
                             "meta": {
-                              "name": "L_Diagnostic"
+                              "name": "LegendDiagnostic"
                             },
                             "props": {
                               "direction": "row",

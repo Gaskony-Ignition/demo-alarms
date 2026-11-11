@@ -9,7 +9,7 @@ import random
 from java.util import UUID
 
 # DB, TABLE and PROVIDER are defined once, in AlarmDemo.alarms.
-DB = AlarmDemo.alarms.DB   # a function: call DB() for the connection name
+DB = AlarmDemo.alarms.db   # a function: call DB() for the connection name
 TABLE = AlarmDemo.alarms.TABLE
 DATA_TABLE = "alarm_event_data"   # written only from here
 PROVIDER = AlarmDemo.alarms.PROVIDER
@@ -182,11 +182,11 @@ ACK_BEHAVIOUR = {
 }
 
 
-def _source(tag_path, alarm_name):
-	return "prov:%s:/tag:%s:/alm:%s" % (PROVIDER, tag_path, alarm_name)
+def _source(tagPath, alarmName):
+	return "prov:%s:/tag:%s:/alm:%s" % (PROVIDER, tagPath, alarmName)
 
 
-def _hour_weight(hour):
+def _hourWeight(hour):
 	"""Relative alarm likelihood by hour - tracks the demand peaks."""
 	import math
 
@@ -204,7 +204,7 @@ def _pick(cum, total):
 	return cum[-1][1]
 
 
-def _generate(days, per_day):
+def _generate(days, perDay):
 	"""Build the journal rows: (eventtime, eventtype, source, displaypath, priority, eventid)."""
 	now = system.date.now()
 	start = system.date.addDays(system.date.midnight(now), -days)
@@ -220,14 +220,14 @@ def _generate(days, per_day):
 	def emit(ts, etype, src, disp, prio, eid):
 		rows.append((ts, etype, src, disp, PRIORITY_NUM[prio], eid))
 
-	def occurrence(active_ts, entry, dur_scale=1.0):
-		tag_path, alarm_name, disp, prio, _w, dmin, dmax = entry
+	def occurrence(activeTs, entry, durScale=1.0):
+		tagPath, alarmName, disp, prio, _w, dmin, dmax = entry
 		seq[0] += 1
 		# eventid must be a real UUID: the Alarm Journal Table parses it as one.
 		eid = str(UUID.randomUUID())
-		src = _source(tag_path, alarm_name)
+		src = _source(tagPath, alarmName)
 
-		emit(active_ts, EVT_ACTIVE, src, disp, prio, eid)
+		emit(activeTs, EVT_ACTIVE, src, disp, prio, eid)
 
 		lo, hi, never = ACK_BEHAVIOUR[prio]
 		acked = random.random() > never
@@ -237,10 +237,10 @@ def _generate(days, per_day):
 			# a long tail: sometimes an operator is busy
 			if random.random() < 0.12:
 				mins *= random.uniform(3.0, 8.0)
-			ack_ts = system.date.addSeconds(active_ts, int(mins * 60))
+			ack_ts = system.date.addSeconds(activeTs, int(mins * 60))
 
-		dur = random.uniform(dmin, dmax) * dur_scale
-		clear_ts = system.date.addSeconds(active_ts, int(dur))
+		dur = random.uniform(dmin, dmax) * durScale
+		clear_ts = system.date.addSeconds(activeTs, int(dur))
 
 		events = []
 		if ack_ts is not None:
@@ -269,12 +269,12 @@ def _generate(days, per_day):
 		# slow improvement trend so the daily chart is not flat
 		day_factor *= 1.25 - 0.4 * (float(d) / max(days - 1, 1))
 
-		count = int(random.gauss(per_day * day_factor, per_day * 0.18))
+		count = int(random.gauss(perDay * day_factor, perDay * 0.18))
 		count = max(count, 4)
 
 		for _ in range(count):
 			hours = range(24)
-			weights = [_hour_weight(h) for h in hours]
+			weights = [_hourWeight(h) for h in hours]
 			tw = sum(weights)
 			r, acc, hour = random.random() * tw, 0.0, 23
 			for h, wt in zip(hours, weights):
@@ -296,7 +296,7 @@ def _generate(days, per_day):
 				for _b in range(random.randint(lo, hi)):
 					if not system.date.isBefore(burst_ts, now):
 						break
-					occurrence(burst_ts, entry, dur_scale=0.05)
+					occurrence(burst_ts, entry, durScale=0.05)
 					burst_ts = system.date.addSeconds(
 						burst_ts, random.randint(20, 150)
 					)
@@ -328,7 +328,7 @@ def _generate(days, per_day):
 					continue
 				ts = system.date.addSeconds(storm_start, offset)
 				if system.date.isBefore(ts, now):
-					occurrence(ts, entry, dur_scale=1.6)
+					occurrence(ts, entry, durScale=1.6)
 				offset += random.randint(120, 900)
 
 	rows.sort(key=lambda r: system.date.toMillis(r[0]))

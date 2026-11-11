@@ -5,7 +5,7 @@ schedules, users, rosters and history. check() reports; run() creates.
 """
 
 # DB and PROVIDER are defined once, in AlarmDemo.alarms.
-DB = AlarmDemo.alarms.DB   # a function: call DB() for the connection name
+DB = AlarmDemo.alarms.db   # a function: call DB() for the connection name
 PROVIDER = AlarmDemo.alarms.PROVIDER
 
 LOG = system.util.getLogger("AlarmDemo.setup")
@@ -367,7 +367,7 @@ def _tagsFix():
 	# A just-created provider may not accept writes yet and fails with a bare
 	# exception, so retry three times.
 	last = None
-	for attempt in range(3):
+	for _attempt in range(3):
 		try:
 			system.tag.configure(u"[%s]" % PROVIDER, areas, u"o")
 			return u"wrote %d areas into [%s]" % (len(areas), PROVIDER)

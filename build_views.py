@@ -475,7 +475,7 @@ def w_stat():
     root = flex(
         "root",
         [
-            label("Label", classes="ad-kpi-label", position=fixed("14px"),
+            label("Title", classes="ad-kpi-label", position=fixed("14px"),
                   binds={"props.text": prop_bind("view.params.title")}),
             flex("Row", [
                 label("Value", position=grow(1), classes="ad-kpi-value",
@@ -820,7 +820,7 @@ def colour_switch(name="ColourSwitch", label_text="PRIORITY COLOUR"):
         label("L", label_text, classes="ad-kpi-label",
               position=fixed("116px"), style={"alignSelf": "center"}),
     ] + [
-        C("ia.input.button", "M_%s" % key, {
+        C("ia.input.button", "Colour" + key.capitalize(), {
             "text": lbl, "style": {"classes": "ad-btn ad-btn-sm"},
         }, position=fixed("122px"),
             events=on_action("self.session.custom.alarmColour = '%s'" % key),
@@ -868,7 +868,7 @@ def site_switch(name="SiteSwitch"):
     """Two-button site selector. The selected site drives the mimic, the
     header text, and the area scope of every alarm query on every screen."""
     return flex(name, [
-        C("ia.input.button", "B_%s" % key, {
+        C("ia.input.button", "Site" + key, {
             "text": lbl, "style": {"classes": "ad-btn"},
         }, position=fixed("%dpx" % width),
             events=on_action("self.session.custom.site = '%s'" % key),
@@ -1044,14 +1044,14 @@ def v_nav():
         # The whole row is the click target, not just the text, so the icon and
         # the padding either side of it are live too.
         row = [
-            C("ia.display.icon", "Icon",
+            C("ia.display.icon", "Glyph",
               {"path": icon, "style": {"width": "18px", "height": "18px"}},
               position=fixed("18px")),
             # `ad-nav-text` is what the collapsed rail takes to zero width
             label("Text", text, classes="ad-nav-text", position=grow(1),
                   style={"textAlign": "left"}),
         ]
-        item = flex("N_" + text.replace(" ", ""), row,
+        item = flex("Nav" + re.sub(r"\W", "", text), row,
             gap=11, align="center",
             classes="ad-nav-item",
             position=fixed("38px"),
@@ -1171,7 +1171,7 @@ def area_card(title, path_hint, children, basis):
               }),
     ], gap=8, align="center", position=fixed("24px"))
 
-    return flex("Area_" + path_hint,
+    return flex("Area" + path_hint,
                 [head] + children,
                 direction="column", gap=9,
                 classes="ad-card",
@@ -1250,7 +1250,7 @@ def v_site_water():
                   {"title": "Chlorine Residual", "path": "Chemical/ChlorineResidual",
                    "unit": "mg/L", "fmt": "0.00", "warn": 0.5, "crit": 0.2,
                    "invert": True}, position=grow(1)),
-            embed("pH", "AlarmDemo/Widgets/Stat",
+            embed("Ph", "AlarmDemo/Widgets/Stat",
                   {"title": "pH", "path": "Chemical/pH", "unit": "",
                    "fmt": "0.00", "warn": 1e9, "crit": 1e9, "invert": False},
                   position=grow(1)),
@@ -1410,7 +1410,7 @@ def v_overview():
         # tag provider, so the stock table would list the other site's alarms
         # under this site's header. The full component, with its own live
         # filtering, is on the Alarm Status page.
-        C("ia.display.table", "Table", {
+        C("ia.display.table", "AlarmTable", {
             "style": {"classes": "ad-table ad-table-plain"},
             "pager": {"bottom": False, "top": False},
             "columns": [
@@ -1949,7 +1949,7 @@ def v_analytics():
     # cannot be squeezed out by the donut above it however short the card gets.
     legend_rows = []
     for n, c in PRI:
-        legend_rows.append(flex("L_%s" % n, [
+        legend_rows.append(flex("Legend%s" % n, [
             flex("Sw", [], position=fixed("11px"),
                  style={"backgroundColor": c, "borderRadius": "3px",
                         "height": "11px", "alignSelf": "center"}),
@@ -2148,7 +2148,7 @@ def v_metrics():
     cards = []
     for i in range(AREA_SLOTS):
         def chip(key, cls, abbr):
-            return label("P_%s" % key, classes="ad-chip ad-chip-%s" % cls,
+            return label("Chip%s" % key, classes="ad-chip ad-chip-%s" % cls,
                          position=grow(1, "0%"),
                          style={"padding": "0 10px", "fontSize": "12.5px",
                                 "textAlign": "center"},
@@ -2739,7 +2739,7 @@ def v_people():
             segs.append(flex("GE", [], position={
                 "grow": 0, "shrink": 0, "basis": pct(24 - cursor)}))
 
-        return flex("T_" + name.replace(" ", ""), [
+        return flex("Track" + name.replace(" ", ""), [
             label("Name", name, position=fixed("150px"),
                   style={"fontSize": "12.5px", "whiteSpace": "nowrap"},
                   binds={"props.style.color": expr_bind(
@@ -3200,7 +3200,7 @@ def v_democontrol():
         # panel is the same object on both sites and the switch is instant.
         vis = ("\"flex\"" if not site else
                "if({session.custom.site} = \"%s\", \"flex\", \"none\")" % site)
-        buttons.append(flex("S_" + key, [
+        buttons.append(flex("Scenario" + key, [
             flex("Row", [
                 C("ia.input.button", "Btn", {
                     "text": title,

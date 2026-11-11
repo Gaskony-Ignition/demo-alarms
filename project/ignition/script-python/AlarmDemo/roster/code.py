@@ -60,13 +60,13 @@ def _safe(fn, default):
 		return default
 
 
-def _people_index():
+def _peopleIndex():
 	return dict((p[0], p) for p in PEOPLE)
 
 
 def _person(username):
 	"""Contact card for a username, whether or not this demo seeded them."""
-	p = _people_index().get(username)
+	p = _peopleIndex().get(username)
 	if p:
 		return {"username": p[0], "name": p[1], "role": p[2],
 				"email": p[3], "phone": p[4]}

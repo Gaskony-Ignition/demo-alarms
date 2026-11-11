@@ -174,7 +174,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Water"
+                  "name": "SiteWater"
                 },
                 "props": {
                   "text": "Water Treatment",
@@ -212,7 +212,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Manufacturing"
+                  "name": "SiteManufacturing"
                 },
                 "props": {
                   "text": "Manufacturing",
@@ -541,7 +541,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_None"
+                      "name": "ScenarioNone"
                     },
                     "props": {
                       "direction": "column"
@@ -642,7 +642,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_Storm"
+                      "name": "ScenarioStorm"
                     },
                     "props": {
                       "direction": "column"
@@ -743,7 +743,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_ChlorineFailure"
+                      "name": "ScenarioChlorineFailure"
                     },
                     "props": {
                       "direction": "column"
@@ -844,7 +844,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_PumpFailure"
+                      "name": "ScenarioPumpFailure"
                     },
                     "props": {
                       "direction": "column"
@@ -945,7 +945,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_FilterBlinding"
+                      "name": "ScenarioFilterBlinding"
                     },
                     "props": {
                       "direction": "column"
@@ -1046,7 +1046,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_Chattering"
+                      "name": "ScenarioChattering"
                     },
                     "props": {
                       "direction": "column"
@@ -1147,7 +1147,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_LineJam"
+                      "name": "ScenarioLineJam"
                     },
                     "props": {
                       "direction": "column"
@@ -1248,7 +1248,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_ChillerFailure"
+                      "name": "ScenarioChillerFailure"
                     },
                     "props": {
                       "direction": "column"
@@ -1349,7 +1349,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_AirLoss"
+                      "name": "ScenarioAirLoss"
                     },
                     "props": {
                       "direction": "column"
@@ -1450,7 +1450,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_CO2Loss"
+                      "name": "ScenarioCO2Loss"
                     },
                     "props": {
                       "direction": "column"
@@ -1551,7 +1551,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_BatchOverTemp"
+                      "name": "ScenarioBatchOverTemp"
                     },
                     "props": {
                       "direction": "column"
@@ -1652,7 +1652,7 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "S_CommsLoss"
+                      "name": "ScenarioCommsLoss"
                     },
                     "props": {
                       "direction": "column"

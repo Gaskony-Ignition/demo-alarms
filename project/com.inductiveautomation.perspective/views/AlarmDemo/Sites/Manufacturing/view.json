@@ -23,7 +23,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Mixing"
+          "name": "AreaMixing"
         },
         "props": {
           "direction": "column",
@@ -275,7 +275,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Filling"
+          "name": "AreaFilling"
         },
         "props": {
           "direction": "column",
@@ -485,7 +485,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Packaging"
+          "name": "AreaPackaging"
         },
         "props": {
           "direction": "column",
@@ -712,7 +712,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Utilities"
+          "name": "AreaUtilities"
         },
         "props": {
           "direction": "column",

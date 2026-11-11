@@ -23,7 +23,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Intake"
+          "name": "AreaIntake"
         },
         "props": {
           "direction": "column",
@@ -275,7 +275,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Filtration"
+          "name": "AreaFiltration"
         },
         "props": {
           "direction": "column",
@@ -514,7 +514,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Chemical"
+          "name": "AreaChemical"
         },
         "props": {
           "direction": "column",
@@ -720,7 +720,7 @@
               {
                 "type": "ia.display.view",
                 "meta": {
-                  "name": "pH"
+                  "name": "Ph"
                 },
                 "props": {
                   "path": "AlarmDemo/Widgets/Stat",
@@ -756,7 +756,7 @@
       {
         "type": "ia.container.flex",
         "meta": {
-          "name": "Area_Distribution"
+          "name": "AreaDistribution"
         },
         "props": {
           "direction": "column",

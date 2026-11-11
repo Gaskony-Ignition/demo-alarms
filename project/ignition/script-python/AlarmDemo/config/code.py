@@ -16,21 +16,21 @@ SETTINGS_FILE_NAME = "alarm-demo-settings.json"
 LOG = system.util.getLogger("AlarmDemo.config")
 
 
-def install_dir():
+def installDir():
 	"""The gateway's installation directory."""
 	# The gateway runs with its install directory as the working directory; no
 	# scripting function returns it, so read user.dir.
 	return JSystem.getProperty("user.dir")
 
 
-def data_dir():
+def dataDir():
 	"""The gateway's data directory."""
-	return install_dir() + "/data"
+	return installDir() + "/data"
 
 
-def settings_path():
+def settingsPath():
 	"""Full path of the settings override file."""
-	return data_dir() + "/" + SETTINGS_FILE_NAME
+	return dataDir() + "/" + SETTINGS_FILE_NAME
 
 
 # Cached because db() runs on every query. Keyed on last-modified time (0 when
@@ -40,7 +40,7 @@ _cache = {"stamp": None, "values": {}}
 
 def _stamp():
 	try:
-		path = Paths.get(settings_path())
+		path = Paths.get(settingsPath())
 		if not Files.exists(path):
 			return 0
 		return Files.getLastModifiedTime(path).toMillis()
@@ -49,7 +49,7 @@ def _stamp():
 
 
 def _read():
-	path = Paths.get(settings_path())
+	path = Paths.get(settingsPath())
 	if not Files.exists(path):
 		return {}
 	try:
@@ -90,8 +90,8 @@ def save(dbName):
 	if (dbName or "").strip():
 		payload["db"] = dbName.strip()
 
-	target = Paths.get(settings_path())
-	staged = Paths.get(settings_path() + ".tmp")
+	target = Paths.get(settingsPath())
+	staged = Paths.get(settingsPath() + ".tmp")
 	text = json.dumps(payload, indent=2) + "\n"
 	# getBytes(), not the string: Files.write given a Jython string picks the
 	# Iterable<CharSequence> overload and writes one character per line.
@@ -99,8 +99,8 @@ def save(dbName):
 	Files.move(staged, target, [StandardCopyOption.REPLACE_EXISTING])
 
 	reload()
-	LOG.info("settings written to %s: %s" % (settings_path(), payload))
-	return settings_path()
+	LOG.info("settings written to %s: %s" % (settingsPath(), payload))
+	return settingsPath()
 
 
 def db():
@@ -143,6 +143,6 @@ def describe():
 	return {
 		"db": db(),
 		"dbSource": "settings file" if "db" in over else "default",
-		"settingsPath": settings_path(),
+		"settingsPath": settingsPath(),
 		"settingsPresent": "db" in over,
 	}

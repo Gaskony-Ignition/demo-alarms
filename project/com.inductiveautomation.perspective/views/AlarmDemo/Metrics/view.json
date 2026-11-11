@@ -253,7 +253,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Water"
+                  "name": "SiteWater"
                 },
                 "props": {
                   "text": "Water Treatment",
@@ -291,7 +291,7 @@
               {
                 "type": "ia.input.button",
                 "meta": {
-                  "name": "B_Manufacturing"
+                  "name": "SiteManufacturing"
                 },
                 "props": {
                   "text": "Manufacturing",
@@ -878,7 +878,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Critical"
+                              "name": "ChipCritical"
                             },
                             "props": {
                               "text": "",
@@ -916,7 +916,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_High"
+                              "name": "ChipHigh"
                             },
                             "props": {
                               "text": "",
@@ -973,7 +973,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Medium"
+                              "name": "ChipMedium"
                             },
                             "props": {
                               "text": "",
@@ -1011,7 +1011,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Low"
+                              "name": "ChipLow"
                             },
                             "props": {
                               "text": "",
@@ -1410,7 +1410,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Critical"
+                              "name": "ChipCritical"
                             },
                             "props": {
                               "text": "",
@@ -1448,7 +1448,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_High"
+                              "name": "ChipHigh"
                             },
                             "props": {
                               "text": "",
@@ -1505,7 +1505,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Medium"
+                              "name": "ChipMedium"
                             },
                             "props": {
                               "text": "",
@@ -1543,7 +1543,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Low"
+                              "name": "ChipLow"
                             },
                             "props": {
                               "text": "",
@@ -1942,7 +1942,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Critical"
+                              "name": "ChipCritical"
                             },
                             "props": {
                               "text": "",
@@ -1980,7 +1980,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_High"
+                              "name": "ChipHigh"
                             },
                             "props": {
                               "text": "",
@@ -2037,7 +2037,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Medium"
+                              "name": "ChipMedium"
                             },
                             "props": {
                               "text": "",
@@ -2075,7 +2075,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Low"
+                              "name": "ChipLow"
                             },
                             "props": {
                               "text": "",
@@ -2474,7 +2474,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Critical"
+                              "name": "ChipCritical"
                             },
                             "props": {
                               "text": "",
@@ -2512,7 +2512,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_High"
+                              "name": "ChipHigh"
                             },
                             "props": {
                               "text": "",
@@ -2569,7 +2569,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Medium"
+                              "name": "ChipMedium"
                             },
                             "props": {
                               "text": "",
@@ -2607,7 +2607,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Low"
+                              "name": "ChipLow"
                             },
                             "props": {
                               "text": "",
@@ -3006,7 +3006,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Critical"
+                              "name": "ChipCritical"
                             },
                             "props": {
                               "text": "",
@@ -3044,7 +3044,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_High"
+                              "name": "ChipHigh"
                             },
                             "props": {
                               "text": "",
@@ -3101,7 +3101,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Medium"
+                              "name": "ChipMedium"
                             },
                             "props": {
                               "text": "",
@@ -3139,7 +3139,7 @@
                           {
                             "type": "ia.display.label",
                             "meta": {
-                              "name": "P_Low"
+                              "name": "ChipLow"
                             },
                             "props": {
                               "text": "",

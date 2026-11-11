@@ -33,7 +33,7 @@
       {
         "type": "ia.display.label",
         "meta": {
-          "name": "Label"
+          "name": "Title"
         },
         "props": {
           "text": "",
