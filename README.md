@@ -75,8 +75,8 @@ substituted — a tag path is a literal and cannot be decided at runtime:
 
 | Gateway | Zip |
 | ------- | --- |
-| Ignition (standard), Maker | `Alarm_Demo-<version>.zip` |
-| Ignition Edge | `Alarm_Demo_Edge-<version>.zip` |
+| Ignition (standard), Maker | `Alarm_Demo-v<version>.zip` |
+| Ignition Edge | `Alarm_Demo_Edge-v<version>.zip` |
 
 Installing on Edge differs in two ways — there is no project import UI, and one
 gateway setting has to change before any Perspective session will open at all.
@@ -84,7 +84,7 @@ gateway setting has to change before any Perspective session will open at all.
 standard build.
 
 1. **Import the project.** Config → Platform → Projects → Import Project,
-   choose `Alarm_Demo-<version>.zip` from the
+   choose `Alarm_Demo-v<version>.zip` from the
    [latest release](https://github.com/Gaskony-Ignition/ignition-alarm-demo/releases/latest),
    and give it a name.
 

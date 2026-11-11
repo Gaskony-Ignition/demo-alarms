@@ -9,7 +9,7 @@
  * asserts. That is the whole claim of a standalone project.
  *
  *   node tools/import-project.js --gateway module-testing \
- *        --zip dist/Alarm_Demo-2.0.0.zip --name AlarmDemo [--overwrite]
+ *        --zip dist/Alarm_Demo-v2.0.0.zip --name AlarmDemo [--overwrite]
  *
  * Credentials come from the same 0600 stanza file the toolkit's scan tool
  * uses (<gateway>.url / .user / .password), never from argv - argv is readable

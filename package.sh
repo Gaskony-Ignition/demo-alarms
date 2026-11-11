@@ -3,8 +3,9 @@
 #
 #   ./package.sh                    -> dist/Alarm_Demo.zip
 #                                      dist/Alarm_Demo_Edge.zip
-#   ./package.sh --release 3.0.1    -> dist/Alarm_Demo-3.0.1.zip
-#                                      dist/Alarm_Demo_Edge-3.0.1.zip
+#   ./package.sh --release [3.0.1]  -> dist/Alarm_Demo-v3.0.1.zip
+#                                      dist/Alarm_Demo_Edge-v3.0.1.zip
+#   gates: --skip-readme-check --skip-a11y-check --skip-lint-check
 #
 # TWO zips, every time, because the demo has two homes. Ignition Edge has no
 # database connectivity at all and permits exactly ONE realtime tag provider,
@@ -17,22 +18,20 @@
 # the release that ships one zip when it needed two is indistinguishable from a
 # correct one until someone installs it.
 #
-# A PLAIN IGNITION PROJECT EXPORT, and nothing else. It used to be an Ignition
-# Exchange resource - a MANIFEST, a README, Projects/, Tags/, Gateway/ and
-# SQL/, which a human unpacked and then applied in four places. The tag
-# provider, the tags, the alarm journal profile and the journal tables are now
-# created by the project itself from its Setup screen, so all that is left to
-# ship is the project.
+# A PLAIN IGNITION PROJECT EXPORT, and nothing else. The tag provider, the tags,
+# the alarm journal profile and the journal tables are created by the project
+# itself from its Setup screen, so all that is left to ship is the project.
 #
 # Install on any 8.3.8+ gateway: Config -> Platform -> Projects -> Import
 # Project, choose the zip, then press "Set up this gateway" on the demo's Setup
 # screen. Nothing else.
 #
-# --release stamps the version in the three places a released project carries
-# it, and puts the working tree back afterwards:
+# --release stamps the version, in the STAGED copy only, in the places a
+# released project carries it:
 #
 #   * AlarmDemo.alarms.VERSION      shown on screen, and at ?cmd=version
-#   * project.json title            "ACME Alarm Demo 2.0.0" - Config -> Projects'
+#   * the views' Build label        generated from VERSION by build_views.py
+#   * project.json title            "ACME Alarm Demo v2.0.0" - Config -> Projects'
 #                                   Edit drawer and the Perspective launch pages
 #   * project.json description      ends "... . v2.0.0" - the Projects summary
 #                                   grid shows ONLY the description column
@@ -40,215 +39,50 @@
 #                                   is unidentifiable
 #
 # The working tree stays "(dev)" / VERSION = "dev" on purpose: a gateway running
-# a working copy should say so rather than claim to be a release.
+# a working copy should say so rather than claim to be a release. Version given,
+# else the tag HEAD is on. The build is the workspace's modules/package-project.sh.
 set -euo pipefail
-# Repo gate (REPO-STANDARD.md). Blocking; bypass deliberately with --skip-readme-check.
-if [[ " $* " != *" --skip-readme-check "* ]]; then
-    _repo=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
-    _gate=""; _d="$_repo"
-    while [ "$_d" != / ]; do
-        [ -x "$_d/modules/readme-gate.sh" ] && { _gate="$_d/modules/readme-gate.sh"; break; }
-        _d=$(dirname "$_d")
-    done
-    if [ -n "$_gate" ]; then
-        "$_gate" "$_repo" || { echo "repo gate failed: fix the README/tree or pass --skip-readme-check" >&2; exit 1; }
-    else
-        echo "readme-gate.sh not found above $_repo; gate skipped" >&2
-    fi
-fi
-# Accessibility gate (WCAG 2.1 AA). Blocking; bypass deliberately with
-# --skip-a11y-check. Checks the gateway a11y.json points at, which has to
-# already be running the build under test - deploy before packaging, not
-# the other way round.
-if [[ " $* " != *" --skip-a11y-check "* ]]; then
-    _repo=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
-    _a11ygate=""; _d="$_repo"
-    while [ "$_d" != / ]; do
-        [ -x "$_d/modules/a11y-gate.sh" ] && { _a11ygate="$_d/modules/a11y-gate.sh"; break; }
-        _d=$(dirname "$_d")
-    done
-    if [ -n "$_a11ygate" ]; then
-        "$_a11ygate" "$_repo" || { echo "a11y gate failed: fix the finding(s) above or record a reasoned exception in a11y.json, or pass --skip-a11y-check" >&2; exit 1; }
-    else
-        echo "a11y-gate.sh not found above $_repo; gate skipped" >&2
-    fi
-fi
-# Lint gate (ign-lint + pylint via modules/lint-gate.sh). Blocking; bypass
-# deliberately with --skip-lint-check.
-if [[ " $* " != *" --skip-lint-check "* ]]; then
-    _repo=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)
-    _lintgate=""; _d="$_repo"
-    while [ "$_d" != / ]; do
-        [ -x "$_d/modules/lint-gate.sh" ] && { _lintgate="$_d/modules/lint-gate.sh"; break; }
-        _d=$(dirname "$_d")
-    done
-    if [ -n "$_lintgate" ]; then
-        "$_lintgate" "$_repo" || { echo "lint gate failed: fix the findings above or pass --skip-lint-check" >&2; exit 1; }
-    else
-        echo "lint-gate.sh not found above $_repo; gate skipped" >&2
-    fi
-fi
-# Strip --skip-readme-check/--skip-a11y-check/--skip-lint-check (already
-# consumed by the gates above) so this script's own argument parsing -- which
-# rejects unrecognised args -- never
-# sees it.
-_pkgargs=(); for _a in "$@"; do
-    [[ "$_a" == "--skip-readme-check" || "$_a" == "--skip-a11y-check" || "$_a" == "--skip-lint-check" ]] || _pkgargs+=("$_a")
-done
-set -- "${_pkgargs[@]}"
-
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DIST="$HERE/dist"
-PROJJSON="$HERE/project/project.json"
-ALARMS="$HERE/project/ignition/script-python/AlarmDemo/alarms/code.py"
+PKG_NAME=Alarm_Demo
+PKG_GATES="readme a11y lint"
+PKG_DEV_BUILDS=1
+PKG_DIR_ENTRIES=1
 
 DEV_TITLE="ACME Alarm Demo (dev)"
 DESC_TAIL="on-call rosters and shift schedules."
+ALARMS=ignition/script-python/AlarmDemo/alarms/code.py
 
-VERSION=""
-case "${1:-}" in
-  "")         ;;
-  --release)  VERSION="${2:-}"
-              [[ -n "$VERSION" ]] || { echo "usage: ./package.sh --release X.Y.Z" >&2; exit 2; }
-              [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
-                echo "version must look like 2.0.0, got '$VERSION'" >&2; exit 2; }
-              ;;
-  *)          echo "unknown option: $1" >&2; exit 2 ;;
-esac
+pkg_prebuild() { rm -rf dist; }
 
-# Backups live OUTSIDE project/ - the zip is built by "cd project && zip -r .",
-# so a backup left inside the project tree gets zipped up too.
-PJBACKUP="$HERE/.project.json.orig"
-ALBACKUP="$HERE/.alarms.code.py.orig"
-
-# ONE exit handler, because `trap ... EXIT` REPLACES the previous one rather
-# than adding to it. This script had two - restore-the-sources, then later
-# remove-the-Edge-staging - and the second silently disabled the first, so
-# every --release left the working tree stamped with the release version and
-# 44 regenerated resource files staged as if they were work. That is how
-# 96412b8 ("Regenerate resource stamps so the tree matches the 3.0.2 artefact")
-# came to exist. Both jobs go in here, and nothing else may call `trap`.
-RESTORE=0
-EDGE_SRC=""
-cleanup() {
-  [[ -n "$EDGE_SRC" ]] && rm -rf "$EDGE_SRC"
-  if (( RESTORE )); then
-    # Restore the two SOURCES, then regenerate from them. Restoring alone is
-    # not enough: the views are generated and carry the version on screen, so a
-    # tree left un-regenerated after a release says "v2.0.0" in 21 view.json
-    # files while AlarmDemo.alarms.VERSION says "dev" - which is a release
-    # build sitting in the working tree waiting to be committed as if it were
-    # one.
-    [[ -f "$PJBACKUP" ]] && mv "$PJBACKUP" "$PROJJSON"
-    [[ -f "$ALBACKUP" ]] && mv "$ALBACKUP" "$ALARMS"
-    python3 "$HERE/build_views.py" >/dev/null
-    python3 "$HERE/stamp_resources.py" >/dev/null
+# The tags, views and resource stamps are generated into the STAGED copy, never the
+# working tree: the views carry the version on screen, and every resource.json gets
+# a fresh timestamp, so generating in the tree left a release's version and 44
+# re-stamped files behind to be committed by mistake. The generators write beside
+# themselves, so they run from a scratch folder whose project/ is the stage.
+pkg_stamp() {
+  local d=$1 s
+  if [[ -n "$RELEASE" ]]; then
+    grep -q '^VERSION = "dev"' "$d/$ALARMS" || {
+      echo "package.sh: AlarmDemo.alarms.VERSION was not \"dev\" - check for drift" >&2
+      exit 1; }
+    sed -i "s/^VERSION = \"dev\"/VERSION = \"$VERSION\"/" "$d/$ALARMS"
+    grep -q "\"title\": \"$DEV_TITLE\"" "$d/project.json" || {
+      echo "package.sh: project.json title was not '$DEV_TITLE' - check for drift" >&2
+      exit 1; }
+    sed -i "s/\"title\": \"$DEV_TITLE\"/\"title\": \"ACME Alarm Demo v$VERSION\"/" "$d/project.json"
+    grep -q "$DESC_TAIL\"" "$d/project.json" || {
+      echo "package.sh: project.json description was not the expected prose - check for drift" >&2
+      exit 1; }
+    sed -i "s/$DESC_TAIL\"/$DESC_TAIL \xc2\xb7 v$VERSION\"/" "$d/project.json"
   fi
-  return 0
+  echo "--> regenerating tags and views"
+  s=$(mktemp -d); mkdir "$s/tags"; ln -s "$d" "$s/project"
+  cp build_views.py stamp_resources.py "$s/"; cp tags/build_tags.py "$s/tags/"
+  python3 "$s/tags/build_tags.py" >/dev/null
+  python3 "$s/build_views.py"
+  python3 "$s/stamp_resources.py" >/dev/null
+  rm -rf "$s"
 }
-trap cleanup EXIT
-
-if [[ -n "$VERSION" ]]; then
-  cp "$PROJJSON" "$PJBACKUP"
-  cp "$ALARMS" "$ALBACKUP"
-  # Restore the two SOURCES, then regenerate from them. Restoring alone is not
-  # enough: the views are generated and carry the version on screen, so a tree
-  # left un-regenerated after a release says "v2.0.0" in 21 view.json files
-  # while AlarmDemo.alarms.VERSION says "dev" - which is a release build
-  # sitting in the working tree waiting to be committed as if it were one.
-  RESTORE=1
-
-  grep -q '^VERSION = "dev"' "$ALARMS" || {
-    echo "package.sh: AlarmDemo.alarms.VERSION was not \"dev\" - check for drift" >&2
-    exit 1; }
-  sed -i "s/^VERSION = \"dev\"/VERSION = \"$VERSION\"/" "$ALARMS"
-
-  grep -q "\"title\": \"$DEV_TITLE\"" "$PROJJSON" || {
-    echo "package.sh: project.json title was not '$DEV_TITLE' - check for drift" >&2
-    exit 1; }
-  sed -i "s/\"title\": \"$DEV_TITLE\"/\"title\": \"ACME Alarm Demo $VERSION\"/" "$PROJJSON"
-
-  grep -q "$DESC_TAIL\"" "$PROJJSON" || {
-    echo "package.sh: project.json description was not the expected prose - check for drift" >&2
-    exit 1; }
-  sed -i "s/$DESC_TAIL\"/$DESC_TAIL \xc2\xb7 v$VERSION\"/" "$PROJJSON"
-fi
-
-echo "--> regenerating tags and views"
-python3 "$HERE/tags/build_tags.py" >/dev/null
-python3 "$HERE/build_views.py"
-python3 "$HERE/stamp_resources.py" >/dev/null
-
-# An Ignition project export is the CONTENTS of the project directory, zipped
-# from inside it - a zip with a project/ folder at its root imports as nothing.
-#
-# What must never be in it: ignition/global-props. That resource holds the
-# project's Default Database and Perspective identity provider, so shipping a
-# dev rig's copy puts this rig's names onto every gateway that imports the zip.
-# This project has no global-props resource at all; the check is here so that
-# stays true.
-if [[ -e "$HERE/project/ignition/global-props" ]]; then
-  echo "package.sh: project/ignition/global-props must not be shipped - remove it" >&2
-  exit 1
-fi
-
-rm -rf "$DIST"
-mkdir -p "$DIST"
-
-# Zip the CONTENTS of a project directory, then prove the artefact is exactly
-# the tracked tree and nothing else.
-#
-# ...and nothing that is not a project resource. This is not hypothetical
-# either: running `python3 -m py_compile` over a script module as a syntax
-# check leaves __pycache__/*.pyc beside it, .gitignore hides those from `git
-# status`, and `zip -r .` swept two Python 3.14 bytecode files into a Jython
-# project export. A green package that shipped junk looks exactly like a green
-# package.
-build_zip() {
-  local src="$1" out="$2"
-  ( cd "$src" && zip -qr "$out" . -x '*__pycache__*' '*.pyc' )
-
-  # Verify the ARTEFACT, not the intent. Every project resource is committed,
-  # so anything in the zip that git does not track is something that should not
-  # be there. A release refuses; a dev build says so and carries on.
-  #
-  # The comparison is against the REPOSITORY's file list even for the Edge
-  # build, whose staged copy is not a git tree: the Edge substitution rewrites
-  # file CONTENTS and never adds or removes a file, so the two must list
-  # identically. If that ever stops being true, this catches it.
-  local extra
-  extra=$(comm -23 \
-    <(unzip -Z1 "$out" | grep -v '/$' | LC_ALL=C sort) \
-    <(cd "$HERE/project" && git ls-files . | LC_ALL=C sort))
-  if [[ -n "$extra" ]]; then
-    echo "package.sh: $(basename "$out") contains files git does not track:" >&2
-    echo "$extra" | sed 's/^/    /' >&2
-    if [[ -n "$VERSION" ]]; then
-      # Delete it. A refused release that leaves a zip in dist/ has produced
-      # exactly the artefact it just refused to produce, sitting under the
-      # right name, ready to be uploaded by anyone who did not read the error.
-      rm -f "$out"
-      echo "package.sh: refusing to publish a release containing them" >&2
-      echo "package.sh: $(basename "$out") deleted" >&2
-      exit 1
-    fi
-    echo "package.sh: (dev build - continuing)" >&2
-  fi
-
-  echo
-  echo "package: $out"
-  unzip -l "$out" | tail -3
-}
-
-if [[ -n "$VERSION" ]]; then
-  OUT="$DIST/Alarm_Demo-$VERSION.zip"
-  EDGE_OUT="$DIST/Alarm_Demo_Edge-$VERSION.zip"
-else
-  OUT="$DIST/Alarm_Demo.zip"
-  EDGE_OUT="$DIST/Alarm_Demo_Edge.zip"
-fi
-
-build_zip "$HERE/project" "$OUT"
 
 # --------------------------------------------------------------------------
 # the Edge build
@@ -277,57 +111,52 @@ build_zip "$HERE/project" "$OUT"
 # analytics, the Setup rows and the journal screen follow. A capability is a
 # property of the gateway, and baking it into a zip means a zip installed on
 # the wrong edition is wrong in a way nothing on screen admits.
-echo
-echo "--> staging the Edge build"
-EDGE_SRC="$(mktemp -d "$DIST/.edge-stage.XXXXXX")"
-cp -a "$HERE/project/." "$EDGE_SRC/"
-find "$EDGE_SRC" -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
-find "$EDGE_SRC" -name '*.pyc' -delete 2>/dev/null || true
+pkg_postbuild() {
+  local edge=$1 EDGE_PROVIDER="edge" form LEFT UNCLASSIFIED
+  echo
+  echo "--> staging the Edge build"
+  pkg_stamp "$edge"
+  find "$edge" -type f \( -name '*.json' -o -name '*.py' \) -print0 \
+    | xargs -0 sed -i \
+        -e "s/\[AlarmDemo\]/[${EDGE_PROVIDER}]/g" \
+        -e "s/prov:AlarmDemo:/prov:${EDGE_PROVIDER}:/g"
+  sed -i "s/^PROVIDER = \"AlarmDemo\"/PROVIDER = \"${EDGE_PROVIDER}\"/" "$edge/$ALARMS"
 
-EDGE_PROVIDER="edge"
-find "$EDGE_SRC" -type f \( -name '*.json' -o -name '*.py' \) -print0 \
-  | xargs -0 sed -i \
-      -e "s/\[AlarmDemo\]/[${EDGE_PROVIDER}]/g" \
-      -e "s/prov:AlarmDemo:/prov:${EDGE_PROVIDER}:/g"
-sed -i "s/^PROVIDER = \"AlarmDemo\"/PROVIDER = \"${EDGE_PROVIDER}\"/" \
-  "$EDGE_SRC/ignition/script-python/AlarmDemo/alarms/code.py"
+  # Prove it. A silent no-op here ships a zip that looks right and reads no tags -
+  # or worse, reads tags and shows no alarm history.
+  for form in '\[AlarmDemo\]' 'prov:AlarmDemo:'; do
+    LEFT="$(grep -rl "$form" "$edge" || true)"
+    if [[ -n "$LEFT" ]]; then
+      echo "package.sh: these still carry $form after the Edge substitution:" >&2
+      printf '%s\n' "$LEFT" | sed "s|$edge|  project|" >&2
+      exit 1
+    fi
+  done
+  grep -q "^PROVIDER = \"${EDGE_PROVIDER}\"" "$edge/$ALARMS" || {
+    echo "package.sh: the Edge build did not rewrite PROVIDER" >&2; exit 1; }
+  grep -rq 'AlarmDemo\.alarms' "$edge" || {
+    echo "package.sh: the Edge substitution ate the AlarmDemo script package" >&2
+    exit 1; }
 
-# Prove it. A silent no-op here ships a zip that looks right and reads no tags -
-# or worse, reads tags and shows no alarm history.
-for form in '\[AlarmDemo\]' 'prov:AlarmDemo:'; do
-  LEFT="$(grep -rl "$form" "$EDGE_SRC" || true)"
-  if [[ -n "$LEFT" ]]; then
-    echo "package.sh: these still carry $form after the Edge substitution:" >&2
-    printf '%s\n' "$LEFT" | sed "s|$EDGE_SRC|  project|" >&2
-    exit 1
+  # Anything ELSE still saying AlarmDemo in a resource file. Expected: the script
+  # package and AlarmDemoDB. Anything else is a provider reference nobody has
+  # classified, which is exactly the class of miss that ships an empty screen.
+  # `AlarmDemo/` is the project's own view folder and `AlarmDemo.` the script
+  # package; `AlarmDemoDB` is the connection. The journal table's `props.name`
+  # default is the last legitimate bare one - it is overridden at runtime by a
+  # binding on AlarmDemo.edition.journalName(), because on Edge the journal is
+  # the platform's own and is not called this.
+  UNCLASSIFIED="$(grep -rn 'AlarmDemo' "$edge" --include='*.json' 2>/dev/null \
+                  | grep -v 'AlarmDemo\.' | grep -v 'AlarmDemoDB' \
+                  | grep -v 'AlarmDemo/' | grep -v '"name": "AlarmDemo"' || true)"
+  if [[ -n "$UNCLASSIFIED" ]]; then
+    echo "package.sh: WARNING - unclassified provider references in the Edge build:" >&2
+    printf '%s\n' "$UNCLASSIFIED" | sed "s|$edge|project|" | head -20 >&2
   fi
-done
-grep -q "^PROVIDER = \"${EDGE_PROVIDER}\"" \
-  "$EDGE_SRC/ignition/script-python/AlarmDemo/alarms/code.py" || {
-  echo "package.sh: the Edge build did not rewrite PROVIDER" >&2; exit 1; }
-grep -rq 'AlarmDemo\.alarms' "$EDGE_SRC" || {
-  echo "package.sh: the Edge substitution ate the AlarmDemo script package" >&2
-  exit 1; }
 
-# Anything ELSE still saying AlarmDemo in a resource file. Expected: the script
-# package and AlarmDemoDB. Anything else is a provider reference nobody has
-# classified, which is exactly the class of miss that ships an empty screen.
-# `AlarmDemo/` is the project's own view folder and `AlarmDemo.` the script
-# package; `AlarmDemoDB` is the connection. The journal table's `props.name`
-# default is the last legitimate bare one - it is overridden at runtime by a
-# binding on AlarmDemo.edition.journalName(), because on Edge the journal is
-# the platform's own and is not called this.
-UNCLASSIFIED="$(grep -rn 'AlarmDemo' "$EDGE_SRC" --include='*.json' 2>/dev/null \
-                | grep -v 'AlarmDemo\.' | grep -v 'AlarmDemoDB' \
-                | grep -v 'AlarmDemo/' | grep -v '"name": "AlarmDemo"' || true)"
-if [[ -n "$UNCLASSIFIED" ]]; then
-  echo "package.sh: WARNING - unclassified provider references in the Edge build:" >&2
-  printf '%s\n' "$UNCLASSIFIED" | sed "s|$EDGE_SRC|project|" | head -20 >&2
-fi
-
-# The project TITLE says which build it is, so a gateway running the wrong one
-# says so on its own launch page rather than in a support call.
-python3 - "$EDGE_SRC/project.json" <<'PYEOF'
+  # The project TITLE says which build it is, so a gateway running the wrong one
+  # says so on its own launch page rather than in a support call.
+  python3 - "$edge/project.json" <<'PYEOF'
 import json
 import sys
 
@@ -343,5 +172,9 @@ with open(path, "w") as fh:
     fh.write("\n")
 PYEOF
 
-build_zip "$EDGE_SRC" "$EDGE_OUT"
-rm -rf "$EDGE_SRC"
+  pkg_zip "$edge" "${PKG_NAME}_Edge"
+}
+
+d=$HERE; while [ "$d" != / ] && [ ! -f "$d/modules/package-project.sh" ]; do d=$(dirname "$d"); done
+[ -f "$d/modules/package-project.sh" ] || { echo "package: modules/package-project.sh not found above $HERE; build from the Ignition-Work workspace" >&2; exit 1; }
+. "$d/modules/package-project.sh"

@@ -148,9 +148,9 @@ only its own rows.
 is written to `<install dir>/data/alarm-demo-settings.json`, not into a project
 resource — so importing a new version never overwrites what the gateway is
 pointed at, and an export taken from one gateway cannot arrive on another
-pointing at the first one's connection. The project deliberately has no
-`ignition/global-props` resource at all, which is where a project's Default
-Database and identity provider would otherwise travel.
+pointing at the first one's connection. Its `ignition/global-props` (where a
+project's Default Database and identity provider travel) is the stock copy:
+identity provider `default` and no database, so it brings no rig's names along.
 
 **It will not overwrite a connection that already exists** under the name it is
 about to use. A gateway running this demo may be running other things too.

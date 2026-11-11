@@ -4,8 +4,8 @@ There are **two release zips** and they are not interchangeable.
 
 | Gateway | Zip |
 | ------- | --- |
-| Ignition (standard), Maker | `Alarm_Demo-<version>.zip` |
-| Ignition Edge | `Alarm_Demo_Edge-<version>.zip` |
+| Ignition (standard), Maker | `Alarm_Demo-v<version>.zip` |
+| Ignition Edge | `Alarm_Demo_Edge-v<version>.zip` |
 
 Everything below was measured on real gateways of both editions, 8.3.8, on
 10/09/2026.
@@ -89,7 +89,7 @@ inserts an event.
 project folder, chown it to the gateway user, and run a project scan:
 
 ```
-unzip -q Alarm_Demo_Edge-<version>.zip -d ./edge-project
+unzip -q Alarm_Demo_Edge-v<version>.zip -d ./edge-project
 tar -C ./edge-project -cf - . | docker exec -i -u root <container> \
   tar -C /usr/local/bin/ignition/data/projects/Edge -xf -
 docker exec -u root <container> \

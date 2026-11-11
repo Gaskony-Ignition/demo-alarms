@@ -23,7 +23,7 @@ There are two user-facing documents and neither is this one:
 ```bash
 ./deploy.sh                       # generate, ship and project-scan
 ./package.sh                      # dist/Alarm_Demo.zip           (dev)
-./package.sh --release 3.0.1      # dist/Alarm_Demo-3.0.1.zip     (stamped)
+./package.sh --release 3.0.1      # dist/Alarm_Demo-v3.0.1.zip    (stamped)
 
 # a gateway with NOTHING on it, for proving the claim the demo makes
 docker compose -f tools/fresh-gateway.yml up -d      # http://localhost:8188
@@ -32,7 +32,7 @@ node ../../launchpad/tools/preflight.js --gateway fresh   # optional, see below
 
 # prove the zip on a gateway that has never seen it
 node tools/import-project.js --gateway fresh \
-     --zip dist/Alarm_Demo-3.0.1.zip --name AlarmDemo [--overwrite]
+     --zip dist/Alarm_Demo-v3.0.1.zip --name AlarmDemo [--overwrite]
 
 node tools/layout-check.js --gateway fresh        # no hairline overflows
 
@@ -300,9 +300,9 @@ repository. `build_views.py` reads that line out of the file rather than
 keeping a copy, so the screens cannot drift from the scripts.
 
 `./package.sh --release X.Y.Z` stamps it, plus the project title
-(`ACME Alarm Demo X.Y.Z`), the end of the project description (`· vX.Y.Z` — the
-Config → Projects grid shows only that column) and the zip's own filename, then
-puts the working tree back to `dev` on exit. A gateway running a working copy
+(`ACME Alarm Demo vX.Y.Z`), the end of the project description (`· vX.Y.Z` — the
+Config → Projects grid shows only that column) and the zip's own filename, in
+the staged copy only: the working tree stays `dev`. A gateway running a working copy
 says `(dev build)` on screen; a gateway running a release says which one.
 
 ## Everything is generated
