@@ -3,3 +3,4 @@ def handleTimerEvent():
 	# instant and each always has live alarms of its own.
 	AlarmDemo.sim.tick()
 	AlarmDemo.simmfg.tick()
+	AlarmDemo.alarms.publishLive()

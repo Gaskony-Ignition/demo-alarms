@@ -868,6 +868,20 @@ AREAS["Plant"] = [
 ]
 
 
+# Values every Perspective session shares, written by AlarmDemo.alarms.publishLive()
+# from the PlantSim timer; the views bind to these instead of polling a script.
+def _live_site(site):
+    return folder(site, *[mem(n, t, None) for n, t in (
+        ("ActiveAlarms", "DataSet"), ("AreaMetrics", "Document"),
+        ("Routing", "DataSet"), ("DailyLoad", "DataSet"), ("DailyAck", "DataSet"))])
+
+
+LIVE = folder("Live", _live_site("Water"), _live_site("Manufacturing"),
+              *[mem(n, "Document", None) for n in (
+                  "Rosters", "Duty", "People", "EligibleOperations",
+                  "EligibleMaintenance", "EligibleManagement")])
+
+
 # --------------------------------------------------------------------------
 # emit
 # --------------------------------------------------------------------------
@@ -927,7 +941,7 @@ def main():
     export = {
         "name": "",
         "tagType": "Provider",
-        "tags": [folder(a, *t) for a, t in AREAS.items()],
+        "tags": [folder(a, *t) for a, t in AREAS.items()] + [LIVE],
     }
     with open(os.path.join(BUILD, "AlarmDemo-tags.json"), "w") as f:
         json.dump(export, f, indent=2)

@@ -5,7 +5,6 @@
       "onDuty": 0,
       "total": 7
     },
-    "tick": 0,
     "eligible0": [],
     "pick0": "",
     "eligible1": [],
@@ -893,7 +892,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[0].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1052,7 +1051,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[1].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1211,7 +1210,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[2].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1370,7 +1369,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[3].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1529,7 +1528,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Operations', self.view.custom.rosters[0].members[4].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1628,7 +1627,7 @@
                           "component": {
                             "onActionPerformed": {
                               "config": {
-                                "script": "\tif self.view.custom.pick0:\n\t\tAlarmDemo.roster.addMember('Operations', self.view.custom.pick0)\n\t\tself.view.custom.pick0 = ''\n\t\tself.view.custom.tick = self.view.custom.tick + 1"
+                                "script": "\tif self.view.custom.pick0:\n\t\tAlarmDemo.roster.addMember('Operations', self.view.custom.pick0)\n\t\tself.view.custom.pick0 = ''\n\t\tAlarmDemo.alarms.publishRoster()"
                               },
                               "scope": "G",
                               "type": "script"
@@ -1911,7 +1910,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[0].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2070,7 +2069,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[1].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2229,7 +2228,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[2].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2388,7 +2387,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[3].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2547,7 +2546,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Maintenance', self.view.custom.rosters[1].members[4].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2646,7 +2645,7 @@
                           "component": {
                             "onActionPerformed": {
                               "config": {
-                                "script": "\tif self.view.custom.pick1:\n\t\tAlarmDemo.roster.addMember('Maintenance', self.view.custom.pick1)\n\t\tself.view.custom.pick1 = ''\n\t\tself.view.custom.tick = self.view.custom.tick + 1"
+                                "script": "\tif self.view.custom.pick1:\n\t\tAlarmDemo.roster.addMember('Maintenance', self.view.custom.pick1)\n\t\tself.view.custom.pick1 = ''\n\t\tAlarmDemo.alarms.publishRoster()"
                               },
                               "scope": "G",
                               "type": "script"
@@ -2929,7 +2928,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[0].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[0].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3088,7 +3087,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[1].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[1].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3247,7 +3246,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[2].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[2].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3406,7 +3405,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[3].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[3].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3565,7 +3564,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[4].username)\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.removeMember(\n\t\t'Management', self.view.custom.rosters[2].members[4].username)\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3664,7 +3663,7 @@
                           "component": {
                             "onActionPerformed": {
                               "config": {
-                                "script": "\tif self.view.custom.pick2:\n\t\tAlarmDemo.roster.addMember('Management', self.view.custom.pick2)\n\t\tself.view.custom.pick2 = ''\n\t\tself.view.custom.tick = self.view.custom.tick + 1"
+                                "script": "\tif self.view.custom.pick2:\n\t\tAlarmDemo.roster.addMember('Management', self.view.custom.pick2)\n\t\tself.view.custom.pick2 = ''\n\t\tAlarmDemo.alarms.publishRoster()"
                               },
                               "scope": "G",
                               "type": "script"
@@ -3838,16 +3837,14 @@
                 "propConfig": {
                   "props.data": {
                     "binding": {
-                      "type": "expr",
+                      "type": "tag",
                       "config": {
-                        "expression": "{session.custom.site} + toStr({view.custom.tick}) + toStr(now(4000))"
-                      },
-                      "transforms": [
-                        {
-                          "type": "script",
-                          "code": "\treturn AlarmDemo.roster.routing(self.session.custom.site)"
+                        "tagPath": "[AlarmDemo]Live/{1}/Routing",
+                        "mode": "indirect",
+                        "references": {
+                          "1": "{session.custom.site}"
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -3873,72 +3870,42 @@
   "propConfig": {
     "custom.rosters": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.rosterCards()"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/Rosters"
+        }
       }
     },
     "custom.duty": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.dutySummary()"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/Duty"
+        }
       }
     },
     "custom.eligible0": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.eligible('Operations')"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/EligibleOperations"
+        }
       }
     },
     "custom.eligible1": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.eligible('Maintenance')"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/EligibleMaintenance"
+        }
       }
     },
     "custom.eligible2": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(15000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.eligible('Management')"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/EligibleManagement"
+        }
       }
     }
   }

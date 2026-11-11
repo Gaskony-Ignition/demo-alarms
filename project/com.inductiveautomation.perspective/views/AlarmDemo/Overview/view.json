@@ -739,16 +739,14 @@
               },
               "props.data": {
                 "binding": {
-                  "type": "expr",
+                  "type": "tag",
                   "config": {
-                    "expression": "{session.custom.site} + toStr(now(3000))"
-                  },
-                  "transforms": [
-                    {
-                      "type": "script",
-                      "code": "\treturn AlarmDemo.alarms.activeAlarms(self.session.custom.site)"
+                    "tagPath": "[AlarmDemo]Live/{1}/ActiveAlarms",
+                    "mode": "indirect",
+                    "references": {
+                      "1": "{session.custom.site}"
                     }
-                  ]
+                  }
                 }
               },
               "position.grow": {

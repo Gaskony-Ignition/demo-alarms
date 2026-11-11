@@ -3691,7 +3691,7 @@
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr({session.custom.range.end})"
         },
         "transforms": [
           {
@@ -3705,7 +3705,7 @@
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr({session.custom.range.end})"
         },
         "transforms": [
           {
@@ -3719,7 +3719,7 @@
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr({session.custom.range.end})"
         },
         "transforms": [
           {
@@ -3747,7 +3747,7 @@
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr({session.custom.range.end})"
         },
         "transforms": [
           {
@@ -3761,7 +3761,7 @@
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr(now(30000))"
+          "expression": "toStr({session.custom.rangeHours}) + {session.custom.site} + {session.custom.area} + toStr({session.custom.range.end})"
         },
         "transforms": [
           {

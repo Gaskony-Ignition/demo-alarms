@@ -374,7 +374,7 @@ single job and says so in its docstring:
 
 | Module | Job |
 | ------ | --- |
-| `alarms` | everything the views read - live roll-ups, KPIs, journal analytics |
+| `alarms` | everything the views read - live roll-ups, KPIs, journal analytics - and `publishLive()`, which the `PlantSim` timer calls to write the shared values to the `Live` tags the views bind to |
 | `sim` / `simmfg` | the two plant models, driven by the 1 s `PlantSim` timer |
 | `demo` | scenario selection, reset, acknowledge-all |
 | `roster` | people, schedules and on-call rosters, all read back out of Ignition |

@@ -78,7 +78,7 @@ def main():
                     ["handleTimerEvent.py"],
                     {
                         "enabled": True,
-                        "sharedThread": True,
+                        "sharedThread": False,
                         "delay": 1000,
                         "fixedDelay": True,
                     },

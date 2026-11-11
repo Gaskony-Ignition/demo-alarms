@@ -126,6 +126,12 @@ def tag_bind(path, indirect=None, transform=None):
     return {"binding": b}
 
 
+def live_bind(path):
+    """Tag binding on a Live tag the PlantSim timer publishes; `{1}` in path is the session's site."""
+    return tag_bind(PROV + "Live/" + path,
+                    indirect={"1": "{session.custom.site}"} if "{1}" in path else None)
+
+
 def expr_bind(expression, transform=None):
     b = {"type": "expr", "config": {"expression": expression}}
     if transform:
@@ -1428,11 +1434,7 @@ def v_overview():
                 "props.style.classes": expr_bind(
                     "\"ad-table ad-table-plain ad-colour-\" + "
                     "{session.custom.alarmColour}"),
-                "props.data": expr_bind(
-                    "{session.custom.site} + toStr(now(3000))",
-                    transform=script_tf(
-                        "\treturn AlarmDemo.alarms.activeAlarms("
-                        "self.session.custom.site)")),
+                "props.data": live_bind("{1}/ActiveAlarms"),
                 # An empty table renders as a blank bordered box with no
                 # header row, which reads as "broken" rather than as "nothing
                 # is wrong". `display: none` does not take on the table
@@ -2064,7 +2066,7 @@ def v_analytics():
 
     def helper(fn, extra=""):
         """Bind a view custom prop to a script helper, re-evaluated whenever the
-        window, site or area changes, and on a slow poll.
+        window, site or area changes, and when the session's window end moves.
 
         `site` has to be in the trigger expression as well as the call - the
         transform only re-runs when the expression's value changes, so a site
@@ -2072,7 +2074,7 @@ def v_analytics():
         screen."""
         return expr_bind(
             "toStr({session.custom.rangeHours}) + {session.custom.site} "
-            "+ {session.custom.area} + toStr(now(30000))",
+            "+ {session.custom.area} + toStr({session.custom.range.end})",
             transform=script_tf(
                 "\treturn AlarmDemo.alarms.%s("
                 "self.session.custom.rangeHours, "
@@ -2103,14 +2105,14 @@ def v_analytics():
                 "['Critical', 'High', 'Medium', 'Low', 'Diagnostic']])")),
         "custom.priorities": expr_bind(
             "toStr({session.custom.rangeHours}) + {session.custom.site} "
-            "+ {session.custom.area} + toStr(now(30000))",
+            "+ {session.custom.area} + toStr({session.custom.range.end})",
             transform=script_tf(
                 "\treturn AlarmDemo.alarms.priorityCounts("
                 "self.session.custom.rangeHours, self.session.custom.site, "
                 "self.session.custom.area or '')")),
         "custom.kpis": expr_bind(
             "toStr({session.custom.rangeHours}) + {session.custom.site} "
-            "+ {session.custom.area} + toStr(now(30000))",
+            "+ {session.custom.area} + toStr({session.custom.range.end})",
             transform=script_tf(
                 "\treturn AlarmDemo.alarms.kpis("
                 "self.session.custom.rangeHours, self.session.custom.site, "
@@ -2292,28 +2294,14 @@ def v_metrics():
     custom = {"areas": [dict(blank) for _ in range(AREA_SLOTS)],
               "areaCount": 0, "dailyLoad": None, "dailyAck": None}
     pc = {
-        "custom.areas": expr_bind(
-            "{session.custom.site} + toStr(now(3000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.alarms.areaMetrics(self.session.custom.site)")),
+        "custom.areas": live_bind("{1}/AreaMetrics"),
         "custom.areaCount": expr_bind(
-            "{session.custom.site} + toStr(now(30000))",
+            "{session.custom.site}",
             transform=script_tf(
-                "\treturn len(AlarmDemo.alarms.siteAreas("
-                "self.session.custom.site))")),
-        # 30 days of journal is a heavier query than the live roll-up, and it
-        # cannot change materially inside a minute - so it polls at a different
-        # rate rather than riding along with the cards.
-        "custom.dailyLoad": expr_bind(
-            "{session.custom.site} + toStr(now(60000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.alarms.dailyLoad(30, "
-                "self.session.custom.site)")),
-        "custom.dailyAck": expr_bind(
-            "{session.custom.site} + toStr(now(60000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.alarms.dailyAckTime(30, "
-                "self.session.custom.site)")),
+                "\treturn len(AlarmDemo.alarms.siteAreas(value))")),
+        # The publisher rewrites the 30-day series once a minute.
+        "custom.dailyLoad": live_bind("{1}/DailyLoad"),
+        "custom.dailyAck": live_bind("{1}/DailyAck"),
     }
     write("AlarmDemo/Metrics", view(root, custom=custom, propconfig=pc))
 
@@ -2343,8 +2331,7 @@ def v_escalation_popup():
         ],
     }, position=grow(1),
         binds={"props.data": expr_bind(
-            "toStr(now(60000))",
-            transform=script_tf("\treturn AlarmDemo.roster.escalationTable()"))})
+            "runScript(\"AlarmDemo.roster.escalationTable\", 0)")})
 
     root = flex("root", [
         label("Sub",
@@ -2471,7 +2458,7 @@ def v_notifications():
                     events=on_action(
                         "AlarmDemo.roster.removeMember(\n"
                         "    '%s', self.view.custom.rosters[%d].members[%d].username)\n"
-                        "self.view.custom.tick = self.view.custom.tick + 1"
+                        "AlarmDemo.alarms.publishRoster()"
                         % (rname, i, m))),
             ], gap=6, align="center", position=fixed("26px"),
                 style={"overflow": "hidden"},
@@ -2497,7 +2484,7 @@ def v_notifications():
                     "if self.view.custom.pick%d:\n"
                     "    AlarmDemo.roster.addMember('%s', self.view.custom.pick%d)\n"
                     "    self.view.custom.pick%d = ''\n"
-                    "    self.view.custom.tick = self.view.custom.tick + 1"
+                    "    AlarmDemo.alarms.publishRoster()"
                     % (i, rname, i, i))),
         ], gap=6, align="center", position=fixed("32px"))
 
@@ -2545,10 +2532,7 @@ def v_notifications():
             col("Status", "Status", width=104),
         ],
     }, position=grow(1),
-        binds={"props.data": expr_bind(
-            "{session.custom.site} + toStr({view.custom.tick}) + toStr(now(4000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.roster.routing(self.session.custom.site)"))})
+        binds={"props.data": live_bind("{1}/Routing")})
 
     root = flex("root", [
         header(),
@@ -2566,27 +2550,15 @@ def v_notifications():
         classes="ad-page ad-root", style={"height": "100%"})
     root["children"][0]["position"] = fixed("64px")
 
-    custom = {"rosters": [], "duty": {"onDuty": 0, "total": PEOPLE_SLOTS},
-              "tick": 0}
+    custom = {"rosters": [], "duty": {"onDuty": 0, "total": PEOPLE_SLOTS}}
     pc = {
-        # `tick` is in every trigger so an edit refreshes the cards and the
-        # routing immediately rather than on the next poll.
-        "custom.rosters": expr_bind(
-            "toStr({view.custom.tick}) + toStr(now(5000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.roster.rosterCards()")),
-        "custom.duty": expr_bind(
-            "toStr({view.custom.tick}) + toStr(now(5000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.roster.dutySummary()")),
+        "custom.rosters": live_bind("Rosters"),
+        "custom.duty": live_bind("Duty"),
     }
     for i, rname in enumerate(ROSTER_NAMES):
         custom["eligible%d" % i] = []
         custom["pick%d" % i] = ""
-        pc["custom.eligible%d" % i] = expr_bind(
-            "toStr({view.custom.tick}) + toStr(now(15000))",
-            transform=script_tf(
-                "\treturn AlarmDemo.roster.eligible('%s')" % rname))
+        pc["custom.eligible%d" % i] = live_bind("Eligible" + rname)
     write("AlarmDemo/Notifications", view(root, custom=custom, propconfig=pc))
 
 
@@ -2616,7 +2588,7 @@ def v_people():
                 events=on_action(
                     "AlarmDemo.roster.setSchedule(\n"
                     "    self.view.custom.people[%d].username, '%s')\n"
-                    "self.view.custom.tick = self.view.custom.tick + 1"
+                    "AlarmDemo.alarms.publishRoster()"
                     % (p, sched)),
                 binds={"props.style.classes": expr_bind(
                     "if({%s.schedule} = \"%s\", "
@@ -2859,17 +2831,10 @@ def v_people():
     custom = {
         "people": [dict(BLANK_PERSON) for _ in range(PEOPLE_SLOTS)],
         "duty": {"onDuty": 0, "total": PEOPLE_SLOTS},
-        "tick": 0,
     }
     pc = {
-        # `tick` is in the trigger so a shift change refreshes the list at once
-        # rather than on the next poll.
-        "custom.people": expr_bind(
-            "toStr({view.custom.tick}) + toStr(now(5000))",
-            transform=script_tf("\treturn AlarmDemo.roster.peopleRows()")),
-        "custom.duty": expr_bind(
-            "toStr({view.custom.tick}) + toStr(now(5000))",
-            transform=script_tf("\treturn AlarmDemo.roster.dutySummary()")),
+        "custom.people": live_bind("People"),
+        "custom.duty": live_bind("Duty"),
     }
     write("AlarmDemo/People", view(root, custom=custom, propconfig=pc))
 

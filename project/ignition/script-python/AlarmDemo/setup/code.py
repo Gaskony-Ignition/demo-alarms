@@ -14,9 +14,9 @@ LOG = system.util.getLogger("AlarmDemo.setup")
 SCHEDULES = [s[0] for s in AlarmDemo.roster.SCHEDULES]
 ROSTERS = [r[0] for r in AlarmDemo.roster.ROSTERS]
 
-# One tag from each end of the provider: reading both tells a complete import
-# from one that failed partway.
-PROBE_TAGS = ["Intake/RawTurbidity", "Plant/DemoScenario"]
+# Both ends of the plant tree and the Live folder: a gateway set up before the
+# Live tags existed reads as missing here, so Setup offers to write them.
+PROBE_TAGS = ["Intake/RawTurbidity", "Plant/DemoScenario", "Live/Duty"]
 
 
 # The tag provider and alarm journal profile are gateway config resources, so
@@ -356,7 +356,7 @@ def _tagsCheck():
 	bad = [p for p, q in zip(PROBE_TAGS, qvs) if not q.quality.isGood()]
 	if bad:
 		return False, u"missing or bad: %s" % u", ".join(bad)
-	n = len(AlarmDemo.tagdata.tags())
+	n = len(AlarmDemo.alarms.AREAS)
 	return True, u"%d areas readable in [%s]" % (n, PROVIDER)
 
 
@@ -370,7 +370,7 @@ def _tagsFix():
 	for _attempt in range(3):
 		try:
 			system.tag.configure(u"[%s]" % PROVIDER, areas, u"o")
-			return u"wrote %d areas into [%s]" % (len(areas), PROVIDER)
+			return u"wrote %d areas into [%s]" % (len(AlarmDemo.alarms.AREAS), PROVIDER)
 		except:
 			import traceback
 			last = traceback.format_exc().strip().split("\n")[-1]

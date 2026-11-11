@@ -601,3 +601,46 @@ def sqlKpis(hours=24, site="Water", area=""):
 
 	return _safe(go, {"total": 0, "rate": 0, "ackMedianMin": 0,
 					  "unackedPct": 0, "topShare": 0, "floodHours": 0})
+
+
+LIVE = "[%s]Live/" % PROVIDER
+# job -> epoch ms of its last run; a project scan empties it, so every Live tag is rewritten at once
+_LAST = {}
+
+
+def _due(job, seconds):
+	"""True, and marks the job as run, when it last ran at least `seconds` ago."""
+	now = system.date.toMillis(system.date.now())
+	if now - _LAST.get(job, 0) < seconds * 1000 - 200:
+		return False
+	_LAST[job] = now
+	return True
+
+
+def publishRoster():
+	"""Write roster cards, duty summary, people, picker options and per-site routing to the Live tags."""
+	roster = AlarmDemo.roster
+	paths = [LIVE + "Rosters", LIVE + "Duty", LIVE + "People"]
+	values = [roster.rosterCards(), roster.dutySummary(), roster.peopleRows()]
+	for name, _desc, _seed in roster.ROSTERS:
+		paths.append(LIVE + "Eligible" + name)
+		values.append(roster.eligible(name))
+	for site in SITE_ORDER:
+		paths.append(LIVE + site + "/Routing")
+		values.append(roster.routing(site))
+	system.tag.writeBlocking(paths, values)
+
+
+def publishLive():
+	"""Write the values every session shares to the Live tags; the PlantSim timer calls it each second."""
+	paths, values = [], []
+	for site in SITE_ORDER:
+		paths += [LIVE + site + "/ActiveAlarms", LIVE + site + "/AreaMetrics"]
+		values += [activeAlarms(site), areaMetrics(site)]
+	if _due("daily", 60):
+		for site in SITE_ORDER:
+			paths += [LIVE + site + "/DailyLoad", LIVE + site + "/DailyAck"]
+			values += [dailyLoad(30, site), dailyAckTime(30, site)]
+	system.tag.writeBlocking(paths, values)
+	if _due("roster", 4):
+		publishRoster()

@@ -12,7 +12,7 @@
       "timestamp": "2026-09-18T02:51:12Z"
     },
     "enabled": true,
-    "sharedThread": true,
+    "sharedThread": false,
     "delay": 1000,
     "fixedDelay": true
   }

@@ -89,8 +89,7 @@
     "duty": {
       "onDuty": 0,
       "total": 7
-    },
-    "tick": 0
+    }
   },
   "params": {},
   "props": {
@@ -1038,7 +1037,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1076,7 +1075,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1114,7 +1113,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1152,7 +1151,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[0].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1450,7 +1449,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1488,7 +1487,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1526,7 +1525,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1564,7 +1563,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[1].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1862,7 +1861,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1900,7 +1899,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1938,7 +1937,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -1976,7 +1975,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[2].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2274,7 +2273,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2312,7 +2311,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2350,7 +2349,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2388,7 +2387,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[3].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2686,7 +2685,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2724,7 +2723,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2762,7 +2761,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -2800,7 +2799,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[4].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3098,7 +3097,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3136,7 +3135,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3174,7 +3173,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3212,7 +3211,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[5].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3510,7 +3509,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Day Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Day Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3548,7 +3547,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Afternoon Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Afternoon Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3586,7 +3585,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Night Shift')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Night Shift')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -3624,7 +3623,7 @@
                               "component": {
                                 "onActionPerformed": {
                                   "config": {
-                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Always')\n\tself.view.custom.tick = self.view.custom.tick + 1"
+                                    "script": "\tAlarmDemo.roster.setSchedule(\n\t\tself.view.custom.people[6].username, 'Always')\n\tAlarmDemo.alarms.publishRoster()"
                                   },
                                   "scope": "G",
                                   "type": "script"
@@ -5024,30 +5023,18 @@
   "propConfig": {
     "custom.people": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.peopleRows()"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/People"
+        }
       }
     },
     "custom.duty": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "toStr({view.custom.tick}) + toStr(now(5000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.roster.dutySummary()"
-          }
-        ]
+          "tagPath": "[AlarmDemo]Live/Duty"
+        }
       }
     }
   }

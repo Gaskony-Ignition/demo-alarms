@@ -82,6 +82,13 @@ carries (`AlarmDemo.tagdata`). The collision policy is overwrite, scoped to the
 demo's own provider — the call names `[AlarmDemo]` and can reach nothing
 outside it. Tag values are simulated every second, so a rerun loses nothing.
 
+It also writes a `Live` folder of memory tags (datasets and documents, no
+alarms) that the `PlantSim` timer fills each second with the values every
+session shares: each site's active alarms, area metrics, routing and 30-day
+series, and the rosters, duty and people. The screens bind to these rather
+than each session running the same script. A gateway set up before this folder
+existed shows this row as missing until the button is pressed again.
+
 ### 4. Journal tables
 
 `_journalTablesFix` → `AlarmDemo.backfill.ensureSchema()`.

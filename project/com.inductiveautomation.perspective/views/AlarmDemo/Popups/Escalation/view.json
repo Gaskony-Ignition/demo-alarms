@@ -111,14 +111,8 @@
             "binding": {
               "type": "expr",
               "config": {
-                "expression": "toStr(now(60000))"
-              },
-              "transforms": [
-                {
-                  "type": "script",
-                  "code": "\treturn AlarmDemo.roster.escalationTable()"
-                }
-              ]
+                "expression": "runScript(\"AlarmDemo.roster.escalationTable\", 0)"
+              }
             }
           }
         },

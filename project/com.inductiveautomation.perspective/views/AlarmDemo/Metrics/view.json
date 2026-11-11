@@ -3677,58 +3677,52 @@
   "propConfig": {
     "custom.areas": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "{session.custom.site} + toStr(now(3000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.alarms.areaMetrics(self.session.custom.site)"
+          "tagPath": "[AlarmDemo]Live/{1}/AreaMetrics",
+          "mode": "indirect",
+          "references": {
+            "1": "{session.custom.site}"
           }
-        ]
+        }
       }
     },
     "custom.areaCount": {
       "binding": {
         "type": "expr",
         "config": {
-          "expression": "{session.custom.site} + toStr(now(30000))"
+          "expression": "{session.custom.site}"
         },
         "transforms": [
           {
             "type": "script",
-            "code": "\treturn len(AlarmDemo.alarms.siteAreas(self.session.custom.site))"
+            "code": "\treturn len(AlarmDemo.alarms.siteAreas(value))"
           }
         ]
       }
     },
     "custom.dailyLoad": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "{session.custom.site} + toStr(now(60000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.alarms.dailyLoad(30, self.session.custom.site)"
+          "tagPath": "[AlarmDemo]Live/{1}/DailyLoad",
+          "mode": "indirect",
+          "references": {
+            "1": "{session.custom.site}"
           }
-        ]
+        }
       }
     },
     "custom.dailyAck": {
       "binding": {
-        "type": "expr",
+        "type": "tag",
         "config": {
-          "expression": "{session.custom.site} + toStr(now(60000))"
-        },
-        "transforms": [
-          {
-            "type": "script",
-            "code": "\treturn AlarmDemo.alarms.dailyAckTime(30, self.session.custom.site)"
+          "tagPath": "[AlarmDemo]Live/{1}/DailyAck",
+          "mode": "indirect",
+          "references": {
+            "1": "{session.custom.site}"
           }
-        ]
+        }
       }
     }
   }
