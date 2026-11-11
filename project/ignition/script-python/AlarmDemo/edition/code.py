@@ -30,29 +30,29 @@ _CACHE = {}
 
 
 def _hasResourceType(module, typeId):
-    """Is a config resource type registered on this gateway?
+	"""Is a config resource type registered on this gateway?
 
     The structural question, asked of `system.config.getResourceTypes()`.
     Catching java.lang.Throwable as well as Exception is deliberate: a Java
     error raised inside a system call is not an Exception in Jython and would
     escape an `except Exception` untouched.
     """
-    from java.lang import Throwable as JThrowable
-    key = (module, typeId)
-    if key in _CACHE:
-        return _CACHE[key]
-    try:
-        answer = key in system.config.getResourceTypes()
-    except (JThrowable, Exception):
-        LOG.warn("could not read the gateway's resource types - "
-                 "assuming '%s' is absent" % typeId)
-        answer = False
-    _CACHE[key] = answer
-    return answer
+	from java.lang import Throwable as JThrowable
+	key = (module, typeId)
+	if key in _CACHE:
+		return _CACHE[key]
+	try:
+		answer = key in system.config.getResourceTypes()
+	except (JThrowable, Exception):
+		LOG.warn("could not read the gateway's resource types - "
+				 "assuming '%s' is absent" % typeId)
+		answer = False
+	_CACHE[key] = answer
+	return answer
 
 
 def isEdge():
-    """Is this an Ignition Edge gateway?
+	"""Is this an Ignition Edge gateway?
 
     Asked of the ONE type only Edge registers: ('ignition',
     'edge-sync-settings').
@@ -63,21 +63,21 @@ def isEdge():
     Measured the same day by diffing both editions on 8.3.8: 60 registered
     types on standard, 55 on Edge, and exactly one of them Edge-only.
     """
-    return _hasResourceType("ignition", "edge-sync-settings")
+	return _hasResourceType("ignition", "edge-sync-settings")
 
 
 def hasDatabase():
-    """Can this gateway hold a database connection at all?
+	"""Can this gateway hold a database connection at all?
 
     'database-connection' is one of the six types that exist on standard and
     not on Edge. This is a question about the PLATFORM, not about whether a
     connection has been configured - AlarmDemo.config answers that one.
     """
-    return _hasResourceType("ignition", "database-connection")
+	return _hasResourceType("ignition", "database-connection")
 
 
 def journalName():
-    """The alarm journal this gateway actually keeps history in.
+	"""The alarm journal this gateway actually keeps history in.
 
     Everywhere but Edge it is the demo's own profile, named for the demo.
     Edge permits exactly one and the platform makes it (EdgeJournal, unless a
@@ -88,27 +88,27 @@ def journalName():
     table pointed at a profile that does not exist shows an empty history and
     reports no error, which is indistinguishable from a quiet plant.
     """
-    from java.lang import Throwable as JThrowable
-    mine = AlarmDemo.alarms.PROVIDER
-    if not isEdge():
-        return mine
-    try:
-        have = sorted([unicode(r.getName()) for r in
-                       system.config.getResources(moduleId="ignition",
-                                                  typeId="alarm-journal")])
-    except (JThrowable, Exception):
-        have = []
-    if mine in have:
-        return mine
-    return have[0] if have else mine
+	from java.lang import Throwable as JThrowable
+	mine = AlarmDemo.alarms.PROVIDER
+	if not isEdge():
+		return mine
+	try:
+		have = sorted([unicode(r.getName()) for r in
+					   system.config.getResources(moduleId="ignition",
+												  typeId="alarm-journal")])
+	except (JThrowable, Exception):
+		have = []
+	if mine in have:
+		return mine
+	return have[0] if have else mine
 
 
 def describe():
-    """One line for the Setup screen's header, and for ?cmd=version."""
-    if isEdge():
-        return (u"Ignition Edge - no database on this edition, so the "
-                u"analytics read the alarm journal directly")
-    if not hasDatabase():
-        return (u"this gateway has no database module - the analytics read "
-                u"the alarm journal directly")
-    return u"standard Ignition - the analytics are SQL over the journal tables"
+	"""One line for the Setup screen's header, and for ?cmd=version."""
+	if isEdge():
+		return (u"Ignition Edge - no database on this edition, so the "
+				u"analytics read the alarm journal directly")
+	if not hasDatabase():
+		return (u"this gateway has no database module - the analytics read "
+				u"the alarm journal directly")
+	return u"standard Ignition - the analytics are SQL over the journal tables"

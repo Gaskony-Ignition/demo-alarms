@@ -258,12 +258,26 @@ def view(root, params=None, custom=None, propconfig=None, size=(1600, 900)):
     return v
 
 
+def _tabs(node):
+    """Indent every view script with tabs only: continuation lines are written
+    here as a tab plus spaces, which Jython runs but the linters reject."""
+    if isinstance(node, dict):
+        return dict((k, _tabs(x) if k not in ("script", "code") or
+                     not isinstance(x, str) else re.sub(
+                         r"(?m)^(\t+)( +)",
+                         lambda m: m.group(1) + "\t" * (len(m.group(2)) // 4), x))
+                    for k, x in node.items())
+    if isinstance(node, list):
+        return [_tabs(x) for x in node]
+    return node
+
+
 def write(path, v):
     d = os.path.join(VIEWS, path)
     if not os.path.isdir(d):
         os.makedirs(d)
     with open(os.path.join(d, "view.json"), "w") as f:
-        json.dump(v, f, indent=2)
+        json.dump(_tabs(v), f, indent=2)
         f.write("\n")
 
 
