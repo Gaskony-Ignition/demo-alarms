@@ -1,16 +1,7 @@
-"""
-AlarmDemo.simmfg - ACME Manufacturing simulation (beverage bottling line).
+"""AlarmDemo.simmfg - ACME Manufacturing simulation (beverage bottling line).
 
-Same contract as AlarmDemo.sim: driven by the PlantSim timer, writes only
-memory tags, no external dependency. The two sites run side by side so that
-switching between them is instant and both have live alarms.
-
-The line is modelled as a chain, because that is what makes a packaging demo
-read as real: a fault or a jam anywhere stops everything downstream, the line
-stop is what actually costs money, and OEE falls out of accumulated downtime
-rather than being a number that wanders on its own.
-
-    mixing  ->  filling  ->  capping  ->  labelling  ->  case packing  ->  palletising
+Same contract as AlarmDemo.sim. The line is a chain (mixing to palletising):
+a fault or jam stops everything downstream, and OEE follows the downtime.
 """
 
 import math
@@ -83,6 +74,7 @@ def _noise(s):
 
 
 def tick():
+	"""One simulation step. Never raises - a demo must not stop on a bad tick."""
 	try:
 		_tick()
 	except:
@@ -104,7 +96,6 @@ def _tick():
 
 	w["Utilities/LineCommsFault"] = bool(comms)
 
-	# ---- utilities --------------------------------------------------------
 	comp_fault = bool(t.get("Utilities/AirCompressor/Fault"))
 	if air_loss:
 		comp_fault = True
@@ -140,7 +131,6 @@ def _tick():
 	# air below the pneumatic limit stops the line just as surely as a fault
 	air_ok = air > 500.0
 
-	# ---- machines ---------------------------------------------------------
 	# A machine is down if it is faulted or jammed; everything downstream of a
 	# down machine is starved and stops too.
 	down_index = None
@@ -183,7 +173,6 @@ def _tick():
 	line_stopped = (down_index is not None) or not air_ok
 	w["Packaging/LineStopped"] = bool(line_stopped)
 
-	# ---- rates ------------------------------------------------------------
 	target_bpm = 480.0
 	speed = 0.0 if line_stopped else target_bpm + _noise(6.0)
 	w["Packaging/LineSpeed"] = round(speed, 0)
@@ -193,7 +182,6 @@ def _tick():
 	# 24 bottles to a case, DT seconds of production per tick
 	w["Packaging/CasesProduced"] = int(cases + (speed / 24.0) * (DT / 60.0))
 
-	# ---- mixing -----------------------------------------------------------
 	syrup = t.get("Mixing/SyrupTank/Level")
 	syrup = 70.0 if syrup is None else syrup
 	if not line_stopped:
@@ -215,7 +203,6 @@ def _tick():
 	bt += (target_bt - bt) * 0.08 + _noise(0.15)
 	w["Mixing/BatchTemperature"] = round(_clamp(bt, 0.0, 90.0), 1)
 
-	# ---- filling ----------------------------------------------------------
 	co2 = t.get("Filling/CO2Pressure")
 	co2 = 420.0 if co2 is None else co2
 	target_co2 = 250.0 if scenario == "CO2Loss" else 425.0
@@ -233,10 +220,7 @@ def _tick():
 	rej += (target_rej - rej) * 0.12 + abs(_noise(0.06))
 	w["Filling/FillRejectRate"] = round(_clamp(rej, 0.0, 20.0), 2)
 
-	# ---- OEE --------------------------------------------------------------
-	# A slow exponential average of availability x quality, so a line stop
-	# visibly drags it down and it recovers over a believable period rather
-	# than snapping back the moment the fault clears.
+	# Slow exponential average of availability x quality, so it recovers gradually after a stop.
 	oee = t.get("Packaging/OEE")
 	oee = 87.0 if oee is None else oee
 	instant = 0.0 if line_stopped else (100.0 - rej * 1.8) * 0.965

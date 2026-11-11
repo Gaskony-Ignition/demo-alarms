@@ -1,75 +1,27 @@
 """
-AlarmDemo.setup - stand the whole demo up on a gateway, from the project.
-
-This is what makes the demo a STANDALONE import. Everything it needs that is
-not a project resource - the tag provider, the 122 tags and their 76 alarms,
-the alarm journal profile, the journal tables, the shift schedules, the users,
-the on-call rosters and thirty days of history - is created from here, by the
-project, on the gateway it was imported onto. There is no package to unpack, no
-second file to import in the Designer, and no config scan to remember: 8.3's
-`system.config` lets a gateway-scope script create the config resources that
-used to have to travel as files.
-
-    AlarmDemo.setup.check()           # report on every item, change nothing
-    AlarmDemo.setup.run()             # create whatever is missing
-    AlarmDemo.setup.fix("tags")       # just one item
-    AlarmDemo.setup.run(force=True)   # also reset rosters and shifts to the
-                                      # shipped design, discarding edits made
-                                      # on the Notifications screen
-
-The Setup screen calls exactly these, one row per item. So does
-
-    curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=check"
-    curl "http://<gateway>/system/webdev/AlarmDemo/admin?cmd=setup"
-
-SINCE 3.0.0 THERE IS NOTHING IT CANNOT DO. The database connection was the
-last exception, and it could not have been otherwise: it needed a host, a user
-and a password, and a credential has no business travelling inside a project
-export - so it was made by hand in Config -> Databases -> Connections and the
-demo was only told its NAME. SQLite removed the question, so the button now
-makes the connection too. The name is still a setting (AlarmDemo.config),
-because WHICH connection a given gateway should use is not something an export
-can know - and because a name a human chose may be a connection other projects
-on that gateway read from, which is why nothing here ever alters one.
-
-Every check is independent and none of them stops at the first failure:
-"the connection is fine but the tables are missing" and "the connection is
-wrong" need different actions and look identical if you only ever see the
-first error.
+AlarmDemo.setup - stand the demo up on a gateway from the project itself.
+Creates the tag provider, tags, SQLite connection, journal profile and tables,
+schedules, users, rosters and history. check() reports; run() creates.
 """
 
-# The datasource, journal tables and tag provider are named ONCE, in
-# AlarmDemo.alarms. Copies in this file are how "change the DB constant"
-# quietly became a three-file edit that a fresh install gets wrong in one of
-# them and then debugs as a blank screen.
-DB = AlarmDemo.alarms.DB   # a function - see its docstring
+# DB and PROVIDER are defined once, in AlarmDemo.alarms.
+DB = AlarmDemo.alarms.DB   # a function: call DB() for the connection name
 PROVIDER = AlarmDemo.alarms.PROVIDER
 
 LOG = system.util.getLogger("AlarmDemo.setup")
 
-# Derived, never re-listed: AlarmDemo.roster is the design, and a second copy
-# of these names here is a rename waiting to be half-done.
+# Derived from AlarmDemo.roster, which owns the names.
 SCHEDULES = [s[0] for s in AlarmDemo.roster.SCHEDULES]
 ROSTERS = [r[0] for r in AlarmDemo.roster.ROSTERS]
 
-# One tag from each end of the provider. Reading both is how "the tags are
-# there" is told apart from "the first area imported and then it failed".
+# One tag from each end of the provider: reading both tells a complete import
+# from one that failed partway.
 PROBE_TAGS = ["Intake/RawTurbidity", "Plant/DemoScenario"]
 
 
-# --------------------------------------------------------------------------
-# gateway config resources
-# --------------------------------------------------------------------------
-# The tag provider and the alarm journal profile are gateway CONFIG resources,
-# not project resources, so they cannot be in the export. Before 8.3 that made
-# them a manual step; `system.config` creates them from here, live, with no
-# scan and no restart.
-#
-# The two config bodies below are the same JSON the resources have on disk at
-# data/config/resources/core/ignition/<type>/<name>/config.json. They are kept
-# HERE and nowhere else. A `gateway/` directory used to hold a second copy as
-# files, for anyone who would rather scan them in, and a second copy of a
-# definition is a definition that goes stale on one side without saying so.
+# The tag provider and alarm journal profile are gateway config resources, so
+# they are not in the project export; system.config creates them live. The
+# bodies below match the on-disk config.json and are kept only here.
 
 TAG_PROVIDER_CONFIG = {
 	"profile": {
@@ -89,12 +41,9 @@ TAG_PROVIDER_CONFIG = {
 
 
 def journalConfig(datasource):
-	"""The alarm journal profile, pointed at whichever connection is set.
-
-    Ignition's own default table names, not DMC_*: the demo's queries and its
-    backfill both write these, and a journal profile pointed somewhere else is
-    a screen full of nothing with no error anywhere.
-    """
+	"""The alarm journal profile config, writing to the given datasource."""
+	# Ignition's default table names: a profile pointed at other tables leaves
+	# the journal screens empty with no error.
 	return {
 		"profile": {"queryOnly": False, "type": "DATASOURCE"},
 		"settings": {
@@ -117,9 +66,9 @@ def journalConfig(datasource):
 
 
 def _resource(typeId, name):
-	"""A config resource, or None. `getResource` RAISES when it is missing
-    rather than returning None, whatever the docs say, and it raises a Java
-    throwable that a plain `except Exception` walks straight past."""
+	"""A config resource, or None."""
+	# getResource raises a Java throwable when the resource is missing; a plain
+	# `except Exception` does not catch it.
 	from java.lang import Throwable as JThrowable
 	try:
 		return system.config.getResource(moduleId="ignition", typeId=typeId,
@@ -129,20 +78,14 @@ def _resource(typeId, name):
 
 
 def _config(res):
-	"""A resource's config as a plain dict.
-
-    getConfig() hands back live wrapper objects; round-tripping through JSON
-    is what makes them ordinary Python to compare and to mutate.
-    """
+	"""A resource's config as a plain dict."""
+	# Round-tripped through JSON because getConfig() returns live wrappers.
 	return system.util.jsonDecode(system.util.jsonEncode(res.getConfig()))
 
 
 def _upsert(typeId, name, config, description):
-	"""Create the resource, or replace it if it is already there.
-
-    `replace` needs the CURRENT signature - it is optimistic concurrency, and
-    without it the call is refused.
-    """
+	"""Create the resource, or replace it if it exists; return "created" or "updated"."""
+	# replace needs the current signature (optimistic concurrency).
 	existing = _resource(typeId, name)
 	if existing is None:
 		system.config.create(moduleId="ignition", typeId=typeId, name=name,
@@ -155,72 +98,23 @@ def _upsert(typeId, name, config, description):
 	return "updated"
 
 
-# --------------------------------------------------------------------------
-# the database connection
-# --------------------------------------------------------------------------
-# SQLite, in a file beside the gateway, created by the button.
-#
-# This demo used to want PostgreSQL, and asked for a host, a database, a user
-# and a password, because none of those can travel inside a project export.
-# That was one honest form on a Setup screen - and a wrong answer to the
-# question the demo exists to answer. What it is for is a salesperson opening
-# a laptop in front of a customer: install Ignition, import one zip, press one
-# button. A database server they have to install first is not a step in that
-# story, it is the end of it.
-#
-# SQLite is what makes the story true, because it needs no server and no
-# credential - not because nothing else would connect. An earlier version of
-# this comment said a blank 8.3.8 has no PostgreSQL driver, and that is wrong:
-# it ships PostgreSQL, MariaDB and MSSQL as JDBC driver MODULES, and a working
-# PostgreSQL connection can be made on a gateway built from nothing. What is
-# true is narrower and stranger. The three `database-driver` CONFIG RESOURCES a
-# blank gateway carries are MySQL, Oracle Database and SQLite - and MySQL and
-# Oracle are the two that do NOT work, because user-lib/jdbc is empty and their
-# jars are not redistributable. The gateway's own Create Database Connection
-# form disables exactly those two, under a "Drivers with Missing Files" banner,
-# while offering the three modules that have no resource at all.
-#
-# So the resource list is a list of definitions, not of capability, and it is
-# wrong in both directions. AlarmDemo.config.drivers() reads it, which is fine
-# for the one question this file asks it - is SQLite there - and no basis for
-# any broader claim. All verified on a container built from nothing,
-# 28/08/2026.
-#
-# So there is no host, no port, no user and no password to ask for, and the
-# whole credential apparatus this file used to carry - encrypt(), then
-# createEmbeddedSecretConfig(), and a comment explaining why both - is gone
-# with them. The connection is a file path, and the file is the gateway's own
-# data directory, which is where a gateway's own state already lives and is
-# what a gateway backup already carries.
+# The database is SQLite in a file in the gateway's data directory: no server
+# or credential, so nothing needs to travel in a project export.
 
-# `${data}` is expanded by Ignition, not by us - the SQLite driver's own URL
-# instructions name it, and it resolves to the gateway's data directory on
-# every platform, so the same string is right on Windows, on Linux and in the
-# container image.
+# Ignition expands ${data} to the gateway data directory on every platform.
 DB_FILE = "alarm-demo.db"
 
-# journal_mode=WAL is not a tuning knob here, it is what makes the demo work
-# at all: the plant simulation writes journal rows from a gateway timer while
-# a Perspective session reads them for the analytics, and rollback-journal
-# SQLite blocks the readers for the length of every write. WAL lets them run
-# together. busy_timeout then covers the one case WAL does not - two writers,
-# the timer and the history backfill - by waiting rather than failing.
+# WAL lets the gateway timer write journal rows while sessions read them;
+# busy_timeout makes the second writer (timer and backfill) wait, not fail.
 DB_URL = ("jdbc:sqlite:${data}/%s?journal_mode=WAL&busy_timeout=30000"
 		  % DB_FILE)
 
-# `driver` names a database-driver resource; `translator` names a stock
-# database-translator. Both ship with Ignition.
+# `driver` names a database-driver resource; `translator` a stock translator.
 DB_DRIVER = "SQLite"
 DB_TRANSLATOR = "SQLITE"
 
-# The pool and timeout settings are Ignition's own defaults for a new
-# connection, read off one the gateway made itself - not tuned here, with one
-# exception. A demo has no business inventing a connection pool.
-#
-# The exception is poolMaxActive, 8 -> 4. Eight pooled connections onto one
-# SQLite file is eight processes contending for one write lock; four is enough
-# for the sim, the journal and a couple of sessions, and halves the contention
-# WAL and busy_timeout then have to absorb.
+# Ignition's defaults for a new connection, except poolMaxActive (8 -> 4):
+# eight pooled connections contend for SQLite's single write lock.
 DB_DEFAULTS = {
 	"connectionProps": "",
 	"connectionResetParams": "",
@@ -246,27 +140,18 @@ DB_DEFAULTS = {
 
 
 def databaseDefaults():
-	"""What the Setup screen shows about the connection it would make.
-
-    Not a form any more - there is nothing to fill in - so this is what the
-    row says before the button is pressed.
-    """
+	"""The connection name, driver and file the Setup screen shows before it is made."""
 	return {"name": AlarmDemo.config.DEFAULT_DB,
 			"driver": DB_DRIVER,
 			"file": u"<gateway data directory>/%s" % DB_FILE}
 
 
 def createDatabase(name=None):
-	"""Create the demo's SQLite connection and point the demo at it.
+	"""Create the SQLite connection and point the demo at it; return a one-line account.
 
-    Takes a name and nothing else: there is no server to reach, no credential
-    to hold, and the file is made by the driver on first use if it is not
-    there. Returns a one-line account, or raises with something readable.
-
-    It will NOT overwrite a connection that already exists under that name. A
-    gateway running this demo may be running other things too, and quietly
-    replacing someone else's connection is not a thing a demo gets to do.
-    """
+	Raises if a connection of that name already exists (it is never overwritten)
+	or the SQLite driver is missing.
+	"""
 	name = (name or AlarmDemo.config.DEFAULT_DB).strip()
 	if not name:
 		raise ValueError("give the connection a name")
@@ -299,12 +184,8 @@ def createDatabase(name=None):
 	AlarmDemo.config.save(name)
 	LOG.info("created SQLite connection '%s' at %s" % (name, DB_URL))
 
-	# Creating the RESOURCE and having a live, pooled CONNECTION are not the
-	# same moment. The resource registers straight away; the pool then has to
-	# start and open the file, and until it does a query against the name
-	# fails. Returning immediately meant the page could say "created" on one
-	# line and "did not answer" on the next, about the same connection, in the
-	# same second - which reads as a create that did not work.
+	# The resource registers at once but the pool needs a moment to open the
+	# file; wait so the page does not say "created" then "did not answer".
 	from java.lang import Thread as JThread
 	for _attempt in range(15):
 		ok, _detail = _database()
@@ -315,19 +196,12 @@ def createDatabase(name=None):
 			u"it is not answering yet - check the row below in a moment" % name)
 
 
-# --------------------------------------------------------------------------
-# the items
-# --------------------------------------------------------------------------
 # Each item is (key, title, check, fix, why). `check` returns (ok, detail);
-# `fix` returns a one-line account of what it did, or raises. A fix of None
-# means the item cannot be created from a project - since 3.0.0 there are
-# none: the database connection was the last one, and SQLite is what let it
-# have a fix like everything else.
+# `fix` returns a one-line account of what it did, or raises.
 
 
 def _driverOf(name):
-	"""The JDBC driver a connection is configured with, or None if there is no
-    such connection or its config cannot be read."""
+	"""The JDBC driver of a connection, or None if it is missing or unreadable."""
 	res = _resource("database-connection", name)
 	if res is None:
 		return None
@@ -338,18 +212,9 @@ def _driverOf(name):
 		return None
 
 
-# --------------------------------------------------------------------------
-# gateways without a database
-# --------------------------------------------------------------------------
-# Ignition Edge has no database connectivity at all - no SQL Bridge, no JDBC
-# driver modules, no SQL historian - so four of the nine items below are asking
-# a question that edition cannot answer. None of them goes RED for it: a row is
-# red when something is wrong, and running on Edge is not. Each says instead
-# what Edge does in place of the thing it was checking for, and reports
-# fixable=False, because the platform refuses the create rather than failing it
-# slowly.
-#
-# AlarmDemo.edition owns the detection; this module only branches on it.
+# Ignition Edge has no database connectivity, so four items cannot be answered
+# there. They report what Edge does instead, not red, and are not fixable.
+# AlarmDemo.edition owns the detection.
 
 NO_DATABASE_ITEMS = ("database", "journalTables", "journalProfile", "history")
 
@@ -375,21 +240,9 @@ def _database():
 		return False, (u"connection '%s' did not answer. This gateway has: %s"
 					   % (name, u", ".join(have) if have else u"(none)"))
 
-	# Answering is not the same as being usable, and the gap between them is
-	# invisible on every other screen. A gateway upgraded in place from 2.0.0
-	# still points at the PostgreSQL connection 2.0.0 told it to make by hand.
-	# `SELECT 1` succeeds against it, so this row would go green - and every
-	# analytic would return nothing, because 3.0.0 changed the SQL underneath
-	# to SQLite's dialect: strftime() for the date arithmetic, epoch millis
-	# held as TEXT in eventtime, no split_part and no generate_series. Those
-	# queries do not fail on PostgreSQL, they come back empty. Green
-	# connection, empty charts, and nothing on screen joining the two.
-	#
-	# The Setup row shows this on one ellipsised line, so the diagnosis has to
-	# be complete in the first clause - "answered, but it is a PostgreSQL
-	# connection" truncates to "answered, but it is a PostgreSQL c...", which
-	# reads as a complaint about nothing. What the button does about it is the
-	# button's business, and _databaseFix says so when it runs.
+	# SELECT 1 passes on a PostgreSQL connection left by an older install, but
+	# the analytics SQL is SQLite dialect and returns empty there, so check the
+	# driver. The Setup row ellipsises, so the diagnosis comes first.
 	driver = _driverOf(name)
 	if driver is not None and driver != DB_DRIVER:
 		return False, (u"'%s' is a %s connection, not %s - this demo's queries "
@@ -399,30 +252,11 @@ def _database():
 
 
 def _databaseFix():
-	"""Make the demo's SQLite connection.
-
-    This item had no fix at all until 3.0.0, and could not have had one: the
-    connection needed a host, a user and a password, and a project cannot
-    carry any of them. That is the whole reason it was the one row on the
-    Setup screen with a form instead of a button, and the reason "Set up this
-    gateway" did not actually set up the gateway - it created eight of the
-    nine things and left the ninth to a human.
-
-    SQLite removes the question, so the button can answer it.
-
-    It never repairs a connection that already exists. The demo's connection
-    NAME is a setting a human may have pointed at a connection other projects
-    read from, so rewriting it is not this project's call - and a repair path
-    has no business being more invasive than the create path it repairs, which
-    refuses to overwrite at all. When the configured connection is the wrong
-    engine, the fix is a new SQLite connection under a free name and a change
-    to this demo's own setting; the other connection is not touched.
-    """
+	"""Make the demo's SQLite connection, leaving any existing other-engine one alone."""
 	name = DB()
 	driver = _driverOf(name)
 	if driver is None or driver == DB_DRIVER:
-		# Absent (make it) or already SQLite (createDatabase says so, and
-		# refuses) - either way the existing path is the right one.
+		# Absent: create it. Already SQLite: createDatabase refuses with a reason.
 		return createDatabase(name)
 
 	for candidate in [AlarmDemo.config.DEFAULT_DB,
@@ -442,33 +276,16 @@ def _databaseFix():
 		% (name, driver))
 
 
-# --------------------------------------------------------------------------
-# the Edge visualization module
-# --------------------------------------------------------------------------
-# Ignition Edge ships with its Visualization Module set to VISION, and until it
-# is PERSPECTIVE **no Perspective session opens at all** - the browser gets
-# "Sessions Exceeded", which reads as a licensing problem and is not one.
-#
-# That makes it the first item on the list and the only one that has to be
-# fixed before the Setup SCREEN can be seen, so on Edge the install runs the
-# setup through the WebDev endpoint instead:
-#
-#     curl 'http://<edge>/system/webdev/<project>/admin?cmd=setup'
-#
-# It is a gateway setting rather than a project one, which is why a sibling
-# project documented it as a manual step. It does not have to be: it is an
-# ordinary config resource and system.config can write it live.
+# Edge ships with its visualization module set to VISION; until it is
+# PERSPECTIVE no Perspective session opens ("Sessions Exceeded"). It is an
+# ordinary config resource, so system.config can set it.
 
 EDGE_VISUALIZATION = "PERSPECTIVE"
 
 
 def _edgeSystemProperties():
-	"""Edge's own settings resource, or None off Edge.
-
-    A singleton - its directory holds config.json directly, with no name
-    segment - so it is found by enumerating the type rather than by asking for
-    a name this project would have to guess.
-    """
+	"""Edge's settings resource, or None off Edge."""
+	# A singleton with no name segment, so it is found by enumerating the type.
 	from java.lang import Throwable as JThrowable
 	try:
 		found = list(system.config.getResources(
@@ -500,9 +317,7 @@ def _edgeVisualizationFix():
 	config = _config(res)
 	was = config.get("visualizationName")
 	config["visualizationName"] = EDGE_VISUALIZATION
-	# `replace` is optimistic concurrency and needs the CURRENT signature;
-	# without it the call is refused. The resource is a singleton, so its name
-	# is whatever the platform called it rather than something to invent.
+	# replace needs the current signature; the singleton keeps the platform's name.
 	system.config.replace(moduleId="ignition", typeId="edge-system-properties",
 						  name=res.getName(), config=config,
 						  signature=res.getSignature(),
@@ -514,10 +329,8 @@ def _edgeVisualizationFix():
 def _tagProviderCheck():
 	if _resource("tag-provider", PROVIDER) is None:
 		if AlarmDemo.edition.isEdge():
-			# Edge permits exactly ONE realtime provider and the platform owns
-			# it. Creating a second is refused at startup, so there is nothing
-			# this project can do about it - but there is something a human
-			# can, in one dropdown, which is what this says.
+			# Edge allows one realtime provider, owned by the platform; a second is
+			# refused at startup, so the fix is a human setting.
 			return False, (u"tag provider '%s' does not exist. Edge keeps one "
 						   u"realtime provider and this build is built for a "
 						   u"provider of that name - set Config -> Ignition "
@@ -548,19 +361,11 @@ def _tagsCheck():
 
 
 def _tagsFix():
-	"""Write the demo's tags into the provider.
-
-    `collisionPolicy="o"` - overwrite. The tags are generated and the project
-    is their only source, so a rerun should put the gateway back to the shipped
-    design rather than merge with whatever is there. Tag VALUES are simulated
-    every second anyway, so nothing of anyone's is lost.
-    """
+	"""Write the demo's tags into the provider, overwriting what is there."""
 	from java.lang import Thread as JThread
 	areas = AlarmDemo.tagdata.tags()
-	# A provider created seconds ago is registered but not necessarily
-	# accepting writes yet, and the failure is a bare exception rather than
-	# anything that says "try again". Three goes over three seconds; the first
-	# one succeeds on a provider that was already there.
+	# A just-created provider may not accept writes yet and fails with a bare
+	# exception, so retry three times.
 	last = None
 	for attempt in range(3):
 		try:
@@ -574,8 +379,7 @@ def _tagsFix():
 
 
 def _journalTablesCheck():
-	"""The tables exist and are readable. Counts this demo's rows, not
-    everybody's - see _historyCheck for why that distinction earns its keep."""
+	"""The tables are readable; counts this demo's rows only."""
 	if _noDatabase():
 		return True, (u"%s keeps its journal internally - there are no "
 					  u"alarm_events tables to create, and nothing reads them"
@@ -596,21 +400,11 @@ def _journalTablesFix():
 
 
 def _journalProfileCheck():
-	"""Prove the PROFILE exists and points at this demo's tables.
-
-    This is the check that separates the two ways a journal looks empty. The
-    backfill writes straight into the tables, so the item above can report
-    thousands of rows while every journal screen is blank - which is what a
-    missing or misdirected profile looks like, and it reports no error
-    anywhere.
-    """
+	"""The journal profile exists and writes to the demo's connection."""
 	if _noDatabase():
-		# Edge permits exactly one journal, the platform owns it, and creating
-		# a second is refused outright with
-		# UnsupportedOperationException("Cannot create Alarm Journal on
-		# Edge"). So the question here is not "is ours there" but "is there
-		# one at all, and is it the LOCAL flavour" - a DATASOURCE profile left
-		# behind on a gateway with no datasource keeps nothing.
+		# Edge allows one journal, owned by the platform; creating another raises.
+		# So check that one exists and is the LOCAL kind, as a DATASOURCE profile
+		# with no datasource keeps nothing.
 		name = AlarmDemo.edition.journalName()
 		res = _resource("alarm-journal", name)
 		if res is None:
@@ -664,19 +458,9 @@ ALARM_NOTIFICATION_MISSING = (
 
 
 def _hasAlarmNotification():
-	"""Is the Alarm Notification module on this gateway?
-
-    Asked of the CONFIG RESOURCE TYPE rather than of system.alarm, for two
-    reasons. `roster-config` is registered by that module, so its presence is
-    the same question; and `system.alarm.getRosters` is missing rather than
-    failing on a gateway without it, so calling it produces an AttributeError
-    that reads like a bug in this project.
-
-    It is worth naming: on a gateway with the module absent, every other row
-    on the Setup screen goes green and this one reported
-    "ValueError: Resource type not found: ignition/roster-config", which says
-    nothing about what to do.
-    """
+	"""True if the Alarm Notification module is installed."""
+	# Tested through the roster-config resource type: system.alarm.getRosters is
+	# absent without the module and the AttributeError reads like our bug.
 	from java.lang import Throwable as JThrowable
 	try:
 		for module, typeId in system.config.getResourceTypes():
@@ -688,14 +472,8 @@ def _hasAlarmNotification():
 
 
 def _rostersCheck():
-	"""Read the roster CONFIG RESOURCES, not system.alarm.getRosters().
-
-    getRosters() belongs to the Alarm Notification module, and on a gateway
-    that has the module it returns roster NAMES with an empty user list for
-    every roster - so it cannot answer this question either way. The config
-    resources are what AlarmDemo.roster creates and edits, so they are what
-    this row asks about.
-    """
+	"""Check the roster config resources exist."""
+	# Not system.alarm.getRosters(), which returns names with empty user lists.
 	if not _hasAlarmNotification():
 		return False, ALARM_NOTIFICATION_MISSING
 	have = [unicode(r.getName()) for r in
@@ -720,13 +498,8 @@ def _usersCheck():
 
 
 def _peopleFix(force=False):
-	"""Schedules, people and rosters - one call, because they are one design.
-
-    Reports what it could not do rather than throwing: on a gateway without
-    Alarm Notification the schedules and the people are still created and only
-    the rosters cannot be, and a run that creates six of seven things should
-    say so rather than look like a failure.
-    """
+	"""Create schedules, people and rosters, reporting rather than raising on partial success."""
+	# Without Alarm Notification the rosters cannot be made but the rest can.
 	if not _hasAlarmNotification():
 		AlarmDemo.roster.ensureSchedules()
 		AlarmDemo.roster.ensureUsers()
@@ -743,20 +516,9 @@ def _peopleFix(force=False):
 
 
 def _historyCheck():
-	"""Read THIS DEMO'S history back THROUGH the profile.
-
-    Two things have to be true and they are different questions. Rows in the
-    table prove the backfill ran; rows read back through the profile prove the
-    journal SCREENS will have something to show. Only the second is worth a
-    row on this page.
-
-    `source` is not optional. Without it the query counts every event in the
-    journal, and `alarm_events` is Ignition's default table name - so on a
-    gateway where another project already journals to it, this reported
-    "86,687 events in the last 30 days" and went green on a gateway where this
-    demo's backfill had never run at all. Every event this demo produces has a
-    source under its own provider, which is what makes the filter exact.
-    """
+	"""Read this demo's last 30 days back through the journal profile."""
+	# Filtered by source: alarm_events is Ignition's default table name, so
+	# another project's events would otherwise count as this demo's.
 	end = system.date.now()
 	events = system.alarm.queryJournal(
 		journalName=AlarmDemo.edition.journalName(),
@@ -764,17 +526,8 @@ def _historyCheck():
 		startDate=system.date.addDays(end, -30), endDate=end)
 	n = len(list(events))
 	if _noDatabase():
-		# The backfill writes rows straight into alarm_events, and there is no
-		# such table here - the journal is internal to the platform and no
-		# scripting API can seed it. So this row reports what the demo has
-		# accumulated by RUNNING, and does not go red for a number that is
-		# only small because the gateway is new. The simulator raises alarms
-		# continuously, so a demo left running for an afternoon has a real
-		# day's worth; a demo started five minutes ago has five minutes.
-		#
-		# This is the one place the two builds genuinely differ in what they
-		# can show, and saying so on the Setup screen is better than a green
-		# row implying thirty days that are not there.
+		# No table to backfill and no API to seed the internal journal, so report
+		# what has accumulated rather than going red for a new gateway.
 		return True, (u"%d events so far - on %s the history accumulates as "
 					  u"the demo runs; there is no database to backfill into"
 					  % (n, _edgeNote()))
@@ -829,27 +582,15 @@ ITEMS = [
 FIXABLE = [k for k, _t, _c, f, _w in ITEMS if f is not None]
 
 
-# --------------------------------------------------------------------------
-# the API the screen and the HTTP endpoint use
-# --------------------------------------------------------------------------
-
 # The three items that cannot answer anything useful until the database
-# connection does. Their real failures - "no such table", "profile points
-# somewhere else" - are worth reading; what a missing CONNECTION gets out of
-# them is a Java NullPointerException about a datasource, three times over,
-# which buries the one row that actually needs attention.
+# connection does; otherwise each shows a datasource NullPointerException.
 NEEDS_DATABASE = ("journalTables", "journalProfile", "history")
 
-# Items that only exist as a question on Edge. On any other gateway the row is
-# not shown at all - a permanently "not applicable" row is worse than no row,
-# because every reader has to work out that it does not apply to them.
+# Items that only apply on Edge; elsewhere the row is hidden.
 EDGE_ONLY = ("edgeVisualization",)
 
-# The `why` column explains what a row is FOR, and four of them describe a
-# database this gateway does not have - "press Create it", "SQLite in a file",
-# "the backfill inserts straight into them". Read on Edge those are not merely
-# irrelevant, they are instructions for a button that is not there. So the rows
-# keep their titles and their place in the list, and say what they mean here.
+# Replacement `why` text for gateways with no database, where the normal text
+# describes a button that is not there.
 NO_DATABASE_WHY = {
 	"database":
 		u"There is no database on this edition and the demo does not want "
@@ -876,12 +617,11 @@ NO_DATABASE_WHY = {
 
 
 def check():
-	"""Every item's state, in install order. Changes nothing.
+	"""Report every item's state in install order, changing nothing.
 
-    Returns {"items": [...], "ok": bool, "version": str, "db": {...}} where
-    each item is {key, title, ok, detail, fixable, why}. One row of the Setup
-    screen per item.
-    """
+	Returns {"items": [{key, title, ok, detail, fixable, why}], "ok", "version",
+	"db", "edition"}.
+	"""
 	items = []
 	dbOk = None
 	noDb = _noDatabase()
@@ -902,11 +642,9 @@ def check():
 			dbOk = bool(ok)
 		fixable = fixFn is not None
 		if fixable and noDb and key in NO_DATABASE_ITEMS:
-			# Nothing to create, and the platform would refuse it anyway.
 			fixable = False
 		if fixable and key == "tagProvider" and AlarmDemo.edition.isEdge():
-			# Edge refuses a second realtime provider at startup, which reads
-			# as a fix that silently did nothing.
+			# Edge refuses a second realtime provider at startup.
 			fixable = False
 		items.append({"key": key, "title": title, "ok": bool(ok),
 					  "detail": detail, "fixable": fixable,
@@ -916,10 +654,8 @@ def check():
 		"ok": all(i["ok"] for i in items),
 		"version": AlarmDemo.alarms.VERSION,
 		"db": AlarmDemo.config.describe(),
-		# What the SCREEN needs to know about this gateway. The database card
-		# and the history-rebuild button are bound to `hasDatabase`: on Edge
-		# they are not disabled, they are absent, because a button that cannot
-		# work is a question every viewer has to answer for themselves.
+		# The database card and history-rebuild button bind to hasDatabase and are
+		# absent, not disabled, on Edge.
 		"edition": {
 			"isEdge": AlarmDemo.edition.isEdge(),
 			"hasDatabase": not noDb,
@@ -942,16 +678,11 @@ def fix(key, force=False):
 
 
 def run(force=False, history=True):
-	"""Create everything that is missing, in order, and report.
+	"""Create everything missing, in dependency order, and return the check() state.
 
-    Safe to run twice: every fix is an upsert. `force` also resets the rosters
-    and shift schedules to the shipped design, discarding edits made on the
-    Notifications screen.
-
-    Ordered as the dependencies run, not as the list reads: the provider
-    before the tags that go in it, the connection's tables before the profile
-    that writes them, and the history last because it needs all three.
-    """
+	Safe to run twice. `force` also resets rosters and schedules to the shipped
+	design, discarding edits made on the Notifications screen.
+	"""
 	done, failed = [], []
 	dbOk = _database()[0]
 	noDb = _noDatabase()
@@ -961,24 +692,15 @@ def run(force=False, history=True):
 			continue
 		if key in EDGE_ONLY and not isEdge:
 			continue
-		# On a gateway with no database module these four have nothing to
-		# create and the platform refuses the attempt; their checks already
-		# report what Edge does instead.
+		# No database module: the platform refuses these four.
 		if noDb and key in NO_DATABASE_ITEMS:
 			continue
 		if key == "tagProvider" and AlarmDemo.edition.isEdge():
 			continue
-		# Re-ask after the database item has had its turn. `dbOk` is read once
-		# before the loop so that three dependent items can fail with one
-		# sentence between them rather than three NullPointerExceptions - but
-		# since 3.0.0 the connection is itself something this loop creates, so
-		# the answer it was read from is out of date by the time those three
-		# are reached.
+		# dbOk was read before the loop; the connection may have just been made.
 		if key == "journalTables" and not dbOk:
 			dbOk = _database()[0]
 		if key in NEEDS_DATABASE and not dbOk:
-			# Three failures that all say the same thing, and none of them the
-			# thing to do about it. Say it once.
 			failed.append(u"%s: needs a working database connection first"
 						  % key)
 			continue
@@ -989,9 +711,7 @@ def run(force=False, history=True):
 		if ok and not (force and fixFn is _peopleFix):
 			continue
 		try:
-			# Three items - schedules, people, rosters - share one fix, so a
-			# run that creates all three used to report the same sentence
-			# three times in a row on the Setup screen.
+			# Schedules, people and rosters share one fix; report its sentence once.
 			said = fix(key, force)
 			if said not in done:
 				done.append(said)

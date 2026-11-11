@@ -1,65 +1,28 @@
-"""
-AlarmDemo.alarms - view helpers.
+"""AlarmDemo.alarms - read-only view helpers: status roll-ups, the KPI bundle and journal analytics.
 
-Everything the Perspective views need that is easier to express in script than
-in a binding: live status roll-ups, the KPI bundle, and the journal-backed
-analytics. All of it is read-only and none of it raises - a demo screen that
-throws a red error box is worse than one showing zeros.
-
-Every query is scoped to a *site*. Two sites share one tag provider, so
-"all areas" always means "all areas of the selected site", never both plants
-added together.
+None of it raises, and every query is scoped to one site, never both plants added together.
 """
 
-# THE build number - this line is the single source of it. Reported by
-# ?cmd=version, shown at the bottom of the Setup and Demo Control screens, and
-# read straight out of this file by build_views.py so the UI cannot drift from
-# the scripts.
-#
-# It says "dev" in the repository. `./package.sh --release X.Y.Z` stamps the
-# real version here, into the project title and into the release filename, and
-# puts "dev" back when it is done - so a gateway running a release says which
-# one, and a gateway running a working copy says it is a working copy. It
-# exists because "which build is this gateway running?" was not answerable
-# from the running demo, which turned one chart bug into four rounds of
-# guessing.
+# Build number; package.sh --release stamps it and restores "dev". build_views.py reads this line.
 VERSION = "dev"
 
 PROVIDER = "AlarmDemo"
 TABLE = "alarm_events"
 
-# Every row this demo writes - and every row its own journal profile writes -
-# has a source beginning `prov:AlarmDemo:`, because the demo's tags live in
-# their own provider. That prefix is what scopes every journal read and the
-# history wipe to this demo's own data.
-#
-# It earns its keep because `alarm_events` is Ignition's DEFAULT table name:
-# the table is shared far more often than the profile is, and on any gateway
-# where another project journals to it, an unscoped query counts that
-# project's alarms as this demo's. Seen live on a gateway holding 116,000 rows
-# belonging to two other projects.
+# Journal rows from this demo start with this prefix. alarm_events is the default table
+# name, so other projects may share the table and an unscoped query would count their rows.
 SOURCE_PREFIX = "prov:%s:%%" % PROVIDER
 
 
 def DB():
-	"""The database connection this demo reads and writes.
-
-    A FUNCTION rather than a constant, because the answer belongs to the
-    gateway, not to the project: it comes from AlarmDemo.config, which the
-    Setup page can change while the demo is running. As a module-level
-    constant it was read once when the project loaded, so changing the
-    connection took a project scan to have any effect - which reads as "the
-    setting did not save".
-    """
+	"""The database connection this demo reads and writes."""
+	# A function, not a constant: the Setup page can change it while the project is loaded.
 	return AlarmDemo.config.db()
 
 PRIORITY_NAMES = ["Diagnostic", "Low", "Medium", "High", "Critical"]
 PRIORITY_NUM = {n: i for i, n in enumerate(PRIORITY_NAMES)}
 
-# Two sites share one tag provider, each owning a set of top-level areas.
-# They have to be top-level: Area is derived from the first tag-path segment
-# everywhere in this project, so a "site" folder wrapping them would collapse
-# every area into one.
+# Areas must be top-level folders: Area is the first tag-path segment everywhere.
 SITES = {
 	"Water": {
 		"label": "ACME Water Treatment Plant",
@@ -81,13 +44,8 @@ LOG = system.util.getLogger("AlarmDemo.alarms")
 
 
 def _safe(fn, default):
-	"""Run fn, and on any failure log it and hand back `default`.
-
-    The except block uses traceback rather than a system.util helper on
-    purpose: if the handler itself raises, the exception escapes the binding
-    and every bound property on the screen renders as an error box - which is
-    exactly the failure this wrapper exists to prevent.
-    """
+	"""Run fn; on any failure log it and return default."""
+	# traceback, not a system.util helper: a handler that raises turns every bound property into an error box.
 	try:
 		return fn()
 	except:
@@ -96,68 +54,32 @@ def _safe(fn, default):
 		return default
 
 
-# ---------------------------------------------------------------------------
-# sites
-# ---------------------------------------------------------------------------
-
-
 def siteAreas(site):
 	"""Areas belonging to a site; every area when the site is unknown."""
 	return SITES.get(site, {}).get("areas", AREAS)
 
 
 def siteInfo(site):
-	"""Label/subtitle for the header. Falls back to the water plant."""
+	"""Return the header label, subtitle and areas for a site; the water plant if unknown."""
 	s = SITES.get(site) or SITES["Water"]
 	return {"label": s["label"], "subtitle": s["subtitle"],
 			"areas": list(s["areas"])}
 
 
 def _areaPattern(area):
-	"""The source prefix every alarm in one area shares.
-
-    `prov:AlarmDemo:/tag:Intake/WetWell/Level:/alm:High Level` -> the area is
-    the first path segment after `/tag:`, so every alarm in Intake starts
-    `prov:AlarmDemo:/tag:Intake/`.
-    """
+	"""The journal source prefix (a LIKE pattern) shared by every alarm in one area."""
 	return u"prov:%s:/tag:%s/%%" % (PROVIDER, area)
 
 
 def _millis(when):
-	"""Epoch milliseconds, which is what `eventtime` actually holds.
-
-    Ignition's SQLite journal writer stores eventtime as TEXT digits - epoch
-    milliseconds - not as a date type, because SQLite has none. Read straight
-    back out of a table Ignition created and filled: `typeof(eventtime)` is
-    'text' and the value is '1787875575442'.
-
-    So every comparison against it CASTs the column to INTEGER and binds a
-    number, rather than binding a Date and hoping the driver and SQLite's type
-    affinity agree on what to do with it. They might: 13-digit strings happen
-    to sort the same way the numbers do, until the year 2286. That is not a
-    thing to rely on without saying so.
-    """
+	"""Epoch milliseconds, the form `eventtime` is stored in."""
+	# SQLite stores eventtime as TEXT digits, so queries CAST it to INTEGER and bind a number.
 	return long(system.date.toMillis(when))
 
 
 def _scope(hours, site, area, alias="a"):
-	"""(whereSql, args) for the time window plus the site/area restriction.
-
-    Area names come from the fixed SITES map, never from user input, and are
-    still passed as bind parameters rather than interpolated.
-
-    The area test is a `source LIKE` on that area's own prefix. It used to be
-    `split_part(split_part(source,'/tag:',2),'/',1) = ?`, which said the same
-    thing and said it in PostgreSQL - SQLite has no split_part, and the demo
-    now runs on SQLite so that a gateway needs no database server at all. The
-    prefix is the better test regardless: it is what the source path is FOR,
-    and it is the shape an index can use.
-
-    It also subsumes the old separate `source LIKE 'prov:AlarmDemo:%'` term -
-    every area pattern already carries that prefix - so the provider scoping
-    that keeps this demo out of another project's rows is still here, one
-    layer more specific.
-    """
+	"""Return (whereSql, args) for the time window plus the site/area restriction."""
+	# The area LIKE prefixes also scope the query to this provider's rows.
 	end = system.date.now()
 	start = system.date.addHours(end, -int(hours))
 	args = [_millis(start), _millis(end)]
@@ -169,10 +91,7 @@ def _scope(hours, site, area, alias="a"):
 	return where, args
 
 
-# `strftime` with 'unixepoch' reads the value as seconds, so the milliseconds
-# are divided out first; 'localtime' then puts the bucket boundaries where the
-# gateway's own day starts, which is what `date_trunc` used to do and what
-# anyone reading a daily chart means by a day.
+# strftime reads 'unixepoch' as seconds, so divide the milliseconds; 'localtime' puts bucket edges on the gateway's day.
 def _bucket(expr, unit):
 	fmt = "%Y-%m-%d %H:00:00" if unit == "hour" else "%Y-%m-%d 00:00:00"
 	return ("strftime('" + fmt + "', CAST(" + expr +
@@ -181,9 +100,7 @@ def _bucket(expr, unit):
 
 BUCKET_FORMAT = "yyyy-MM-dd HH:mm:ss"
 
-# The activation-to-acknowledgement gap, in milliseconds, and the test that
-# the acknowledgement really came after the activation. Both are used by two
-# queries and are written once so the two cannot drift apart.
+# Activation-to-acknowledgement gap in milliseconds, and the test that the ack came after.
 _ACK_MILLIS = "(CAST(k.eventtime AS INTEGER) - CAST(a.eventtime AS INTEGER))"
 _ACK_AFTER = "CAST(k.eventtime AS INTEGER) > CAST(a.eventtime AS INTEGER)"
 
@@ -195,16 +112,8 @@ def _truncHour(when):
 
 
 def _zeroFilled(rows, start, end, unit, columns):
-	"""Turn (bucketKey, n) rows into one dataset row per bucket in the window.
-
-    The zero-fill used to be a `generate_series` LEFT JOIN, which SQLite has
-    no equivalent for. Doing it here is less SQL and the same result, and the
-    bucket comes back out as a real Date rather than a string, so the charts'
-    axes are unchanged.
-
-    A gap in a rate trend reads as 'no data', not as 'quiet' - which is why
-    the empty buckets have to be present at all.
-    """
+	"""Turn (bucketKey, n) rows into one dataset row per bucket in the window."""
+	# Empty buckets must be present: a gap in a rate trend reads as "no data", not "quiet".
 	counts = {}
 	for r in rows:
 		counts[unicode(r["bucket"])] = int(r["n"])
@@ -218,17 +127,8 @@ def _zeroFilled(rows, start, end, unit, columns):
 
 
 def sourceFilter(site, area=""):
-	"""A source path condition scoping the stock alarm components to one site.
-
-    The Alarm Status and Alarm Journal tables both take
-    `filters.active.conditions.source` - a comma-separated list of alarm source
-    paths, wildcards allowed. Both sites share one tag provider, so without this
-    the stock components list the other plant's alarms under this plant's
-    header, which is the one thing a two-site demo must not do.
-
-    Returns e.g.
-        prov:AlarmDemo:/tag:Intake/*,prov:AlarmDemo:/tag:Filtration/*,...
-    """
+	"""Return the source filter that scopes the stock alarm tables to one site or area."""
+	# Both sites share one provider; without this the tables list the other plant's alarms.
 	areas = [area] if area else siteAreas(site)
 	return ",".join(["prov:%s:/tag:%s/*" % (PROVIDER, a) for a in areas])
 
@@ -249,14 +149,7 @@ def _priorityName(event):
 		return "Low"
 
 
-# ---------------------------------------------------------------------------
-# live status
-# ---------------------------------------------------------------------------
-
-
-# Row tints for the stock Alarm Status Table. Translucent so the row text
-# stays legible on the dark surface, and stronger when unacknowledged - an
-# unacked alarm should be the loudest thing on the screen.
+# Row tints for the Alarm Status Table: translucent for dark surfaces, stronger when unacknowledged.
 _TINT_UNACKED = {
 	"critical": "rgba(229,34,91,0.34)",
 	"high": "rgba(245,130,32,0.30)",
@@ -276,23 +169,8 @@ _PRIORITY_KEYS = ["critical", "high", "medium", "low", "diagnostic"]
 
 
 def rowStyles(mode="rows"):
-	"""`rowStyles` for the Alarm Status Table.
-
-        rows    the whole row is tinted by priority, as Ignition's own alarm
-                tables do it
-        cells   the row stays neutral and only the priority column is
-                coloured - the row carries a per-priority CLASS and the
-                stylesheet paints just that one cell
-
-    Those two are what the screens offer. Both colour by priority; the only
-    question is where the colour sits. "Off" is still accepted for anything
-    calling this directly, but it is not a choice on any screen - the priority
-    word is in the row either way, so switching the colour off removes a signal
-    without adding one.
-
-    A cleared alarm is greyed and dimmed in every mode: it has stopped being
-    a demand on anyone's attention, and it should stop looking like one.
-    """
+	"""Build the Alarm Status Table's rowStyles; mode "rows" tints the row, "cells" only the priority cell."""
+	# Cleared alarms are greyed in every mode.
 
 	def styled(tints, cleared):
 		pri = {}
@@ -305,7 +183,6 @@ def rowStyles(mode="rows"):
 			pri[k] = cls
 		base = {"classes": "ad-alm-row"}
 		if cleared:
-			# greyed out, and it also loses its priority tint above
 			base = {"classes": "ad-alm-row ad-alm-cleared",
 					"color": "#7E8A99"}
 		return {"base": base, "priorities": pri}
@@ -319,17 +196,9 @@ def rowStyles(mode="rows"):
 
 
 def journalRowStyles(mode="cells"):
-	"""`rowStyles` for the Alarm Journal Table.
-
-    A DIFFERENT shape from the Alarm Status Table's, which is why passing that
-    one to this component throws inside the component and the whole view
-    renders as an error boundary. The journal keys by EVENT type - active,
-    acked, cleared - where the status table keys by alarm state.
-
-    The `base` override is not optional: the component ships light pastel row
-    backgrounds (#FDAFAF for active, #F3F6C6 for acknowledged) that are
-    unreadable on a dark page, and they apply whatever the colour mode is.
-    """
+	"""Build the Alarm Journal Table's rowStyles; mode "rows" tints the row, "cells" only the priority cell."""
+	# Keyed by journal event type, not alarm state, so the status table's shape breaks this component.
+	# The base override is required: the component's pastel row backgrounds are unreadable on dark.
 
 	def styled(tints, dim=False):
 		pri = {}
@@ -357,19 +226,11 @@ def journalRowStyles(mode="cells"):
 
 
 def liveStatus(site="Water"):
-	"""Everything the header and the mimic need, in one queryStatus call.
+	"""Return the live alarm roll-up for a site, from one queryStatus call.
 
-    Returns a dict:
-        counts      {priority: n} for active alarms in this site
-        total       active alarm count
-        unacked     active and unacknowledged
-        shelved     shelved alarm count
-        worst       highest active priority name, or "" when all clear
-        areas       {area: {"total": n, "worst": name}} for EVERY area of the
-                    site, zeroed - a binding that reads a missing key renders
-                    a red null box instead of the zero it means
-        other       active alarms belonging to the site not selected
-    """
+	Keys: counts {priority: n}, total, unacked, shelved, worst ("" when clear),
+	areas {area: {"total", "worst"}} for every area, other (active in the other site).
+	"""
 
 	def go():
 		mine = siteAreas(site)
@@ -421,19 +282,10 @@ def liveStatus(site="Water"):
 
 
 def areaMetrics(site="Water"):
-	"""Per-area alarm metrics, aggregated live.
+	"""Return one metrics dict per area of the site: active, unacked, acked, per-priority counts, worst.
 
-    Aggregated from `system.alarm.queryStatus` rather than from 8.3 Alarm
-    Metrics tag properties (`<folder>.activeCount`, `.highestActivePriority`
-    and friends). Those properties do not resolve on this gateway for ANY tag
-    folder - Ignition's own `[default]Chat` and `[default]Roster` folders return
-    Bad_NotFound for them just as ours do - so relying on them would make the
-    screen depend on something unproven. queryStatus needs no Designer step and
-    works on any provider.
-
-    Per area: total active, unacknowledged, acknowledged, a count per
-    priority, and the worst alarm currently standing.
-    """
+	Aggregated from queryStatus: the 8.3 Alarm Metrics tag properties do not resolve here.
+	"""
 
 	def go():
 		areas = siteAreas(site)
@@ -466,13 +318,7 @@ def areaMetrics(site="Water"):
 
 
 def activeAlarms(site="Water", limit=200):
-	"""Active alarms for one site, shaped for a plain table.
-
-    The stock Alarm Status Table shows the whole provider, and with two plants
-    in one provider that means the overview of one site lists the other site's
-    alarms. This is scoped, so the overview only ever shows the plant on
-    screen. The full-featured component still lives on the Alarm Status page.
-    """
+	"""Return the site's active alarms as a dataset, most severe first."""
 
 	def go():
 		mine = set(siteAreas(site))
@@ -482,9 +328,7 @@ def activeAlarms(site="Water", limit=200):
 			if _area(e) not in mine:
 				continue
 			try:
-				# getTimestamp() is already epoch millis; calling .getTime()
-				# on it throws, and the resulting blank column looks like the
-				# alarm simply has no time rather than like a bug.
+				# getTimestamp() is already epoch millis; .getTime() on it throws.
 				ts = system.date.format(
 					system.date.fromMillis(e.getActiveData().getTimestamp()),
 					"dd/MM/yyyy HH:mm:ss")
@@ -507,28 +351,11 @@ def areaOptions(site="Water"):
 			+ [{"value": a, "label": a} for a in siteAreas(site)])
 
 
-# ---------------------------------------------------------------------------
-# journal-backed analytics
-# ---------------------------------------------------------------------------
-#
-# Each of the seven below opens with the same two lines:
-#
-#     if not AlarmDemo.edition.hasDatabase():
-#         return AlarmDemo.journalq.<same name>(...)
-#
-# Ignition Edge has no database connectivity at all - no SQL Bridge, no JDBC
-# driver modules - so on that edition these queries have nothing to run
-# against. AlarmDemo.journalq answers the same questions from the alarm
-# journal profile instead, and returns the same shapes. The branch is here
-# rather than in the views because a binding must not have to know which
-# edition it is running on.
+# Each analytic below calls AlarmDemo.journalq on Edge (no database); both return the same shapes.
 
 
 def paretoRows(hours=24, site="Water", area="", rows=10):
-	"""Worst alarm sources - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.paretoRows is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Worst alarm sources; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.paretoRows(hours, site, area, rows)
 
@@ -536,23 +363,15 @@ def paretoRows(hours=24, site="Water", area="", rows=10):
 
 
 def sqlParetoRows(hours=24, site="Water", area="", rows=10):
-	"""Worst alarm sources, pre-shaped for the dashboard.
-
-    Returns EXACTLY `rows` dicts, padding with blanks, each carrying the bar
-    width already worked out as a percentage string. Padding matters: the view
-    binds row 8 whether or not the query returned nine, and a binding that
-    indexes past the end of a result set renders as an error box.
-    """
+	"""Return exactly `rows` dicts of the worst alarm sources, blank-padded, with bar widths as percentages."""
+	# Padding matters: the view binds every row, and an index past the result set shows an error box.
 
 	def go():
 		where, args = _scope(hours, site, area)
 		res = system.db.runPrepQuery(
 			"SELECT COALESCE(NULLIF(a.displaypath,''), a.source) AS alarm_name, "
 			"COUNT(*) AS occurrences FROM %s a WHERE a.eventtype = 0 AND %s "
-			# Ties are ordered by name, not left to the engine. Without it
-			# two sources on the same count swap places between refreshes,
-			# and the journal implementation - which has to sort in Python -
-			# cannot be compared against this one at all.
+			# Ties are ordered by name so the journal version, which sorts in Python, matches.
 			"GROUP BY 1 ORDER BY occurrences DESC, alarm_name ASC LIMIT %d"
 			% (TABLE, where, int(rows)),
 			args, DB(),
@@ -573,10 +392,7 @@ def sqlParetoRows(hours=24, site="Water", area="", rows=10):
 
 
 def rateByHour(hours=24, site="Water", area=""):
-	"""Alarms per hour - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.rateByHour is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Alarms per hour; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.rateByHour(hours, site, area)
 
@@ -584,8 +400,7 @@ def rateByHour(hours=24, site="Water", area=""):
 
 
 def sqlRateByHour(hours=24, site="Water", area=""):
-	"""Alarms per hour, every hour present. A gap in a rate trend reads as
-    'no data', not as 'quiet', so empty hours are filled with zero."""
+	"""Return alarms per hour with every hour present, empty hours as zero."""
 
 	def go():
 		where, args = _scope(hours, site, area)
@@ -604,10 +419,7 @@ def sqlRateByHour(hours=24, site="Water", area=""):
 
 
 def dailyLoad(days=30, site="Water", area=""):
-	"""Activations per day - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.dailyLoad is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Activations per day; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.dailyLoad(days, site, area)
 
@@ -615,12 +427,7 @@ def dailyLoad(days=30, site="Water", area=""):
 
 
 def sqlDailyLoad(days=30, site="Water", area=""):
-	"""Activations per day over the last `days`.
-
-    Every day in the window is present, zero-filled: on a load chart a missing
-    day and a quiet day mean opposite things, and a line that simply skips the
-    gap draws a quiet weekend as a straight run between two busy weekdays.
-    """
+	"""Return activations per day over the last `days`, zero-filled."""
 
 	def go():
 		where, args = _scope(int(days) * 24, site, area)
@@ -643,10 +450,7 @@ def sqlDailyLoad(days=30, site="Water", area=""):
 
 
 def dailyAckTime(days=30, site="Water", area=""):
-	"""Average minutes to acknowledge, per day - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.dailyAckTime is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Average minutes to acknowledge, per day; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.dailyAckTime(days, site, area)
 
@@ -654,22 +458,13 @@ def dailyAckTime(days=30, site="Water", area=""):
 
 
 def sqlDailyAckTime(days=30, site="Water", area=""):
-	"""Average minutes from activation to acknowledgement, per day.
-
-    Deliberately NOT zero-filled. A day where nothing was acknowledged has no
-    average, and plotting it as zero would claim the opposite of what happened -
-    that everything was acknowledged instantly.
-
-    The join is activation to its own acknowledgement by `eventid`, which is how
-    Ignition ties the two journal rows together; an activation never
-    acknowledged simply does not join and is excluded rather than counted as
-    infinitely slow.
-    """
+	"""Return average minutes from activation to acknowledgement, per day."""
+	# Not zero-filled: a day with no acknowledgements has no average, and zero would read as instant.
+	# Activations never acknowledged do not join, so they are excluded.
 
 	def go():
 		where, args = _scope(int(days) * 24, site, area)
-		# Same last-complete-day cut-off as dailyLoad, so the two charts beside
-		# each other cover exactly the same period.
+		# Same last-complete-day cut-off as sqlDailyLoad.
 		rows = system.db.runPrepQuery(
 			"SELECT %s AS bucket, "
 			"  ROUND(AVG(%s)/60000.0, 1) AS minutes "
@@ -681,8 +476,7 @@ def sqlDailyAckTime(days=30, site="Water", area=""):
 			   where, _ACK_AFTER),
 			args + [_millis(system.date.midnight(system.date.now()))], DB(),
 		)
-		# bucket comes back as the text key the GROUP BY produced; the chart
-		# wants the same Date it has always had.
+		# bucket is text from the GROUP BY; the chart wants a Date.
 		out = []
 		for r in rows:
 			out.append([system.date.parse(unicode(r["bucket"]), BUCKET_FORMAT),
@@ -693,10 +487,7 @@ def sqlDailyAckTime(days=30, site="Water", area=""):
 
 
 def topUnacked(hours=24, site="Water", area="", rows=10):
-	"""Activations nobody acknowledged - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.topUnacked is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Activations nobody acknowledged; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.topUnacked(hours, site, area, rows)
 
@@ -704,8 +495,7 @@ def topUnacked(hours=24, site="Water", area="", rows=10):
 
 
 def sqlTopUnacked(hours=24, site="Water", area="", rows=10):
-	"""Activations nobody ever acknowledged - the gap between what alarms and
-    what an operator actually responds to."""
+	"""Return the top sources by activations nobody acknowledged."""
 
 	def go():
 		where, args = _scope(hours, site, area)
@@ -714,7 +504,7 @@ def sqlTopUnacked(hours=24, site="Water", area="", rows=10):
 			"COUNT(*) AS \"Never acked\" FROM %s a "
 			"WHERE a.eventtype = 0 AND %s AND NOT EXISTS ("
 			"  SELECT 1 FROM %s k WHERE k.eventid = a.eventid AND k.eventtype = 2) "
-			# ...and the same tiebreaker, for the same two reasons.
+			# Same name tiebreaker as sqlParetoRows.
 			"GROUP BY 1 ORDER BY 2 DESC, 1 ASC LIMIT %d"
 			% (TABLE, where, TABLE, int(rows)),
 			args, DB(),
@@ -724,10 +514,7 @@ def sqlTopUnacked(hours=24, site="Water", area="", rows=10):
 
 
 def priorityCounts(hours=24, site="Water", area=""):
-	"""Activations per priority - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.priorityCounts is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""Activations per priority; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.priorityCounts(hours, site, area)
 
@@ -735,13 +522,8 @@ def priorityCounts(hours=24, site="Water", area=""):
 
 
 def sqlPriorityCounts(hours=24, site="Water", area=""):
-	"""Activations per priority over the window, as a flat dict.
-
-    The donut binds one slice to each key. A dict rather than a dataset because
-    a missing priority has to read as zero - a slice bound to a row that is not
-    in the result set renders as an invalid-data error instead of an empty
-    wedge.
-    """
+	"""Return activations per priority as a flat dict, with a zero for every priority."""
+	# A dict so a missing priority reads as zero; a missing donut row renders as an error.
 
 	def go():
 		where, args = _scope(hours, site, area)
@@ -761,10 +543,7 @@ def sqlPriorityCounts(hours=24, site="Water", area=""):
 
 
 def kpis(hours=24, site="Water", area=""):
-	"""The headline numbers - from SQL, or from the journal on a gateway with no
-    database. AlarmDemo.journalq.kpis is the other half; the two are
-    compared against one journal by the admin endpoint's ?cmd=parity.
-    """
+	"""The headline numbers; reads the journal when the gateway has no database."""
 	if not AlarmDemo.edition.hasDatabase():
 		return AlarmDemo.journalq.kpis(hours, site, area)
 
@@ -772,17 +551,11 @@ def kpis(hours=24, site="Water", area=""):
 
 
 def sqlKpis(hours=24, site="Water", area=""):
-	"""Headline numbers for the analytics screen.
+	"""Return the analytics headline numbers as a dict.
 
-    rate            activations per hour over the window
-    total           activations in the window
-    ackMedianMin    median minutes to acknowledge
-    unackedPct      share of activations never acknowledged
-    topShare        share of the count from the worst 3 sources - the Pareto
-                    number, the one that says whether rationalisation pays
-    floodHours      hours busier than the EEMUA-191 flood threshold, taken
-                    here as more than 60 alarms in an hour
-    """
+	Keys: rate (per hour), total, ackMedianMin, unackedPct, topShare (% from the
+	worst 3 sources), floodHours (hours over 60 alarms, the EEMUA 191 flood level).
+	"""
 
 	def go():
 		where, args = _scope(hours, site, area)
@@ -803,14 +576,7 @@ def sqlKpis(hours=24, site="Water", area=""):
 			"GROUP BY 1 HAVING COUNT(*) > 60) f"
 			% (_bucket("a.eventtime", "hour"), TABLE, where), args, DB())[0]["n"]
 
-		# SQLite has no percentile_cont, so the median is the middle row of the
-		# ordered set - counted, then fetched by OFFSET. Two small queries
-		# rather than one that repeats its own subquery twice.
-		#
-		# For an even count this is the LOWER of the two middle values, where
-		# percentile_cont would have interpolated between them. On a headline
-		# figure rounded to one decimal of a minute, over thousands of
-		# acknowledgements, that is not a difference anyone can read.
+		# No percentile_cont in SQLite: count, then OFFSET to the middle row (the lower one when even).
 		inner = ("SELECT %s AS ms "
 				 "FROM %s a JOIN %s k ON k.eventid = a.eventid "
 				 "  AND k.eventtype = 2 "

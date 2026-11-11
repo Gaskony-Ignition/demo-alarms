@@ -1,28 +1,12 @@
-"""
-AlarmDemo.demo - scenario control for the live demonstration.
+"""AlarmDemo.demo - scenario control for the live demonstration.
 
-Scenarios bias the simulation (AlarmDemo.sim) rather than writing alarm states
-directly. That matters: every alarm you see during the demo has gone through
-the real Ignition alarm pipeline - evaluation, deadband, delay, priority,
-journal - so what is on screen is what a real plant would produce.
-
-    None            normal operation
-    Storm           catchment runoff: raw turbidity spikes, filters load,
-                    pH drops - a cascade across three areas
-    ChlorineFailure chlorine dose pump fails, residual decays to a Critical
-                    compliance breach over about a minute
-    PumpFailure     one raw water pump and one high lift pump trip together
-    FilterBlinding  Filter B loads six times faster, head loss then
-                    turbidity breakthrough
-    CommsLoss       PLC comms fault - the Diagnostic-priority example
-    Chattering      high lift pump 3 flaps, to demonstrate finding and
-                    shelving a nuisance alarm
+Scenarios bias the simulation (AlarmDemo.sim), so every alarm still goes
+through the real alarm pipeline. The list is SCENARIOS below.
 """
 
 P = "[AlarmDemo]"
 
-# Each site owns a scenario tag, inside one of its own areas. A single shared
-# tag meant selecting a water scenario also lit the banner on Manufacturing.
+# One scenario tag per site: a shared tag would light the other site's banner.
 SCENARIO_TAG = {
 	"Water": "Plant/DemoScenario",
 	"Manufacturing": "Utilities/DemoScenario",
@@ -57,12 +41,7 @@ def _siteOf(name):
 
 
 def setScenario(name):
-	"""Select a scenario on the site that owns it.
-
-    A scenario with no site ("None", comms loss) applies to both plants, so it
-    is written to both tags; anything else only touches its own site and
-    leaves the other plant running normally.
-    """
+	"""Select a scenario on the site that owns it; a siteless one is written to both sites."""
 	valid = [s[0] for s in SCENARIOS]
 	if name not in valid:
 		name = "None"
@@ -77,6 +56,7 @@ def setScenario(name):
 
 
 def getScenario(site="Water"):
+	"""Return the site's current scenario name, or "None" if the tag is not good."""
 	path = SCENARIO_TAG.get(site, SCENARIO_TAG["Water"])
 	qv = system.tag.readBlocking([P + path])[0]
 	return qv.value if qv.quality.isGood() else "None"
@@ -86,7 +66,6 @@ def reset():
 	"""Back to normal, clear the injected faults and re-seed a healthy plant."""
 	setScenario("None")
 	writes = {
-		# manufacturing line
 		"Mixing/Mixer01/Fault": False,
 		"Mixing/Mixer02/Fault": False,
 		"Mixing/Mixer01/Jam": False,
@@ -114,7 +93,6 @@ def reset():
 		"Packaging/LineStopped": False,
 		"Utilities/AirCompressor/Pressure": 690.0,
 		"Utilities/Chiller/SupplyTemp": 6.0,
-		# water plant
 		"Intake/RawWaterPump01/Fault": False,
 		"Intake/RawWaterPump02/Fault": False,
 		"Distribution/HighLiftPump01/Fault": False,
@@ -144,9 +122,7 @@ def reset():
 
 def ackAll(notes="Acknowledged from the demo control panel"):
 	"""Acknowledge every unacknowledged alarm in the demo provider."""
-	# str() around getId(): it returns a java UUID, and acknowledge() wants a
-	# String[] - passing the UUIDs straight through fails with "1st arg can't
-	# be coerced to String[]".
+	# getId() returns a Java UUID; acknowledge() needs strings.
 	events = [
 		str(e.getId())
 		for e in system.alarm.queryStatus(
@@ -154,7 +130,6 @@ def ackAll(notes="Acknowledged from the demo control panel"):
 		)
 	]
 	if events:
-		# 8.3 requires the username argument; the two-argument form raises
-		# "expected 3 args; got 2".
+		# 8.3 requires the username argument.
 		system.alarm.acknowledge(events, notes, "demo")
 	return len(events)

@@ -1,37 +1,7 @@
-"""
-AlarmDemo.roster - who gets an alarm, and how that is managed.
+"""AlarmDemo.roster - who gets an alarm, and how that is managed.
 
-This module deliberately holds **no** membership data of its own. Everything it
-shows is read back out of Ignition:
-
-  1. WHO      real users in a user source (`system.user.getUsers`), each with
-              email and SMS contact info
-  2. WHEN     each user carries a real Ignition **schedule**, so "on duty" is
-              answered by `system.user.isUserScheduled` and not by arithmetic
-              on the clock in this file
-  3. WHO GETS IT   real Ignition **on-call rosters**
-              (`system.alarm.getRosters`), the same objects an alarm
-              notification pipeline selects from
-
-That is the point of the screen: a customer can open Config -> Alarming ->
-On-Call Rosters, or Security -> Schedules, and see exactly what the demo is
-showing. An earlier version kept membership in a `demo_roster_member` table,
-which demonstrated a table rather than Ignition.
-
-Rosters and schedules are gateway config resources, so they cannot be inside a
-project export. They do not travel as files beside it either: `setup()` writes
-them onto whatever gateway the project lands on, which is what lets importing
-the project be the entire install.
-
-WRITING a roster
-----------------
-`system.alarm.createRoster(name, description)` creates one, but there is no
-scripting call for membership. In 8.3 a roster IS a config resource -
-`config/resources/core/ignition/roster-config/<name>/config.json`, holding
-`{"users": [{"profile": ..., "userId": ...}]}` - so membership edits are made by
-writing that file and asking the configuration manager to rescan. The shape is
-not guessed: it is `RosterConfig(List<RosterEntry(profile, userId)>)`, read off
-the resource type's own default config.
+Users, schedules and on-call rosters are read back from Ignition, not kept here.
+setup() writes the schedules and rosters (gateway config resources) onto the gateway.
 """
 
 import os
@@ -41,9 +11,8 @@ USER_SOURCE = "default"
 
 LOG = system.util.getLogger("AlarmDemo.roster")
 
-# The people. Created as real users in the user source on first run; the
-# schedule is a real Ignition schedule, assigned to the user, and is what
-# decides whether they are on duty.
+# Created as real users in the user source on first run; the assigned
+# Ignition schedule decides whether they are on duty.
 PEOPLE = [
 	("jsmith",   "Jordan Smith",     "Shift Operator",     "jordan.smith@acme.example",    "+61 400 111 222", "Day Shift"),
 	("achen",    "Alex Chen",        "Shift Operator",     "alex.chen@acme.example",       "+61 400 111 333", "Night Shift"),
@@ -54,8 +23,7 @@ PEOPLE = [
 	("tnguyen",  "Tam Nguyen",       "Process Engineer",   "tam.nguyen@acme.example",      "+61 400 333 222", "Day Shift"),
 ]
 
-# (name, description, seed members). The members only seed a roster that does
-# not exist yet; after that the config resource is the truth.
+# (name, description, seed members); members only seed a roster that does not exist yet.
 ROSTERS = [
 	("Operations",  "First response - the control room",
 	 ["jsmith", "achen", "rpatel"]),
@@ -65,21 +33,15 @@ ROSTERS = [
 	 ["shaddad", "tnguyen"]),
 ]
 
-# The shift schedules this demo creates, as basic-schedule config resources.
-# "Always" is built in to Ignition and is not recreated here.
+# "Always" is built in to Ignition, so it is not listed here.
 SCHEDULES = [
 	("Day Shift",       "06:00-14:00, every day", "6:00-14:00"),
 	("Afternoon Shift", "14:00-22:00, every day", "14:00-22:00"),
 	("Night Shift",     "22:00-06:00, every day", "22:00-24:00,0:00-6:00"),
 ]
 
-# priority -> (roster, notify after minutes, escalate to, escalate after mins)
-#
-# This is the demo's escalation design, not gateway configuration. Ignition
-# implements it in an alarm notification pipeline, which needs a working email
-# or SMS profile before it can do anything - out of scope for a self-contained
-# demo. The rosters and schedules such a pipeline consumes ARE real here, which
-# is the part worth showing.
+# priority -> (roster, notify after minutes, escalate to, escalate after mins).
+# Display only: no notification pipeline is configured, as that needs an email or SMS profile.
 ESCALATION = [
 	("Critical",   "Operations",  0,  "Management",  5),
 	("High",       "Operations",  2,  "Maintenance", 15),
@@ -112,45 +74,17 @@ def _person(username):
 			"email": "", "phone": ""}
 
 
-# ---------------------------------------------------------------------------
-# gateway config resources
-# ---------------------------------------------------------------------------
-
-
 def _configDir():
-	"""The gateway's config resource root.
-
-    Resolved from the gateway's working directory rather than a hardcoded
-    install path, so this behaves the same in a container and in a normal
-    install.
-    """
+	"""The gateway's config resource root, resolved from the working directory."""
 	from java.io import File
 	return File("data/config/resources/core/ignition").getAbsolutePath()
 
 
 def _write(path, text):
-	"""Write a config-resource file so a scan can never see it half-written.
-
-    STAGED, THEN RENAMED - and this is not tidiness. `open(path, "w")`
-    truncates immediately, so between that call and the flush the file on disk
-    is empty or partial. The gateway's own file-tree scanner reads these
-    directories whenever it likes - after any resource write anywhere, from
-    the Config scan button, from another module - and a resource.json it reads
-    mid-write is not retried. It is logged once, at WARN,
-
-        Skipping resource directory with corrupt resource.json: .../Maintenance
-
-    and skipped for good. The file on disk is perfect afterwards and the
-    gateway never looks again, so the evidence and the symptom disagree: three
-    rosters written, three correct directories, two rosters live.
-
-    That is what cost the "press one button" path a green row on one run in
-    two. A rename is atomic, so the scanner sees the old file or the new one
-    and never a partial one. AlarmDemo.config.save() already did this and said
-    why; the roster writer did not, and it is the roster writer that a scan
-    races.
-    """
+	"""Write a config-resource file so a scan can never see it half-written."""
 	from java.io import File
+	# open(path, "w") truncates at once, and a scan that reads a half-written
+	# resource.json skips that resource for good; a rename is atomic.
 	staged = File(path + ".tmp")
 	f = open(staged.getAbsolutePath(), "w")
 	try:
@@ -159,8 +93,6 @@ def _write(path, text):
 		f.close()
 	target = File(path)
 	if not staged.renameTo(target):
-		# Same directory, so a rename should never fail; if it does, say so
-		# rather than leaving a .tmp behind and reporting success.
 		if target.exists() and not target.delete():
 			raise IOError("could not replace %s" % path)
 		if not staged.renameTo(target):
@@ -168,12 +100,9 @@ def _write(path, text):
 
 
 def _writeResource(kind, name, config, description):
-	"""Write one gateway config resource and return its directory.
-
-    `lastModificationSignature` is deliberately omitted and the timestamp is
-    fresh: a resource carrying a signature that no longer matches its files is
-    skipped by the scan silently, which looks exactly like the scan not running.
-    """
+	"""Write one gateway config resource and return its directory."""
+	# lastModificationSignature is left out on purpose: a stale one makes the
+	# scan skip the resource silently.
 	from java.util import UUID
 	d = os.path.join(_configDir(), kind, name)
 	if not os.path.exists(d):
@@ -196,19 +125,14 @@ def _writeResource(kind, name, config, description):
 			},
 		},
 	}
-	# resource.json LAST, and atomically: it is the file that names the others,
-	# so a scan that sees it sees a directory that is already complete.
+	# resource.json goes last: a scan that sees it finds the directory complete.
 	_write(os.path.join(d, "resource.json"), system.util.jsonEncode(meta))
 	return d
 
 
 def _rescan():
-	"""Ask the gateway to pick up config resources written above.
-
-    A config scan is NOT the project scan - the gateway has two identically
-    labelled "Scan File System" buttons for exactly this reason - so this goes
-    through the configuration manager, not `system.project.requestScan`.
-    """
+	"""Ask the gateway to pick up config resources written above."""
+	# Not system.project.requestScan: that is the project scan, not the config scan.
 	from com.inductiveautomation.ignition.gateway import IgnitionGateway
 	IgnitionGateway.get().getConfigurationManager().requestScan()
 	return True
@@ -223,18 +147,8 @@ def _writeRoster(name, usernames, description=""):
 
 
 def _readRoster(name):
-	"""Members of a roster, read from the resource the gateway itself holds.
-
-    NOT `system.alarm.getRosters()`. On 8.3.8 that call returns the roster
-    NAMES correctly but an empty user list for every one of them, including
-    rosters created through the gateway's own Create Alarm Roster page. Verified
-    against Services -> Alarming -> Rosters, which shows "# OF USERS 3" for a
-    roster the scripting call reports as empty - so the data is fine and the
-    scripting call is not the way to read it.
-
-    Reading the resource keeps this symmetric with the write path above: the
-    same file, in the same place, in both directions.
-    """
+	"""Members of a roster, read from the resource file."""
+	# system.alarm.getRosters() returns empty user lists on 8.3.8, so read the file.
 	path = os.path.join(_configDir(), "roster-config", name, "config.json")
 	if not os.path.exists(path):
 		return []
@@ -245,11 +159,6 @@ def _readRoster(name):
 		f.close()
 	return [str(u.get("userId")) for u in (cfg.get("users") or [])
 			if u.get("userId")]
-
-
-# ---------------------------------------------------------------------------
-# setup
-# ---------------------------------------------------------------------------
 
 
 def ensureSchedules():
@@ -291,27 +200,9 @@ def ensureSchedules():
 
 
 def _uiProblems(response):
-	"""The error strings out of what a system.user write returns, or [].
-
-    `system.user.addUser`, `editUser` and `removeUser` do NOT return a list of
-    validation errors. They return a `UIResponse`, which is a Java object that
-    is TRUTHY whether or not anything went wrong and is not iterable - so
-
-        errors = system.user.addUser(src, user)
-        if errors:
-            LOG.warn(... list(errors))
-
-    reports every success as a failure, and then raises `TypeError:
-    'UIResponse' object is not iterable` while trying to say so. On a fresh
-    gateway that read as seven people "refused by the gateway" on the Setup
-    screen, in the same breath as the row above it reporting seven people
-    created - because they had been. The same shape cost `setSchedule` its
-    return value: every shift change succeeded and every one of them reported
-    that it had not.
-
-    The errors live in `getErrors()`. Some builds hand back a plain list
-    instead, so that is tried second rather than assumed away.
-    """
+	"""The error strings out of what a system.user write returns, or []."""
+	# The write returns a UIResponse, which is truthy even on success and not
+	# iterable; the errors are in getErrors().
 	from java.lang import Throwable as JThrowable
 	if response is None:
 		return []
@@ -326,26 +217,16 @@ def _uiProblems(response):
 
 
 def _addPerson(username, fullname, email, phone, schedule):
-	"""Create one demo user. Returns 1 if it was created, 0 if refused.
-
-    Contact info is added on a BEST-EFFORT basis, one type at a time. The
-    contact types a gateway accepts come from the notification modules it has:
-    a gateway without SMS Notification rejects an "sms" contact, and it does
-    it by throwing out of addContactInfo rather than by returning a validation
-    error - which took the whole loop with it.
-    """
+	"""Create one demo user. Returns 1 if it was created, 0 if refused."""
 	from java.util import UUID
 	user = system.user.getNewUser(USER_SOURCE, username)
 	user.set("firstname", fullname.split(" ")[0])
 	user.set("lastname", " ".join(fullname.split(" ")[1:]))
-	# An internal user source rejects a user with no password, and addUser
-	# REPORTS that rather than raising - so without this the call looked like
-	# it worked and nothing was created. See _uiProblems for what it actually
-	# returns and why reading it wrongly is worse than not reading it. The
-	# value is random and never logged: these users carry contact details for
-	# notification, they are not accounts anyone signs in with.
+	# An internal user source rejects a user with no password. The value is
+	# random and never logged: these users are not accounts anyone signs in with.
 	user.set("password", str(UUID.randomUUID()))
 	user.set("schedule", schedule)
+	# A gateway without SMS Notification throws on an "sms" contact, so add each type separately.
 	for kind, value in (("email", email), ("sms", phone)):
 		try:
 			user.addContactInfo(kind, value)
@@ -370,17 +251,11 @@ def ensureUsers():
 		made, refused = 0, []
 		for username, fullname, _role, email, phone, schedule in PEOPLE:
 			if username.lower() in existing:
-				# Already there, but possibly from a build that predates
-				# schedules. Only fill a blank one - never overwrite a shift
-				# somebody has changed on the screen.
+				# Only fill a blank schedule; never overwrite a shift changed on screen.
 				if not userSchedule(username):
 					setSchedule(username, schedule)
 				continue
-			# PER USER, not around the loop. A single person the gateway will
-			# not accept used to abort the whole thing and leave the rest
-			# uncreated - three people in, four missing, and the reason in the
-			# gateway log rather than on the screen. Now the others are still
-			# created and the ones that failed are named in the return.
+			# Per user, so one rejected person does not stop the rest; failures are named in the return.
 			try:
 				made += _addPerson(username, fullname, email, phone, schedule)
 			except:
@@ -416,19 +291,10 @@ def ensureRosters(force=False):
 
 
 def applyDefaultSchedules():
-	"""Put everyone back on the shift the demo was designed around.
-
-    Separate from `ensureUsers` because a user that already exists keeps
-    whatever schedule they have - including "Always", which is what Ignition
-    reports for a user who has never been given one, and is therefore
-    indistinguishable from "unset". Running the demo's own setup is the one
-    moment where overwriting is the intent.
-    """
+	"""Put everyone back on the shift the demo was designed around."""
 
 	def go():
-		# Reports the resulting assignment rather than a list of changes: "no
-		# changes" and "every change silently failed" look identical in a diff,
-		# and this runs on gateways nobody is watching.
+		# Return the resulting assignment, not a change list: "no changes" and "all failed" look the same.
 		out = {}
 		for username, _f, _r, _e, _p, schedule in PEOPLE:
 			if userSchedule(username) != schedule:
@@ -449,11 +315,6 @@ def setup(force=False):
 			"rosters": ensureRosters(force)}
 
 
-# ---------------------------------------------------------------------------
-# duty
-# ---------------------------------------------------------------------------
-
-
 def _user(username):
 	try:
 		return system.user.getUser(USER_SOURCE, username)
@@ -462,6 +323,7 @@ def _user(username):
 
 
 def userSchedule(username):
+	"""Name of the schedule assigned to this user, or "" if unknown."""
 	u = _user(username)
 	if u is None:
 		return ""
@@ -472,12 +334,9 @@ def userSchedule(username):
 
 
 def onDuty(username):
-	"""Is this person on duty right now, per their Ignition schedule?
+	"""Is this person on duty right now, per their Ignition schedule?"""
 
-    `isUserScheduled` takes a User object, not a name - handed a string it
-    raises a coercion TypeError rather than returning False.
-    """
-
+	# isUserScheduled takes a User object; a name string raises a TypeError.
 	def go():
 		u = _user(username)
 		if u is None:
@@ -488,11 +347,7 @@ def onDuty(username):
 
 
 def dutyNow():
-	"""{username: bool} for everyone the demo knows about, in one pass.
-
-    The roster cards, the people list and the routing table all want the same
-    answer, and each of them would otherwise ask per row.
-    """
+	"""{username: bool} on-duty state for everyone the demo knows about."""
 
 	def go():
 		return dict((p[0], onDuty(p[0])) for p in PEOPLE)
@@ -501,7 +356,7 @@ def dutyNow():
 
 
 def setSchedule(username, schedule):
-	"""Move someone onto a different shift, for real, in the user source."""
+	"""Move someone onto a different shift in the user source; True on success."""
 
 	def go():
 		u = _user(username)
@@ -518,34 +373,19 @@ def setSchedule(username, schedule):
 	return _safe(go, False)
 
 
-# ---------------------------------------------------------------------------
-# rosters
-# ---------------------------------------------------------------------------
-
-
 def rosterMembers(name):
 	"""Usernames on a roster, straight from the gateway's own roster resource."""
 	return _safe(lambda: _readRoster(name), [])
 
 
 def gatewayRosterNames():
-	"""Roster names as the ALARM SUBSYSTEM sees them.
-
-    Used only to prove these are genuine gateway rosters rather than a list this
-    project keeps - membership comes from `rosterMembers`, for the reason in
-    `_readRoster`.
-    """
+	"""Roster names as the alarm subsystem sees them."""
 	return _safe(lambda: sorted([str(k) for k in
 								 (system.alarm.getRosters() or {}).keys()]), [])
 
 
 def rosterCards():
-	"""Rosters with their members, ready for the UI.
-
-    Each card carries both numbers that matter: how many people are ON the
-    roster, and how many of them are on duty right now. A roster with five
-    members and nobody on shift is the failure this screen exists to expose.
-    """
+	"""Rosters with member count, on-duty count and member details, for the UI."""
 
 	def go():
 		duty = dutyNow()
@@ -573,6 +413,7 @@ def rosterCards():
 
 
 def addMember(roster, username):
+	"""Add a user to a roster; True unless the write failed."""
 	def go():
 		members = rosterMembers(roster)
 		if username and username not in members:
@@ -584,6 +425,7 @@ def addMember(roster, username):
 
 
 def removeMember(roster, username):
+	"""Remove a user from a roster; True unless the write failed."""
 	def go():
 		members = [m for m in rosterMembers(roster) if m != username]
 		_writeRoster(roster, members)
@@ -593,8 +435,7 @@ def removeMember(roster, username):
 
 
 def eligible(roster):
-	"""People not already on this roster - the only sensible contents for an
-    "add someone" picker."""
+	"""Picker options ({value, label}) for people not already on this roster."""
 
 	def go():
 		have = set(rosterMembers(roster))
@@ -605,11 +446,7 @@ def eligible(roster):
 
 
 def peopleRows():
-	"""Everyone, with their schedule, duty state and roster memberships.
-
-    A list of dicts rather than a dataset: each row on the screen carries shift
-    buttons, and those need the username behind the row, not its rendered text.
-    """
+	"""One dict per person: schedule, duty state and roster memberships."""
 
 	def go():
 		duty = dutyNow()
@@ -650,11 +487,6 @@ def dutySummary():
 	return _safe(go, {"onDuty": 0, "total": len(PEOPLE)})
 
 
-# ---------------------------------------------------------------------------
-# routing - who gets this alarm, right now
-# ---------------------------------------------------------------------------
-
-
 def _rule(priority):
 	for pri, roster, delay, esc, esc_after in ESCALATION:
 		if pri == priority:
@@ -663,6 +495,7 @@ def _rule(priority):
 
 
 def escalationTable():
+	"""Dataset of the escalation design: who is notified, when, and who is next."""
 	rows = []
 	for pri, roster, delay, esc, esc_after in ESCALATION:
 		rows.append([pri, roster,
@@ -675,13 +508,7 @@ def escalationTable():
 
 
 def routing(site="Water"):
-	"""For every active alarm on this site: who is notified right now.
-
-    Priority picks the roster; the roster's members are then filtered by their
-    Ignition schedule, which is the order a notification pipeline resolves it
-    in. When nobody on a roster is on shift the row says so rather than listing
-    people who are asleep.
-    """
+	"""Dataset of active alarms on this site and who is on call for each now."""
 
 	def go():
 		cards = dict((c["roster"], c) for c in rosterCards())

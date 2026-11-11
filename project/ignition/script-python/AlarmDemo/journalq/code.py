@@ -1,39 +1,8 @@
+"""AlarmDemo.journalq - the analytics without a database, for Edge.
+
+Same names and shapes as AlarmDemo.alarms, but read from the journal profile
+through system.alarm.queryJournal. AlarmDemo.edition decides which runs.
 """
-AlarmDemo.journalq - the analytics, without a database.
-
-Every function here answers the same question as the identically named one in
-AlarmDemo.alarms and returns the same shape, so a view binding does not know
-or care which ran. The difference is where the events come from: the SQL
-versions read the journal TABLES, these read the journal PROFILE through
-`system.alarm.queryJournal`.
-
-That matters because Ignition Edge has no database connectivity at all - not a
-slower one, an absent one - and the demo's whole analytics screen was SQL.
-AlarmDemo.edition decides which implementation runs; nothing else does.
-
-## How a journal event is shaped
-
-`queryJournal` returns one PyAlarmEvent per TRANSITION, not per alarm, which
-is the same grain the `alarm_events` table has. Which transition it is, is
-told by which data bundle is populated - the other two are None:
-
-    getActiveData()   the activation      (eventtype 0 in SQL)
-    getClearedData()  the clear           (eventtype 1)
-    getAckData()      the acknowledgement (eventtype 2)
-
-`getId()` is the same UUID across all three, which is what `eventid` is for in
-the SQL, so activation-to-acknowledgement is a lookup rather than a join.
-`getTimestamp()` on a bundle is epoch MILLISECONDS as a Java long.
-
-Measured against a real Edge gateway on 10/09/2026. `getEventTime()`,
-`getTimestamp()` and `getEventType()` on the event itself are all None on Edge
-- the timestamp lives on the bundle, not on the event.
-"""
-
-# Everything shared with the SQL implementation - site membership, priority
-# names, the bucket format, the zero-fill - is imported rather than repeated.
-# Two implementations of the same chart that disagree about where a day starts
-# is exactly the drift this module has to avoid.
 
 LOG = system.util.getLogger("AlarmDemo.journalq")
 
@@ -55,17 +24,10 @@ def _areaOf(source):
 
 
 def _events(hours, site, area):
-	"""Every one of this demo's journal transitions in the window.
-
-    Returns a list of dicts: {kind, ts, id, key, priority, area}.
-
-    The journal is queried with the PROVIDER-wide source filter, which is the
-    one shape this demo has already proved works for queryJournal, and the
-    area restriction is applied here in Python. Doing it that way means the
-    area test is literally the same code as _areaOf rather than a second
-    expression of it in a wildcard, and it costs one pass over a few thousand
-    events.
-    """
+	"""Return the demo's journal transitions in the window as dicts {kind, ts, id, key, priority, area}."""
+	# One event per transition; which bundle (active, cleared, ack) is set says which.
+	# On Edge the event's own timestamp is None, so ts comes from the bundle (epoch ms).
+	# Area is filtered here with _areaOf, so it matches the SQL prefix test.
 	end = system.date.now()
 	start = system.date.addHours(end, -int(hours))
 	wanted = set([area] if area else AlarmDemo.alarms.siteAreas(site))
@@ -100,19 +62,12 @@ def _activations(events):
 
 
 def _ackDelays(events):
-	"""Milliseconds from activation to acknowledgement, per acknowledged alarm.
-
-    An activation nobody ever acknowledged does not appear - it is excluded
-    rather than counted as infinitely slow, which is what the SQL join does.
-    An acknowledgement that predates its own activation is dropped for the
-    same reason the SQL carries `k.eventtime > a.eventtime`: on a journal that
-    has been backfilled, out-of-order pairs exist and a negative delay plotted
-    as an average drags the whole day below zero.
-    """
+	"""Milliseconds from activation to acknowledgement, per acknowledged alarm."""
+	# Unacknowledged activations are excluded, as in the SQL join. Acks before their
+	# activation (backfilled journals) are dropped: a negative delay drags the average down.
 	activeAt = {}
 	for e in _activations(events):
-		# Several activations can share an id only if the journal is odd;
-		# keeping the earliest matches the SQL, which joins to all of them.
+		# Keep the earliest activation for an id, as the SQL join does.
 		prev = activeAt.get(e["id"])
 		if prev is None or e["ts"] < prev:
 			activeAt[e["id"]] = e["ts"]
@@ -127,13 +82,8 @@ def _ackDelays(events):
 
 
 def _bucketKey(ts, unit):
-	"""The bucket an event falls in, as the same string the SQL GROUP BY made.
-
-    `strftime(..., 'localtime')` on the SQL side puts the boundary where the
-    gateway's own day starts; system.date does the same here, so the two
-    implementations cannot disagree about which day an evening alarm belongs
-    to.
-    """
+	"""The bucket an event falls in, as the same string the SQL GROUP BY makes."""
+	# system.date uses the gateway's local day, like strftime 'localtime' in the SQL.
 	when = system.date.fromMillis(ts)
 	if unit == "hour":
 		top = AlarmDemo.alarms._truncHour(when)
@@ -149,11 +99,6 @@ def _counted(events, unit):
 		k = _bucketKey(e["ts"], unit)
 		counts[k] = counts.get(k, 0) + 1
 	return [{"bucket": k, "n": n} for k, n in counts.items()]
-
-
-# ---------------------------------------------------------------------------
-# the eight the views bind to
-# ---------------------------------------------------------------------------
 
 
 def paretoRows(hours=24, site="Water", area="", rows=10):
@@ -211,13 +156,8 @@ def dailyLoad(days=30, site="Water", area=""):
 
 
 def dailyAckTime(days=30, site="Water", area=""):
-	"""Average minutes from activation to acknowledgement, per day.
-
-    Deliberately NOT zero-filled, and cut at the same last-complete-day bound
-    as dailyLoad so the two charts beside each other cover one period. A day
-    where nothing was acknowledged has no average; plotting it as zero would
-    claim everything was acknowledged instantly.
-    """
+	"""Return average minutes from activation to acknowledgement per day, without zero-fill."""
+	# Cut at the last complete day, like dailyLoad; a day with no acks has no average.
 
 	def go():
 		events = _events(int(days) * 24, site, area)
@@ -228,9 +168,7 @@ def dailyAckTime(days=30, site="Water", area=""):
 			prev = activeAt.get(e["id"])
 			if prev is None or e["ts"] < prev:
 				activeAt[e["id"]] = e["ts"]
-		# Bucketed by the day the ACTIVATION happened, which is what the SQL
-		# groups by - an alarm raised before midnight and acknowledged after it
-		# belongs to the day it interrupted someone.
+		# Bucketed by activation day, as the SQL does.
 		sums, counts = {}, {}
 		for e in events:
 			if e["kind"] != ACKED:
@@ -304,10 +242,7 @@ def kpis(hours=24, site="Water", area=""):
 
 		delays = sorted(_ackDelays(events))
 		acked = len(delays)
-		# The LOWER of the two middle values for an even count, which is what
-		# the SQL's LIMIT 1 OFFSET (n-1)/2 returns - SQLite has no
-		# percentile_cont. On a figure rounded to a tenth of a minute the
-		# difference from interpolating is not readable.
+		# The lower middle value for an even count, matching the SQL OFFSET.
 		med = (delays[(acked - 1) // 2] / 1000.0) if acked else 0
 
 		return {
@@ -323,20 +258,8 @@ def kpis(hours=24, site="Water", area=""):
 					  "unackedPct": 0, "topShare": 0, "floodHours": 0})
 
 
-# ---------------------------------------------------------------------------
-# proving the two implementations agree
-# ---------------------------------------------------------------------------
-
-
 def _comparable(value):
-	"""Whatever an analytic returned, as something two answers can be ==.
-
-    Datasets do not compare, and the two implementations build theirs from
-    different primitives - a Date out of system.date.parse on one side and out
-    of system.date.fromMillis on the other. Reducing both to lists of plain
-    values is what makes the comparison about the ANSWER rather than about the
-    types it arrived in.
-    """
+	"""Reduce an analytic's result to plain lists and dicts so two answers can be compared."""
 	from java.util import Date as JDate
 	if hasattr(value, "getRowCount") and hasattr(value, "getColumnCount"):
 		rows = []
@@ -360,22 +283,11 @@ def _comparable(value):
 
 
 def parity(hours=24, days=30, site="Water", area=""):
-	"""Run every analytic BOTH ways over one journal and compare the answers.
+	"""Run every analytic through SQL and the journal and compare the answers.
 
-    The point of the demo running on Edge is that the screens say the same
-    thing there as anywhere else. Two implementations of seven analytics is
-    two chances for that to stop being true, and neither one fails loudly when
-    it drifts - a wrong Pareto is a plausible Pareto.
-
-    So this is the gate: on a gateway that HAS a database, both paths are
-    available, they are pointed at the same journal, and every pair must
-    match. On a gateway without one there is nothing to compare against and it
-    says so rather than reporting a vacuous pass.
-
-    Returns {ok, comparable, results: [{name, match, sql, journal}]}, with the
-    two answers included only where they differ - a matching pair is a line
-    saying so, not a wall of numbers.
-    """
+	Returns {ok, comparable, results}; the two answers are included only where they differ.
+	Without a database there is nothing to compare, so comparable is False.
+	"""
 	if not AlarmDemo.edition.hasDatabase():
 		return {"ok": True, "comparable": False,
 				"note": (u"this gateway has no database, so there is no SQL "

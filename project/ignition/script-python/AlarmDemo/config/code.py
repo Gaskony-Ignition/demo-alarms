@@ -1,27 +1,7 @@
 """
-AlarmDemo.config - the one thing about this demo that belongs to the GATEWAY
-rather than to the project: which database connection it uses.
-
-Everything else the demo needs it can create for itself (see AlarmDemo.setup).
-A database CONNECTION it now can, because the demo runs on SQLite: a file in
-the gateway's data directory, no server, no credential. What still cannot
-travel inside a project export is WHICH connection a given gateway should use,
-so the name is a setting, stored OUTSIDE the project - beside the gateway's
-data directory, not inside it - for two reasons:
-
-  * importing a new version of the demo never overwrites the target gateway's
-    setting, and
-  * the setting never travels inside an export zip, so a demo exported from
-    here cannot arrive somewhere else pointing at this rig's connection.
-
-The default is "AlarmDemoDB", which is the connection the Setup page makes if
-the gateway has not got one - a SQLite file in the gateway's own data
-directory. On a gateway that already carries a connection the demo should use
-instead, the Setup page writes the override; nothing here needs a script
-editor.
-
-Same shape as Order Intake's `Orders.Config`, deliberately - two projects
-solving the identical problem should not each invent their own answer.
+AlarmDemo.config - which database connection the demo uses (default "AlarmDemoDB").
+The name is a gateway setting in a file beside the data directory, not in the
+project, so a project import never overwrites it and an export never carries it.
 """
 
 import json
@@ -37,31 +17,24 @@ LOG = system.util.getLogger("AlarmDemo.config")
 
 
 def install_dir():
-	"""The gateway's installation directory.
-
-    The gateway process runs with its install directory as the working
-    directory on every platform and in the official container image (verified
-    8.3.8: /usr/local/bin/ignition). No scripting function returns it, so this
-    is the portable way to ask.
-    """
+	"""The gateway's installation directory."""
+	# The gateway runs with its install directory as the working directory; no
+	# scripting function returns it, so read user.dir.
 	return JSystem.getProperty("user.dir")
 
 
 def data_dir():
+	"""The gateway's data directory."""
 	return install_dir() + "/data"
 
 
 def settings_path():
+	"""Full path of the settings override file."""
 	return data_dir() + "/" + SETTINGS_FILE_NAME
 
 
-# --------------------------------------------------------------------------
-# the override file
-# --------------------------------------------------------------------------
-# Cached, because db() is called on the path of every query on every screen.
-# The cache key is the file's last-modified time (0 for "absent"), so editing
-# or deleting the file under a running gateway is picked up on the next read -
-# a boolean "have I loaded it" would leave a deleted file in force forever.
+# Cached because db() runs on every query. Keyed on last-modified time (0 when
+# absent) so editing or deleting the file is seen on the next read.
 _cache = {"stamp": None, "values": {}}
 
 
@@ -107,10 +80,8 @@ def reload():
 
 
 def save(dbName):
-	"""Write the override file. Pass "" to go back to the default.
-
-    Staged then renamed, so a reader can never see a half-written file.
-    """
+	"""Write the override file and return its path. Pass "" to use the default."""
+	# Staged then renamed, so a reader never sees a half-written file.
 	from java.lang import String as JString
 	from java.nio.charset import StandardCharsets
 	from java.nio.file import StandardCopyOption
@@ -138,17 +109,9 @@ def db():
 
 
 def connections():
-	"""Every database connection this gateway has, by name.
-
-    Shown by the Setup page when the configured one does not answer: "which
-    connections DO exist" is almost always the answer, and it is invisible
-    from inside the project otherwise.
-
-    Read from the CONFIG RESOURCES rather than system.db.getConnections(),
-    which returns a ten-column dataset - iterating it yields Row objects, so
-    the message read "This gateway has: <Row:10 columns>, <Row:10 columns>",
-    which is worse than saying nothing.
-    """
+	"""Names of the database connections this gateway has, sorted."""
+	# Read from config resources: system.db.getConnections() returns a dataset
+	# whose rows print as "<Row:10 columns>".
 	from java.lang import Throwable as JThrowable
 	try:
 		return sorted([unicode(r.getName()) for r in
@@ -160,23 +123,10 @@ def connections():
 
 
 def drivers():
-	"""The JDBC drivers this gateway has, by name.
-
-    A driver is a config resource; the name is what a connection's `driver`
-    field has to match. Listed so that a missing one is a sentence rather than
-    a stack trace.
-
-    THIS IS NOT THE LIST OF DRIVERS THAT WORK, and it is worth knowing why
-    before quoting it at anyone. A blank 8.3.8 carries three of these
-    resources - MySQL, Oracle Database and SQLite - and two of them do not
-    work: user-lib/jdbc is empty, so MySQL and Oracle have no jar, and the
-    gateway's own create-connection form disables them. Meanwhile PostgreSQL,
-    MariaDB and MSSQL arrive as JDBC driver MODULES, work out of the box, and
-    do not appear here at all.
-
-    It is still the right thing to ask for the one question setup asks it -
-    "is SQLite registered" - which it answers correctly.
-    """
+	"""Names of the JDBC driver config resources, sorted."""
+	# Not the list of drivers that work: MySQL and Oracle resources exist
+	# without a jar, and driver modules (PostgreSQL, MariaDB, MSSQL) are absent.
+	# Reliable only for "is SQLite registered".
 	from java.lang import Throwable as JThrowable
 	try:
 		return sorted([unicode(r.getName()) for r in
@@ -188,8 +138,7 @@ def drivers():
 
 
 def describe():
-	"""What the Setup page shows: the value AND where it came from, so "why is
-    it pointing there" is answerable without reading code."""
+	"""The db setting and where it came from, for the Setup page."""
 	over = settings()
 	return {
 		"db": db(),

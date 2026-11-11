@@ -1,24 +1,7 @@
-"""
-AlarmDemo.sim - plant simulation engine.
+"""AlarmDemo.sim - plant simulation engine for the water treatment demo.
 
-Driven by the PlantSim gateway timer (1 s). Everything the demo shows is
-produced here: there is no OPC device and no external dependency, so the whole
-demo moves to another gateway with nothing but the project and the tag export.
-
-The model is a small potable water treatment plant:
-
-    demand curve  ->  high lift pumps  ->  clearwater tank drains
-    wet well      ->  raw water pumps  ->  filters  ->  clearwater tank fills
-    dosing skids  ->  chlorine residual / pH
-
-Values are integrated rather than randomised, so trends look like a plant
-rather than like noise: the tank actually empties when demand beats production,
-filters actually load up until they are backwashed, and the chlorine residual
-actually follows the dose pump.
-
-Scenarios (see AlarmDemo.demo) bias the model rather than writing alarms
-directly - the alarms then fire through the normal Ignition alarm pipeline,
-which is the point of the demonstration.
+Driven by the PlantSim gateway timer (1 s); writes only memory tags. Scenarios
+bias the model so alarms fire through the normal alarm pipeline.
 """
 
 import math
@@ -27,11 +10,6 @@ import random
 P = "[AlarmDemo]"
 
 LOG = system.util.getLogger("AlarmDemo.sim")
-
-
-# ---------------------------------------------------------------------------
-# tag io
-# ---------------------------------------------------------------------------
 
 
 def _read(paths):
@@ -56,23 +34,12 @@ def _clamp(v, lo, hi):
 	return max(lo, min(hi, v))
 
 
-# ---------------------------------------------------------------------------
-# demand model
-# ---------------------------------------------------------------------------
-
-
 def _demand_factor(now):
-	"""Diurnal water demand, 0.55 .. 1.35 of average.
-
-    Two peaks - morning shower peak around 07:00 and an evening peak around
-    19:00 - which is what real reticulation demand looks like and makes the
-    24 h trends on the dashboard immediately readable.
-    """
+	"""Diurnal water demand, 0.55 .. 1.35 of average, with morning and evening peaks."""
 	hour = system.date.getHour24(now) + system.date.getMinute(now) / 60.0
 	morning = math.exp(-((hour - 7.0) ** 2) / 4.0)
 	evening = math.exp(-((hour - 19.0) ** 2) / 6.0)
 	base = 0.62 + 0.55 * morning + 0.62 * evening
-	# weekends run flatter and slightly lower
 	if system.date.getDayOfWeek(now) in (1, 7):
 		base = 0.60 + 0.80 * (base - 0.62)
 	return _clamp(base, 0.5, 1.4)
@@ -81,10 +48,6 @@ def _demand_factor(now):
 def _noise(scale):
 	return random.gauss(0.0, scale)
 
-
-# ---------------------------------------------------------------------------
-# main tick
-# ---------------------------------------------------------------------------
 
 PATHS = [
 	# plant
@@ -149,9 +112,7 @@ for _p in HL_PUMPS:
 		"Distribution/HighLiftPump%02d/RunHours" % _p,
 	]
 
-# seconds per tick - the timer runs at 1 s but the plant is simulated at 60x so
-# tank levels, filter loading and chemical consumption move at a pace you can
-# actually demonstrate inside a meeting.
+# Simulated seconds per tick: the 1 s timer drives a 60x time compression.
 DT = 60.0
 DT_H = DT / 3600.0
 
@@ -172,7 +133,6 @@ def _tick():
 	scenario = t.get("Plant/DemoScenario") or "None"
 	demand = _demand_factor(now)
 
-	# ---- scenario biases -------------------------------------------------
 	storm = scenario == "Storm"
 	dose_fail = scenario == "ChlorineFailure"
 	pump_fail = scenario == "PumpFailure"
@@ -180,12 +140,10 @@ def _tick():
 	comms = scenario == "CommsLoss"
 	chatter = scenario == "Chattering"
 
-	# ---- heartbeat / comms ----------------------------------------------
 	hb = (t.get("Plant/PLCHeartbeat") or 0) + 1
 	w["Plant/PLCHeartbeat"] = hb % 32767
 	w["Plant/SCADACommsFault"] = bool(comms)
 
-	# ---- distribution demand --------------------------------------------
 	avg_demand = 170.0
 	net_flow = avg_demand * demand + _noise(3.0)
 	w["Distribution/NetworkFlow"] = round(net_flow, 1)
@@ -193,8 +151,7 @@ def _tick():
 	tank = t.get("Distribution/ClearwaterTank/Level")
 	tank = 68.0 if tank is None else tank
 
-	# ---- high lift pumps: run enough pumps to meet demand ----------------
-	# each pump moves ~85 L/s; pump 3 is the standby
+	# each pump moves about 85 L/s; pump 3 is the standby
 	needed = int(math.ceil(net_flow / 85.0))
 	needed = _clamp(needed, 1, 3)
 	if tank < 18.0:
@@ -242,14 +199,12 @@ def _tick():
 		press = 520.0 + 260.0 * (capacity - net_flow) / max(capacity, 1.0) + _noise(6.0)
 	w["Distribution/NetworkPressure"] = round(_clamp(press, 0.0, 900.0), 0)
 
-	# ---- intake / raw water pumps ---------------------------------------
 	wet = t.get("Intake/WetWell/Level")
 	wet = 65.0 if wet is None else wet
 
 	# production target: refill the tank, more aggressively when it is low
 	target_prod = _clamp(net_flow * (1.0 + (70.0 - tank) / 100.0), 60.0, 260.0)
-	# hysteresis on the pump count, otherwise the duty pump bang-bangs around
-	# the changeover point and manufactures a chattering alarm we did not ask for
+	# Hysteresis on the pump count, or the duty pump chatters at the changeover point.
 	rw_now = sum(1 for p in (1, 2) if t.get("Intake/RawWaterPump%02d/Run" % p))
 	if rw_now >= 2:
 		rw_needed = 2 if target_prod > 115.0 else 1
@@ -292,10 +247,7 @@ def _tick():
 
 	w["Intake/RawWaterFlow"] = round(raw_flow, 1)
 
-	# Wet well: gravity-fed from the river, so inflow falls as the well fills
-	# (less head across the inlet). That negative feedback is what makes the
-	# level self-regulate around whatever the raw pumps are drawing, instead of
-	# pegging at 0 or 100 the moment inflow and draw differ.
+	# Gravity-fed wet well: inflow falls as it fills, so the level self-regulates.
 	inflow = 300.0 * (1.0 - wet / 115.0) + _noise(4.0)
 	if storm:
 		inflow += 130.0
@@ -309,7 +261,6 @@ def _tick():
 	raw_turb += (target_turb - raw_turb) * 0.05 + _noise(0.7)
 	w["Intake/RawTurbidity"] = round(_clamp(raw_turb, 0.2, 200.0), 2)
 
-	# ---- filtration ------------------------------------------------------
 	per_filter = raw_flow / 3.0 if raw_flow > 0 else 0.0
 	filtered_total = 0.0
 	turb_sum = 0.0
@@ -357,7 +308,6 @@ def _tick():
 	combined = (turb_sum / turb_n) if turb_n else 0.05
 	w["Filtration/CombinedTurbidity"] = round(_clamp(combined, 0.0, 2.0), 3)
 
-	# ---- chemical dosing -------------------------------------------------
 	for s in SKIDS:
 		base = "Chemical/%s/" % s
 		lvl = t.get(base + "TankLevel")
@@ -408,7 +358,6 @@ def _tick():
 	ph += (target_ph - ph) * 0.07 + _noise(0.02)
 	w["Chemical/pH"] = round(_clamp(ph, 4.0, 11.0), 2)
 
-	# ---- clearwater tank -------------------------------------------------
 	tank_next = tank + (filtered_total - net_flow) * DT / 2600.0
 	tank_next = _clamp(tank_next, 0.0, 100.0)
 	w["Distribution/ClearwaterTank/Level"] = round(tank_next, 1)
