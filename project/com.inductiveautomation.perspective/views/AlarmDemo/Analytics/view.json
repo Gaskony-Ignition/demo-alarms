@@ -2805,10 +2805,10 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#E5225B",
                                     "borderRadius": "3px",
                                     "height": "11px",
-                                    "alignSelf": "center"
+                                    "alignSelf": "center",
+                                    "classes": "ad-swatch-critical"
                                   }
                                 },
                                 "children": [],
@@ -2921,10 +2921,10 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#F58220",
                                     "borderRadius": "3px",
                                     "height": "11px",
-                                    "alignSelf": "center"
+                                    "alignSelf": "center",
+                                    "classes": "ad-swatch-high"
                                   }
                                 },
                                 "children": [],
@@ -3037,10 +3037,10 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#F5C518",
                                     "borderRadius": "3px",
                                     "height": "11px",
-                                    "alignSelf": "center"
+                                    "alignSelf": "center",
+                                    "classes": "ad-swatch-medium"
                                   }
                                 },
                                 "children": [],
@@ -3153,10 +3153,10 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#4EA8FF",
                                     "borderRadius": "3px",
                                     "height": "11px",
-                                    "alignSelf": "center"
+                                    "alignSelf": "center",
+                                    "classes": "ad-swatch-low"
                                   }
                                 },
                                 "children": [],
@@ -3269,10 +3269,10 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "#8B98A9",
                                     "borderRadius": "3px",
                                     "height": "11px",
-                                    "alignSelf": "center"
+                                    "alignSelf": "center",
+                                    "classes": "ad-swatch-diagnostic"
                                   }
                                 },
                                 "children": [],

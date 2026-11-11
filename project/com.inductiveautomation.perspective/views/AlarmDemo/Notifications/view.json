@@ -605,7 +605,7 @@
                   "component": {
                     "onActionPerformed": {
                       "config": {
-                        "script": "\tsystem.perspective.openPopup(\n\t\t'escalation',\n\t\t'AlarmDemo/Popups/Escalation',\n\t\ttitle='Escalation matrix',\n\t\tmodal=False, draggable=True, resizable=False,\n\t\tposition={'width': 780, 'height': 400})"
+                        "script": "\tAlarmDemo.ui.openEscalation()"
                       },
                       "scope": "G",
                       "type": "script"

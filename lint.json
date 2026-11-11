@@ -1,0 +1,6 @@
+{
+  "exceptions": [
+    {"file": "AlarmDemo/backfill/code.py", "rule": "S6", "match": "in ensureSchema",
+     "reason": "CREATE TABLE and CREATE INDEX take the journal table names from the module constants, and a table name cannot be a bound parameter"}
+  ]
+}

@@ -728,3 +728,29 @@ def run(force=False, history=True):
 	LOG.info("setup run: %d changed, %d failed, ok=%s"
 			 % (len(done), len(failed), state["ok"]))
 	return state
+
+
+def fixForView(view, index):
+	"""Run the fix for Setup row `index` and report the outcome in the view's busy line."""
+	item = view.custom.state["items"][index]
+	view.custom.busy = "creating %s..." % item["title"]
+	try:
+		view.custom.busy = fix(item["key"])
+	except Exception as e:
+		view.custom.busy = "failed: %s" % e
+	view.custom.tick = view.custom.tick + 1
+
+
+def runForView(view):
+	"""Run the whole setup from the Setup screen and report the outcome in the view's busy line."""
+	view.custom.busy = "working - this takes about a minute"
+	r = run()
+	done = r.get("changed", [])
+	errs = r.get("errors", [])
+	if errs:
+		view.custom.busy = "finished with problems: " + "; ".join(errs)
+	elif done:
+		view.custom.busy = "; ".join(done)
+	else:
+		view.custom.busy = "nothing to do - this gateway was already set up"
+	view.custom.tick = view.custom.tick + 1

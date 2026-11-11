@@ -398,6 +398,13 @@ html { color-scheme: light dark; }
 .psc-ad-chip-diagnostic { background: var(--diag-wash); color: var(--diag); border-color: var(--diag-edge); }
 .psc-ad-chip-ok         { background: var(--ok-wash);   color: var(--ok);   border-color: var(--ok-edge); }
 
+/* Analytics legend swatches: the unmixed bases, the same colours the donut draws. */
+.psc-ad-swatch-critical   { background-color: var(--crit-base); }
+.psc-ad-swatch-high       { background-color: var(--high-base); }
+.psc-ad-swatch-medium     { background-color: var(--med-base); }
+.psc-ad-swatch-low        { background-color: var(--low-base); }
+.psc-ad-swatch-diagnostic { background-color: var(--diag-base); }
+
 /* a priority with nothing standing - present so the row never reflows, but
    recessive so it does not compete with the counts that matter */
 .psc-ad-chip-zero {

@@ -1,4 +1,4 @@
-"""AlarmDemo.ui - view glue that is not about alarms: the sidebar theme picker's options."""
+"""AlarmDemo.ui - view glue that is not about alarms: the theme picker's options and the escalation popup."""
 
 LOG = system.util.getLogger("AlarmDemo.ui")
 
@@ -25,3 +25,13 @@ def themeOptions():
 		LOG.warn(u"theme listing failed, offering the stock themes only: %s" % e)
 	return [{u"value": n, u"label": n.replace(u"-", u" ").capitalize()}
 			for n in STOCK_THEMES + sorted(extra)]
+
+
+def openEscalation():
+	"""Open the escalation matrix as a draggable, non-modal popup in the calling session."""
+	system.perspective.openPopup(
+		"escalation",
+		"AlarmDemo/Popups/Escalation",
+		title="Escalation matrix",
+		modal=False, draggable=True, resizable=False,
+		position={"width": 780, "height": 400})

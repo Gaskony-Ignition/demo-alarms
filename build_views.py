@@ -1948,10 +1948,11 @@ def v_analytics():
     # One row per priority: swatch, name, count and share. Fixed height, so it
     # cannot be squeezed out by the donut above it however short the card gets.
     legend_rows = []
-    for n, c in PRI:
+    for n, _c in PRI:
         legend_rows.append(flex("Legend%s" % n, [
             flex("Sw", [], position=fixed("11px"),
-                 style={"backgroundColor": c, "borderRadius": "3px",
+                 classes="ad-swatch-%s" % n.lower(),
+                 style={"borderRadius": "3px",
                         "height": "11px", "alignSelf": "center"}),
             label("Name", n, position=grow(1),
                   style={"fontSize": "12px", "color": "var(--ink)"}),
@@ -2441,13 +2442,7 @@ def v_notifications():
             "text": "Escalation rules",
             "style": {"classes": "ad-btn ad-btn-sm"},
         }, position=fixed("152px"),
-            events=on_action(
-                "system.perspective.openPopup(\n"
-                "    'escalation',\n"
-                "    'AlarmDemo/Popups/Escalation',\n"
-                "    title='Escalation matrix',\n"
-                "    modal=False, draggable=True, resizable=False,\n"
-                "    position={'width': 780, 'height': 400})")),
+            events=on_action("AlarmDemo.ui.openEscalation()")),
     ])
 
     # --- roster cards -----------------------------------------------------
@@ -2666,7 +2661,7 @@ def v_people():
                   binds={"props.text": prop_bind(base + ".email")}),
         ], gap=10, align="center", position=fixed("32px"),
             style={"overflow": "hidden",
-                   "borderBottom": "1px solid rgba(39,49,64,0.7)"})
+                   "borderBottom": "1px solid var(--line)"})
 
     head = flex("Head", [
         label("H1", "NAME", classes="ad-kpi-label", position=fixed("150px")),
@@ -2830,13 +2825,7 @@ def v_people():
                     "text": "Escalation rules",
                     "style": {"classes": "ad-btn ad-btn-sm"},
                 }, position=fixed("152px"),
-                    events=on_action(
-                        "system.perspective.openPopup(\n"
-                        "    'escalation',\n"
-                        "    'AlarmDemo/Popups/Escalation',\n"
-                        "    title='Escalation matrix',\n"
-                        "    modal=False, draggable=True, resizable=False,\n"
-                        "    position={'width': 780, 'height': 400})")),
+                    events=on_action("AlarmDemo.ui.openEscalation()")),
             ]),
             people_card(
                  "Real users in the default user source. A shift button writes "
@@ -2953,14 +2942,7 @@ def setup_row(i):
             "text": "Create",
             "style": {"classes": "ad-btn ad-btn-sm"},
         }, position=fixed("94px"),
-            events=on_action(
-                "item = self.view.custom.state['items'][%d]\n"
-                "self.view.custom.busy = 'creating %%s...' %% item['title']\n"
-                "try:\n"
-                "\tself.view.custom.busy = AlarmDemo.setup.fix(item['key'])\n"
-                "except Exception as e:\n"
-                "\tself.view.custom.busy = 'failed: %%s' %% e\n"
-                "self.view.custom.tick = self.view.custom.tick + 1" % i),
+            events=on_action("AlarmDemo.setup.fixForView(self.view, %d)" % i),
             binds={"props.style.display": expr_bind(
                 # A Create button on a row that is already done invites a press
                 # that changes nothing. Every row can be created now - the
@@ -3018,18 +3000,7 @@ def v_setup():
             "text": "Set up this gateway",
             "style": {"classes": "ad-btn ad-btn-primary"},
         }, position=fixed("200px"),
-            events=on_action(
-                "self.view.custom.busy = 'working - this takes about a minute'\n"
-                "r = AlarmDemo.setup.run()\n"
-                "done = r.get('changed', [])\n"
-                "errs = r.get('errors', [])\n"
-                "if errs:\n"
-                "\tself.view.custom.busy = 'finished with problems: ' + '; '.join(errs)\n"
-                "elif done:\n"
-                "\tself.view.custom.busy = '; '.join(done)\n"
-                "else:\n"
-                "\tself.view.custom.busy = 'nothing to do - this gateway was already set up'\n"
-                "self.view.custom.tick = self.view.custom.tick + 1")),
+            events=on_action("AlarmDemo.setup.runForView(self.view)")),
         C("ia.input.button", "Recheck", {
             "text": "Re-check",
             "style": {"classes": "ad-btn"},
