@@ -103,10 +103,7 @@ That is the whole install. There is no database server to stand up, no package
 to unpack, no tag file to import in the Designer, and no config scan to
 remember.
 
-**The database** is a SQLite file in the gateway's own data directory, made by
-the same button. A database server somebody has to install first is not a step
-in "open a laptop and show a customer", it is the end of it — and neither is a
-password somebody has to invent and store. SQLite needs neither.
+**The database** is a SQLite file in the gateway's own data directory, made by the same button: no database server to install, no password to store.
 
 So there is nothing to type. If the gateway already carries a connection the
 demo should use instead, name it and press *Use this one*: the demo remembers
@@ -120,20 +117,9 @@ the Setup screen names the one that is missing rather than failing obscurely.
 Every item is checked and fixed independently — see
 [What the Setup button does](docs/WHAT-SETUP-DOES.md).
 
-The same checks are available headlessly, which is the fastest way to look at a
-gateway you cannot open a browser onto:
-
-```
-/system/webdev/AlarmDemo/admin?cmd=check
-                            ?cmd=setup
-                            ?cmd=fix&name=tags
-                            ?cmd=createdb
-                            ?cmd=analytics
-```
-
-The **build number** is at the bottom of the Setup and Demo Control screens, and
-at `?cmd=version` — see [What the Setup button does](docs/WHAT-SETUP-DOES.md).
-Hard-refresh the browser (`Ctrl+Shift+R`) after upgrading — the stylesheet is
+The **build number** is at the bottom of the Setup and Demo Control screens.
+The headless checks (`?cmd=check`, `?cmd=setup`) are in
+[Reference](docs/REFERENCE.md). Hard-refresh the browser (`Ctrl+Shift+R`) after upgrading — the stylesheet is
 cached.
 
 ### Themes
