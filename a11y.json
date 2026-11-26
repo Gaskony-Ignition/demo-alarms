@@ -1,8 +1,11 @@
 {
-  "gateway": "module-testing",
+  "gateway": "rig",
+  "setup": [
+    "system/webdev/AlarmDemo/admin?cmd=setup"
+  ],
   "projects": [
     {
-      "name": "Demo-Alarms",
+      "name": "AlarmDemo",
       "pageConfig": "project/com.inductiveautomation.perspective/page-config/config.json"
     }
   ],
