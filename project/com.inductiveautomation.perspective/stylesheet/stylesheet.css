@@ -461,7 +461,7 @@ html { color-scheme: light dark; }
 
 @keyframes ad-pulse {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.55; }
+  50%      { opacity: 0.8; }   /* lower and pale chip text fails contrast on the light themes */
 }
 
 /* ---------- equipment --------------------------------------------------- */
