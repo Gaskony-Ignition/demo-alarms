@@ -1857,7 +1857,7 @@ def v_analytics():
                       "view.custom.pareto[%d].name" % i)}),
             flex("Track", [
                 flex("Bar", [],
-                     style={"backgroundColor": "var(--low)",
+                     style={"backgroundColor": "var(--low-fill)",
                             "borderRadius": "4px", "height": "100%"},
                      position={"grow": 0, "shrink": 0, "basis": "0%"},
                      binds={"position.basis": prop_bind(
@@ -2699,7 +2699,7 @@ def v_people():
                              position={"grow": 0, "shrink": 0,
                                        "basis": pct(end - start)},
                              binds={"props.style.backgroundColor": expr_bind(
-                                 "if(%s, \"var(--low)\", \"color-mix(in srgb, var(--low-base) 28%%, transparent)\")"
+                                 "if(%s, \"var(--low-fill)\", \"color-mix(in srgb, var(--low-base) 28%%, transparent)\")"
                                  % active)}))
             cursor = end
         if cursor < 24:

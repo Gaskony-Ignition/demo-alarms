@@ -9,6 +9,13 @@
       "pageConfig": "project/com.inductiveautomation.perspective/page-config/config.json"
     }
   ],
-  "theme": "dark-cool",
-  "exceptions": []
+  "exceptions": [],
+  "themes": [
+    "dark-cool",
+    "dark",
+    "dark-warm",
+    "light-cool",
+    "light",
+    "light-warm"
+  ]
 }

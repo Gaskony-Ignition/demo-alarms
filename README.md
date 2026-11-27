@@ -138,9 +138,8 @@ palette the demo was designed in.
 The one exception is the priority scale. Critical, High, Medium, Low and
 Diagnostic keep their own colours on every theme, because their meanings are
 fixed by convention and a customer has to read the same red as Critical
-wherever they see it. What they take from the theme is contrast: each is mixed
-toward the theme's own ink, so the scale darkens on a light theme and lightens
-on a dark one.
+wherever they see it. What they take from the theme is lightness, from its card,
+so the scale darkens on a light theme and lightens on a dark one.
 
 ### Running it
 

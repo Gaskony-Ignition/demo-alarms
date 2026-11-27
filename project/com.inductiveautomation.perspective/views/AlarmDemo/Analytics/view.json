@@ -1566,7 +1566,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1706,7 +1706,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1846,7 +1846,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -1986,7 +1986,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2126,7 +2126,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2266,7 +2266,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2406,7 +2406,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }
@@ -2546,7 +2546,7 @@
                                 "props": {
                                   "direction": "row",
                                   "style": {
-                                    "backgroundColor": "var(--low)",
+                                    "backgroundColor": "var(--low-fill)",
                                     "borderRadius": "4px",
                                     "height": "100%"
                                   }

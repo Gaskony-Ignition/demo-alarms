@@ -165,9 +165,11 @@ Two things that are not obvious:
 - **The priority scale is deliberately NOT `--error` / `--warning` / `--info`.**
   A custom theme is free to define `--error` as a near-black danger *wash* —
   `industrial-dark` in the `ignition-themes` repo does — which would make
-  Critical invisible. The scale is the demo's own six colours, mixed toward the
-  theme's ink for its text form and the theme's card for its washes, so it
-  adapts to a light theme without being redefined.
+  Critical invisible. The scale is the demo's own six colours: the text form keeps each
+  hue and takes its lightness from the theme's card (OKLCH, with the older
+  mix toward the ink as the fallback for Chromium before 119, `--*-fill`), the
+  washes are mixed toward the card, so it adapts to a light theme without
+  being redefined.
 
 - **amCharts does not understand `var()`.** Chart colour props are parsed by
   amCharts rather than handed to CSS, so `var(--crit)` reaches it as an

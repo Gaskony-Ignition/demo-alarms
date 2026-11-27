@@ -112,12 +112,15 @@ html { color-scheme: light dark; }
      --ink-3 to recede further than --ink-2 and still clear 4.5:1 there, so
      the two are the same value rather than a fake third step that would
      fail again the moment it looked distinct. */
-  --ink-2:   color-mix(in srgb, var(--label--disabled) 60%, var(--label) 40%);
+  --ink-2:   color-mix(in srgb, var(--label--disabled) 50%, var(--label) 50%);
   --ink-3:   var(--ink-2);
 
   --accent:      var(--callToAction);
   --accent-soft: var(--callToActionHighlight);
   --on-accent:   var(--neutral-10);
+  /* a solid accent fill that carries --on-accent text: the light themes' accent is
+     4.24:1 under their own on-accent, so it is pulled 12% toward the ink. */
+  --accent-solid: color-mix(in srgb, var(--accent) 88%, var(--label));
 
   /* ---- a stock variable, restated ----
      NOT this project's to define, and defined here anyway. Ignition's own
@@ -188,12 +191,21 @@ html { color-scheme: light dark; }
      5.10:1) as well as its own chip wash and the Setup screen's danger
      button. The other four keep 84% - they already pass and a customer
      reading "the same red as Critical, always" loses nothing there. */
-  --crit: color-mix(in srgb, var(--crit-base) 38%, var(--label));
-  --high: color-mix(in srgb, var(--high-base) 84%, var(--label));
-  --med:  color-mix(in srgb, var(--med-base)  84%, var(--label));
-  --low:  color-mix(in srgb, var(--low-base)  84%, var(--label));
-  --diag: color-mix(in srgb, var(--diag-base) 84%, var(--label));
-  --ok:   color-mix(in srgb, var(--ok-base)   84%, var(--label));
+  --crit-fill: color-mix(in srgb, var(--crit-base) 38%, var(--label));
+  --high-fill: color-mix(in srgb, var(--high-base) 84%, var(--label));
+  --med-fill:  color-mix(in srgb, var(--med-base)  84%, var(--label));
+  --low-fill:  color-mix(in srgb, var(--low-base)  84%, var(--label));
+  --diag-fill: color-mix(in srgb, var(--diag-base) 84%, var(--label));
+  --ok-fill:   color-mix(in srgb, var(--ok-base)   84%, var(--label));
+
+  /* --*-fill is the colour for a shape (dot, meter, rule). --* is the colour for
+     TEXT and is the same until the @supports block below sharpens it. */
+  --crit: var(--crit-fill);
+  --high: var(--high-fill);
+  --med: var(--med-fill);
+  --low: var(--low-fill);
+  --diag: var(--diag-fill);
+  --ok: var(--ok-fill);
 
   --crit-wash: color-mix(in srgb, var(--crit-base) 16%, var(--container));
   --high-wash: color-mix(in srgb, var(--high-base) 15%, var(--container));
@@ -208,6 +220,27 @@ html { color-scheme: light dark; }
   --low-edge:  color-mix(in srgb, var(--low-base)  40%, var(--container));
   --diag-edge: color-mix(in srgb, var(--diag-base) 38%, var(--container));
   --ok-edge:   color-mix(in srgb, var(--ok-base)   40%, var(--container));
+}
+
+/* ---------- priority text, per theme ----------------------------------------
+   The text form of each priority keeps the convention hue and chroma and takes
+   its LIGHTNESS from the theme's own card: light text on a dark card, dark text
+   on a light one. A fixed mix toward --label cannot do both - the orange that
+   clears 4.5:1 at 84% on dark-cool is 2.6:1 on a light theme. The lightness is
+   a straight line in the card's OKLCH lightness, clamped, so a custom theme
+   lands somewhere sensible too. Measured 4.5:1 or better against every card,
+   wash and hover surface on all six stock themes. Relative colour syntax is
+   Chromium 119+; an older browser (the Exor panel is 112) keeps the --*-fill
+   mixes above. */
+@supports (color: oklch(from red l c h)) {
+  :root, .psc-ad-root {
+    --crit: oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.98) 0.224 12.2);
+    --high: oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.93) 0.171 53.9);
+    --med:  oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.93) 0.168 90.4);
+    --low:  oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.93) 0.154 250.2);
+    --diag: oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.93) 0.029 255.1);
+    --ok:   oklch(from var(--container) clamp(0.36, calc(1.45 - 1.2 * l), 0.93) 0.175 151.1);
+  }
 }
 
 /* ---------- Perspective app bar -----------------------------------------
@@ -235,6 +268,8 @@ html { color-scheme: light dark; }
   outline: 2px solid var(--a11y-focus-ring, var(--neutral-100));
   outline-offset: 1px;
 }
+/* the sidebar rows sit inside an overflow-hidden column: an outside ring is clipped there */
+.psc-ad-nav :focus-visible { outline-offset: -2px; }
 .ReactVirtualized__Grid:focus-visible {
   outline: 2px solid var(--a11y-focus-ring, var(--neutral-100)) !important;
   outline-offset: -2px;
@@ -463,12 +498,12 @@ html { color-scheme: light dark; }
    shape, not only its own fill - a circle running, a square stopped, an
    upward triangle jammed, a diamond faulted. Reads in a colour-blind
    simulation and in greyscale print alike, not only by hue. */
-.psc-ad-dot-run   { border-radius: 50%; background: var(--ok);   box-shadow: 0 0 8px color-mix(in srgb, var(--ok-base) 75%, transparent); }
+.psc-ad-dot-run   { border-radius: 50%; background: var(--ok-fill);   box-shadow: 0 0 8px color-mix(in srgb, var(--ok-base) 75%, transparent); }
 .psc-ad-dot-stop  { border-radius: 2px; background: color-mix(in srgb, var(--diag-base) 35%, var(--card)); }
 /* a jam stops the line but is not a fault - amber, and it does not pulse */
-.psc-ad-dot-jam   { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: var(--med); box-shadow: 0 0 8px color-mix(in srgb, var(--med-base) 70%, transparent); }
+.psc-ad-dot-jam   { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: var(--med-fill); box-shadow: 0 0 8px color-mix(in srgb, var(--med-base) 70%, transparent); }
 
-.psc-ad-dot-fault { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); background: var(--crit); box-shadow: 0 0 9px color-mix(in srgb, var(--crit-base) 85%, transparent); }
+.psc-ad-dot-fault { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); background: var(--crit-fill); box-shadow: 0 0 9px color-mix(in srgb, var(--crit-base) 85%, transparent); }
 
 /* ---------- tanks ------------------------------------------------------- */
 
@@ -514,9 +549,9 @@ html { color-scheme: light dark; }
   height: 8px;
 }
 
-.psc-ad-meter-fill      { background: var(--ok);   height: 100%; }
-.psc-ad-meter-fill-warn { background: var(--med);  height: 100%; }
-.psc-ad-meter-fill-crit { background: var(--crit); height: 100%; }
+.psc-ad-meter-fill      { background: var(--ok-fill);   height: 100%; }
+.psc-ad-meter-fill-warn { background: var(--med-fill);  height: 100%; }
+.psc-ad-meter-fill-crit { background: var(--crit-fill); height: 100%; }
 
 /* ---------- charts ------------------------------------------------------
    amCharts renders the pie legend as SVG text with a black `fill`, which is
@@ -631,7 +666,7 @@ html { color-scheme: light dark; }
 }
 
 .psc-ad-table .ia_pager__page--active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: var(--on-accent);
 }
 
@@ -748,7 +783,7 @@ html { color-scheme: light dark; }
 
 .psc-ad-btn:hover { background: var(--hover-2); border-color: color-mix(in srgb, var(--line) 70%, var(--ink)); }
 
-.psc-ad-btn-primary        { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.psc-ad-btn-primary        { background: var(--accent-solid); border-color: var(--accent-solid); color: var(--on-accent); }
 .psc-ad-btn-primary:hover  { background: var(--callToAction--hover); border-color: var(--callToAction--hover); }
 .psc-ad-btn-danger         { background: color-mix(in srgb, var(--crit-base) 26%, var(--card)); border-color: var(--crit-edge); color: var(--crit); }
 .psc-ad-btn-danger:hover   { background: color-mix(in srgb, var(--crit-base) 38%, var(--card)); }
@@ -797,9 +832,9 @@ html { color-scheme: light dark; }
 }
 
 .psc-ad-btn-active {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: var(--on-accent);
-  border-color: var(--accent);
+  border-color: var(--accent-solid);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
@@ -863,7 +898,7 @@ html { color-scheme: light dark; }
 /* the vertical "now" line, drawn as a 2px column in its own row above the
    tracks - Perspective flex containers cannot overlay one element on another */
 .psc-ad-nowline {
-  background: var(--ok);
+  background: var(--ok-fill);
   width: 2px;
   height: 100%;
   border-radius: 1px;
@@ -1098,3 +1133,6 @@ html { color-scheme: light dark; }
   text-overflow: ellipsis;
   min-width: 0 !important;
 }
+
+/* The alarm table's empty-state text is a fixed grey that is 4.12:1 on the light themes' card. */
+.psc-ad-table .emptyMessage { color: var(--ink); }
