@@ -2751,7 +2751,10 @@ def v_people():
     now_row = flex("NowRow", [
         flex("Pad", [], position=fixed("290px")),
         flex("Marks", [
-            flex("Before", [], position={"grow": 0, "shrink": 0, "basis": "0%"},
+            # shrink 1: in the last minutes of the day Before is ~100% and the
+            # 2px rule would push Marks past its width, which makes it a
+            # scrollable region (axe scrollable-region-focusable).
+            flex("Before", [], position={"grow": 0, "shrink": 1, "basis": "0%"},
                  binds={"position.basis": expr_bind(
                      "toStr(%s / 24.0 * 100) + \"%%\"" % NOW_HOUR)}),
             flex("Line", [], classes="ad-nowline",
@@ -3021,6 +3024,9 @@ def v_setup():
 
     rows = flex("Rows", [setup_row(i) for i in range(SETUP_ROWS)],
                 direction="column", gap=2, position=grow(1))
+    # The checklist scrolls inside its card at 1366x640, and axe wants a
+    # scrollable region to be a tab stop when none of its rows takes focus.
+    rows["meta"]["tabIndex"] = 0
 
     root = flex("root", [
         header(),

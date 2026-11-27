@@ -910,7 +910,8 @@
                   {
                     "type": "ia.container.flex",
                     "meta": {
-                      "name": "Rows"
+                      "name": "Rows",
+                      "tabIndex": 0
                     },
                     "props": {
                       "direction": "column",
